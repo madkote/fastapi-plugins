@@ -36,6 +36,23 @@ Supports
 * single instance
 * cluster **NOT SUPPORTED NOW**
 * fake redis **NOT SUPPORTED NOW**
+
+Valid variable are
+* `REDIS_TYPE`
+  * `redis` - single Redis isntance
+  * `sentinel` - Redis cluster
+  * `fake` - by using fake Redis
+* `REDIS_URL` - URL to connect to Redis server. Example
+  `redis://user:password@localhost:6379/2`. Supports protocols `redis://`,
+  `rediss://` (redis over TLS) and `unix://`.
+* `REDIS_HOST` - Redis server host.
+* `REDIS_PORT` - Redis server port. Default is `6379`.
+* `REDIS_PASSWORD` - Redis password for server.
+* `REDIS_DB` - Redis db (zero-based number index). Default is `0`.
+* `REDIS_CONNECTION_TIMEOUT` - Redis connection timeout. Default is `2`.
+* `REDIS_SENTINELS` - List or a tuple of Redis sentinel addresses.
+* `REDIS_SENTINEL_MASTER` - The name of the master server in a sentinel configuration.
+
 ### Example
 ```python
 	# run with `uvicorn demo_app:app`
@@ -65,6 +82,24 @@ Supports
 	@app.on_event('shutdown')
 	async def on_shutdown() -> None:
 	    await fastapi_plugins.redis_plugin.terminate()
+```
+
+### Example with Docker Compose
+```YAML
+	version: '3.7'
+	services:
+	  redis:
+	    image: redis
+	    ports:
+	      - "6379:6379"
+	  demo_fastapi_plugin:
+	    image:    demo_fastapi_plugin
+	    environment:
+	      - REDIS_TYPE=redis
+	      - REDIS_HOST=redis
+	      - REDIS_PORT=6379
+	    ports:
+	      - "8000:8000"
 ```
 ## ... more already in progress ...
 
