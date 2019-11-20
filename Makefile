@@ -51,7 +51,11 @@ demo: clean
 	# python demo.py
 	# uvicorn scripts/demo_app:app
 
-test-unit: clean
+flake: clean
+	@echo $@
+	flake8 --ignore E252 fastapi_plugins tests scripts
+
+test-unit: clean flake
 	@echo $@
 	# python -m pytest -v -x tests/
 	python -m pytest -v -x tests/ --cov=fastapi_plugins
@@ -65,10 +69,6 @@ test: test-unit
 
 test-all: test-unit test-tox
 	@echo $@
-
-flake: clean
-	@echo $@
-	flake8 --ignore E252 fastapi_plugins tests scripts
 
 pypy-deps:
 	@echo $@
