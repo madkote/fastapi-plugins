@@ -37,7 +37,7 @@ Supports
 * cluster **NOT SUPPORTED NOW**
 * fake redis **NOT SUPPORTED NOW**
 ### Example
-```
+```python
 	# run with `uvicorn demo_app:app`
 	import typing
 	import aioredis
