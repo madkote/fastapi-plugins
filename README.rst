@@ -37,7 +37,7 @@ FastAPI framework plugins
 Changes
 -------
 
-See `release notes <CHANGES.md>`_
+See `release notes <CHANGES.rst>`_
 
 Installation
 ------------
