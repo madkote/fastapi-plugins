@@ -1,0 +1,11 @@
+include LICENSE
+include CHANGES.md
+include README.md
+global-exclude *.pyc
+global-exclude *.pyd
+global-exclude *.pyo
+global-exclude *.so
+global-exclude *.lib
+global-exclude *.dll
+global-exclude *.a
+global-exclude *.obj

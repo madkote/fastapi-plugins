@@ -1,0 +1,4 @@
+-r requirements_dev.txt
+
+pytest==5.*
+tox==3.*
