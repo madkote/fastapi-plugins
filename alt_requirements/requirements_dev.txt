@@ -1,1 +1,4 @@
 -r requirements_core.txt
+
+docker-compose
+uvicorn

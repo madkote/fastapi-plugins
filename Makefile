@@ -80,3 +80,10 @@ pypy-upload-test: pypy-deps
 pypy-upload: pypy-deps
 	@echo $@
 	python -m twine upload dist/*
+
+
+docker-up:
+	@echo $@
+	docker-compose up --build
+	
+	

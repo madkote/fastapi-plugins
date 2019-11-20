@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # setup
 '''
-:author:    mdakote
+:author:    madkote
 :contact:   madkote(at)bluewin.ch
 :copyright: Copyright 2019, madkote
 
@@ -65,10 +65,13 @@ REQUIRES_INSTALL = [
     'aioredis==1.3.*',
     'fastapi>=0.41.*',
 ]
-REQUIRES_DEV = []
+REQUIRES_DEV = [
+    'docker-compose',
+    'uvicorn',
+]
 REQUIRES_TESTS = REQUIRES_DEV + [
-    'pytest==5.*',
-    'tox==3.*',
+    'pytest',
+    'tox',
 ]
 REQUIRES_EXTRA = {
     'dev':  REQUIRES_DEV,
