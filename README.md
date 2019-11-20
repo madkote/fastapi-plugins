@@ -86,20 +86,20 @@ Valid variable are
 
 ### Example with Docker Compose
 ```YAML
-	version: '3.7'
-	services:
-	  redis:
-	    image: redis
-	    ports:
-	      - "6379:6379"
-	  demo_fastapi_plugin:
-	    image:    demo_fastapi_plugin
-	    environment:
-	      - REDIS_TYPE=redis
-	      - REDIS_HOST=redis
-	      - REDIS_PORT=6379
-	    ports:
-	      - "8000:8000"
+version: '3.7'
+services:
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+  demo_fastapi_plugin:
+    image:    demo_fastapi_plugin
+    environment:
+      - REDIS_TYPE=redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "8000:8000"
 ```
 ## ... more already in progress ...
 
