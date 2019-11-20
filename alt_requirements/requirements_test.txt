@@ -1,4 +1,7 @@
 -r requirements_dev.txt
 
+
+flake8
 pytest
+pytest-cov
 tox

@@ -46,7 +46,7 @@ config = AppSettings()
 @app.get("/")
 async def root_get(
         cache: aioredis.Redis=fastapi.Depends(fastapi_plugins.depends_redis),
-        ) -> typing.Dict:
+) -> typing.Dict:
     return dict(ping=await cache.ping())
 
 

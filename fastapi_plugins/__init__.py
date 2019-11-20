@@ -57,7 +57,7 @@ class Plugin:
             self,
             app: fastapi.FastAPI=None,
             config: pydantic.BaseSettings=None
-            ):
+    ):
         self._on_init()
         if app and config:
             self.init_app(app, config)
@@ -78,7 +78,7 @@ class Plugin:
             self,
             app: fastapi.FastAPI,
             config: pydantic.BaseSettings=None
-            ) -> None:
+    ) -> None:
         pass
 
     async def init(self):
@@ -108,7 +108,8 @@ class RedisSettings(PluginSettings):
     redis_password: str = None
     redis_db: int = 0
     redis_connection_timeout: int = 2
-    # TODO: xxx how to keep track of TTL - time to expire, which is set only by the command
+    # TODO: xxx how to keep track of TTL - time to expire, which is set
+    #       only by the command
     # cache_ttl: int = 24 * 3600
     #
     redis_sentinels: typing.List = None
@@ -132,7 +133,7 @@ class RedisPlugin(Plugin):
             self,
             app: fastapi.FastAPI,
             config: pydantic.BaseSettings=None
-            ) -> None:
+    ) -> None:
         self.config = config or self.DEFAULT_CONFIG_CLASS()
         if self.config is None:
             raise RedisError('Redis configuration is not initialized')

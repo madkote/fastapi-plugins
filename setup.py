@@ -70,7 +70,9 @@ REQUIRES_DEV = [
     'uvicorn',
 ]
 REQUIRES_TESTS = REQUIRES_DEV + [
+    'flake8',
     'pytest',
+    'pytest-cov',
     'tox',
 ]
 REQUIRES_EXTRA = {
