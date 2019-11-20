@@ -27,11 +27,16 @@ FastAPI framework plugins
 * Health
 * Common
 
-# Changes
+## Changes
 See [release notes](CHANGES.md)
 
-# Plugins
-## Redis
+## Installation
+```sh
+	pip install fastapi-plugins
+```
+
+## Plugins
+### Redis
 Supports
 * single instance
 * cluster **NOT SUPPORTED NOW**
@@ -53,7 +58,7 @@ Valid variable are
 * `REDIS_SENTINELS` - List or a tuple of Redis sentinel addresses.
 * `REDIS_SENTINEL_MASTER` - The name of the master server in a sentinel configuration.
 
-### Example
+#### Example
 ```python
 	# run with `uvicorn demo_app:app`
 	import typing
@@ -84,7 +89,7 @@ Valid variable are
 	    await fastapi_plugins.redis_plugin.terminate()
 ```
 
-### Example with Docker Compose
+#### Example with Docker Compose
 ```YAML
 version: '3.7'
 services:
@@ -101,7 +106,7 @@ services:
     ports:
       - "8000:8000"
 ```
-## ... more already in progress ...
+### ... more already in progress ...
 
 # Development
 Issues and suggestions are welcome through *issues*
