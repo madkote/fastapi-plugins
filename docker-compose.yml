@@ -4,14 +4,14 @@ services:
     image: redis
     ports:
       - "6379:6379"
-#  demo_fastapi_plugin:
-#    image:    demo_fastapi_plugin
-#    environment:
-#      - REDIS_TYPE=redis
-#      - REDIS_HOST=redis
-#    ports:
-#      - "8000:8000"
-#    build:
-#      context: .
-#      target: demo
-#      dockerfile: Dockerfile
+  demo_fastapi_plugin:
+    image:    demo_fastapi_plugin
+    environment:
+      - REDIS_TYPE=redis
+      - REDIS_HOST=redis
+    ports:
+      - "8000:8000"
+    build:
+      context: .
+      target: demo
+      dockerfile: Dockerfile

@@ -1,8 +1,9 @@
 FROM python:3.7-alpine as demo
 LABEL maintainer="madkote(at)bluewin.ch"
+RUN apk add --no-cache --virtual alpine-sdk build-base python3-dev
 RUN pip3 install fastapi-plugins uvicorn
 RUN mkdir -p /usr/src/app
-COPY ./scripts/demo.py /usr/src/app
+COPY ./scripts/demo_app.py /usr/src/app
 WORKDIR /usr/src/app
 EXPOSE 8000
-CMD ["uvicorn", "demo_app:app"]
+CMD ["uvicorn", "--host", "0.0.0.0", "demo_app:app"]
