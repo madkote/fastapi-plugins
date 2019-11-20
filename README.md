@@ -27,7 +27,7 @@ FastAPI framework plugins
 * Common
 
 ## Changes
-See [release notes](CHANGES.rst)
+See [release notes](CHANGES.md)
 
 ## Installation
 ```sh

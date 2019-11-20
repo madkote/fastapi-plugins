@@ -29,10 +29,10 @@ __copyright__ = 'Copyright 2019, madkote'
 if sys.version_info < (3, 6, 0):
     raise RuntimeError("Python 3.6+ required")
 
-with open("README.rst", "r") as fh:
+with open("README.md", "r") as fh:
     long_description = fh.read()
 
-with open("CHANGES.rst", "r") as fh:
+with open("CHANGES.md", "r") as fh:
     changes_description = fh.read()
 
 
@@ -105,6 +105,7 @@ setup(
     python_requires='>=3.6.0',
     include_package_data=True,
     long_description='\n\n'.join((long_description, changes_description)),
+    long_description_content_type='text/markdown',
     platforms=['any'],
     classifiers=[
         'Programming Language :: Python',
