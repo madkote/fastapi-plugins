@@ -1,15 +1,14 @@
-
 <p align="center">
     <em>Plugins for FastAPI framework, high performance, easy to learn, fast to code, ready for production</em>
 </p>
 <p align="center">
-<a href="https://travis-ci.org/madkote/fastapi_plugins" target="_blank">
+<a href="https://travis-ci.org/madkote/fastapi-plugins" target="_blank">
     <img src="https://travis-ci.org/madkote/fastapi_plugins.svg?branch=master" alt="Build Status">
 </a>
-<a href="https://codecov.io/gh/madkote/fastapi_plugins" target="_blank">
+<a href="https://codecov.io/gh/madkote/fastapi-plugins" target="_blank">
     <img src="https://codecov.io/gh/madkote/fastapi_plugins/branch/master/graph/badge.svg" alt="Coverage">
 </a>
-<a href="https://pypi.org/project/fastapi_plugins" target="_blank">
+<a href="https://pypi.org/project/fastapi-plugins" target="_blank">
     <img src="https://img.shields.io/pypi/v/fastapi_plugins.svg" alt="Package version">
 </a>
 <a href="https://gitter.im/tiangolo/fastapi?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge" target="_blank">

@@ -1,6 +1,6 @@
 include LICENSE
-include CHANGES.md
-include README.md
+include CHANGES.rst
+include README.rst
 global-exclude *.pyc
 global-exclude *.pyd
 global-exclude *.pyo

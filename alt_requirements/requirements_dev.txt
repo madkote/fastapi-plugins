@@ -1,4 +1,5 @@
 -r requirements_core.txt
 
 docker-compose
+m2r
 uvicorn

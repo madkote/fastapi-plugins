@@ -29,10 +29,10 @@ __copyright__ = 'Copyright 2019, madkote'
 if sys.version_info < (3, 6, 0):
     raise RuntimeError("Python 3.6+ required")
 
-with open("README.md", "r") as fh:
+with open("README.rst", "r") as fh:
     long_description = fh.read()
 
-with open("CHANGES.md", "r") as fh:
+with open("CHANGES.rst", "r") as fh:
     changes_description = fh.read()
 
 
@@ -67,6 +67,7 @@ REQUIRES_INSTALL = [
 ]
 REQUIRES_DEV = [
     'docker-compose',
+    'm2r',
     'uvicorn',
 ]
 REQUIRES_TESTS = REQUIRES_DEV + [

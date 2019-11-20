@@ -70,11 +70,16 @@ test: test-unit
 test-all: test-unit test-tox
 	@echo $@
 
+md2rst:
+	@echo $@
+	m2r _README.md
+	mv -f _README.rst README.rst
+
 pypy-deps:
 	@echo $@
 	pip install -U twine
 
-pypy-build: clean test-all pypy-deps
+pypy-build: clean test-all pypy-deps md2rst
 	@echo $@
 	python setup.py sdist bdist_wheel
 
