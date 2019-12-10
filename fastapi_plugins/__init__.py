@@ -118,6 +118,11 @@ class RedisSettings(PluginSettings):
     # TODO: xxx here fake redis
 
 
+# TODO: xxx mock connection
+# class MyConnection(aioredis.RedisConnection):
+#     pass
+
+
 class RedisPlugin(Plugin):
     DEFAULT_CONFIG_CLASS = RedisSettings
 
@@ -159,7 +164,10 @@ class RedisPlugin(Plugin):
         opts = dict(
             db=self.config.redis_db,
             password=self.config.redis_password,
-            timeout=self.config.redis_connection_timeout
+            timeout=self.config.redis_connection_timeout,
+            #
+            # TODO: xxx mock connection
+            # connection_cls=MyConnection
         )
         self.redis = await aioredis.create_redis_pool(address, **opts)
 
