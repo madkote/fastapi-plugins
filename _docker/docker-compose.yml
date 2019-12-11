@@ -1,0 +1,22 @@
+version: '3.7'
+services:
+  redis-master:
+    image: redis
+    ports:
+      - "6379:6379"
+  redis-slave:
+    image: redis
+    command: redis-server --slaveof redis-master 6379
+    links:
+      - redis-master
+  redis-sentinel:
+    build:
+      context: sentinel
+    ports:
+      - "26379:26379"
+    environment:
+      - SENTINEL_DOWN_AFTER=5000
+      - SENTINEL_FAILOVER=5000
+    links:
+      - redis-master
+      - redis-slave

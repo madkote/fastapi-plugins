@@ -38,7 +38,7 @@ See [release notes](CHANGES.md)
 ### Redis
 Supports
 * single instance
-* cluster **NOT SUPPORTED NOW**
+* sentinel
 * fake redis **NOT SUPPORTED NOW**
 
 Valid variable are
@@ -54,8 +54,10 @@ Valid variable are
 * `REDIS_PASSWORD` - Redis password for server.
 * `REDIS_DB` - Redis db (zero-based number index). Default is `0`.
 * `REDIS_CONNECTION_TIMEOUT` - Redis connection timeout. Default is `2`.
+* `REDIS_POOL_MINSIZE` - Minimum number of free connection to create in pool. Default is `0`.
+* `REDIS_POOL_MAXSIZE` -  Maximum number of connection to keep in pool. Default is `10`. Must be greater than `0`. `None` is disallowed.
 * `REDIS_SENTINELS` - List or a tuple of Redis sentinel addresses.
-* `REDIS_SENTINEL_MASTER` - The name of the master server in a sentinel configuration.
+* `REDIS_SENTINEL_MASTER` - The name of the master server in a sentinel configuration. Default is `mymaster`.
 
 #### Example
 ```python
@@ -88,7 +90,7 @@ Valid variable are
 	    await fastapi_plugins.redis_plugin.terminate()
 ```
 
-#### Example with Docker Compose
+#### Example with Docker Compose - Redis
 ```YAML
 version: '3.7'
 services:
@@ -105,6 +107,30 @@ services:
     ports:
       - "8000:8000"
 ```
+
+#### Example with Docker Compose - Redis Sentinel
+```YAML
+version: '3.7'
+services:
+  ...
+  redis-sentinel:
+    ports:
+      - "26379:26379"
+    environment:
+      - ...
+    links:
+      - redis-master
+      - redis-slave
+  demo_fastapi_plugin:
+    image:    demo_fastapi_plugin
+    environment:
+      - REDIS_TYPE=sentinel
+      - REDIS_SENTINELS=redis-sentinel:26379
+    ports:
+      - "8000:8000"
+```
+
+
 ### ... more already in progress ...
 
 # Development

@@ -44,7 +44,7 @@ clean: clean-build clean-pyc clean-pycache
 
 install: clean
 	@echo $@
-	pip install -U -r requirements.txt
+	pip install --no-cache-dir -U -r requirements.txt
 
 demo: clean
 	@echo $@

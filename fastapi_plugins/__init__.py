@@ -10,7 +10,6 @@ fastapi_plugins
 ---------------
 FastAPI plugins
 
-sentinel -> redis with cluster -> TODO: xxx
 fake     -> simple dictionary  -> TODO: xxx
 
 # TODO: xxx tests with docker
@@ -108,15 +107,48 @@ class RedisSettings(PluginSettings):
     redis_password: str = None
     redis_db: int = 0
     redis_connection_timeout: int = 2
+    #
+    redis_pool_minsize: int = 1
+    redis_pool_maxsize: int = 10
+    #
     # TODO: xxx how to keep track of TTL - time to expire, which is set
     #       only by the command
     # cache_ttl: int = 24 * 3600
     #
-    redis_sentinels: typing.List = None
+    # TODO: xxx the customer validator does not work
+    # redis_sentinels: typing.List = None
+    redis_sentinels: str = None
     redis_sentinel_master: str = 'mymaster'
     #
     # TODO: xxx here fake redis
 
+    def get_redis_address(self) -> str:
+        return 'redis://%s:%s/%s' % (
+            self.redis_host,
+            self.redis_port,
+            self.redis_db
+        )
+
+    # TODO: xxx the customer validator does not work
+    def get_sentinels(self) -> typing.List:
+        if self.redis_sentinels:
+            try:
+                return [
+                    (
+                        _conn.split(':')[0].strip(),
+                        int(_conn.split(':')[1].strip())
+                    )
+                    for _conn in self.redis_sentinels.split(',')
+                    if _conn.strip()
+                ]
+            except Exception as e:
+                raise RuntimeError(
+                    'bad sentinels string :: %s :: %s :: %s' % (
+                        type(e), str(e), self.redis_sentinels
+                    )
+                )
+        else:
+            return []
 
 # TODO: xxx mock connection
 # class MyConnection(aioredis.RedisConnection):
@@ -132,7 +164,11 @@ class RedisPlugin(Plugin):
     async def _on_call(self) -> typing.Any:
         if self.redis is None:
             raise RedisError('Redis is not initialized')
-        return self.redis
+        # TODO: xxx dot it better without IF
+        if self.config.redis_type == RedisType.sentinel:
+            return self.redis.master_for(self.config.redis_sentinel_master)
+        else:
+            return self.redis
 
     async def init_app(
             self,
@@ -149,27 +185,32 @@ class RedisPlugin(Plugin):
     async def init(self):
         if self.redis is not None:
             raise RedisError('Redis is already initialized')
-#         print()
-#         print(self.config)
-#         print(self.config.redis_host)
-#         print(self.config.redis_port)
-#         print(self.config.redis_db)
-#         print()
-        address = 'redis://%s:%s/%s' % (
-            self.config.redis_host,
-            self.config.redis_port,
-            self.config.redis_db
-        )
-        # TODO: xx this is should be method of settings
+        #
         opts = dict(
             db=self.config.redis_db,
             password=self.config.redis_password,
-            timeout=self.config.redis_connection_timeout,
+            minsize=self.config.redis_pool_minsize,
+            maxsize=self.config.redis_pool_maxsize,
             #
             # TODO: xxx mock connection
             # connection_cls=MyConnection
         )
-        self.redis = await aioredis.create_redis_pool(address, **opts)
+        #
+        if self.config.redis_type == RedisType.redis:
+            address = self.config.get_redis_address()
+            method = aioredis.create_redis_pool
+            opts.update(dict(timeout=self.config.redis_connection_timeout))
+        elif self.config.redis_type == RedisType.sentinel:
+            address = self.config.get_sentinels()
+            method = aioredis.create_sentinel
+        else:
+            raise NotImplementedError(
+                'Redis type %s is not implemented' % self.config.redis_type
+            )
+        #
+        if not address:
+            raise ValueError('redis address is empty')
+        self.redis = await method(address, **opts)
 
     async def terminate(self):
         self.config = None

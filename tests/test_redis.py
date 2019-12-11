@@ -110,6 +110,74 @@ class RedisTest(unittest.TestCase):
         event_loop.close()
 
 
+@pytest.mark.redis
+@pytest.mark.sentinel
+class RedisSentinelTest(unittest.TestCase):
+    def test_connect(self):
+        async def _test():
+            app = fastapi.FastAPI()
+            config = fastapi_plugins.RedisSettings(
+                redis_type='sentinel',
+                redis_sentinels='localhost:26379'
+            )
+            await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
+            await fastapi_plugins.redis_plugin.init()
+            await fastapi_plugins.redis_plugin.terminate()
+
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        coro = asyncio.coroutine(_test)
+        event_loop.run_until_complete(coro())
+        event_loop.close()
+
+    def test_ping(self):
+        async def _test():
+            app = fastapi.FastAPI()
+            config = fastapi_plugins.RedisSettings(
+                redis_type='sentinel',
+                redis_sentinels='localhost:26379'
+            )
+            await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
+            await fastapi_plugins.redis_plugin.init()
+            try:
+                c = await fastapi_plugins.redis_plugin()
+                r = (await c.ping()).decode()
+                self.assertTrue(r == 'PONG', 'ping-pong failed == %s' % r)
+            finally:
+                await fastapi_plugins.redis_plugin.terminate()
+
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        coro = asyncio.coroutine(_test)
+        event_loop.run_until_complete(coro())
+        event_loop.close()
+
+    def test_get_set(self):
+        async def _test():
+            app = fastapi.FastAPI()
+            config = fastapi_plugins.RedisSettings(
+                redis_type='sentinel',
+                redis_sentinels='localhost:26379'
+            )
+            await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
+            await fastapi_plugins.redis_plugin.init()
+            try:
+                c = await fastapi_plugins.redis_plugin()
+                value = str(uuid.uuid4())
+                r = await c.set('x', value)
+                self.assertTrue(r, 'set failed')
+                r = await c.get('x', encoding='utf-8')
+                self.assertTrue(r == value, 'get failed')
+            finally:
+                await fastapi_plugins.redis_plugin.terminate()
+
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        coro = asyncio.coroutine(_test)
+        event_loop.run_until_complete(coro())
+        event_loop.close()
+
+
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

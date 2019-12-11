@@ -66,7 +66,7 @@ REQUIRES_INSTALL = [
     'fastapi>=0.41.*',
 ]
 REQUIRES_DEV = [
-    'docker-compose',
+    'docker-compose==1.24.*',
     'm2r',
     'uvicorn',
 ]
