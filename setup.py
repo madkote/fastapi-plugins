@@ -15,7 +15,7 @@ https://pypi.org/pypi?%3Aaction=list_classifiers
 
 from __future__ import absolute_import
 
-import imp
+import importlib.util
 import os
 import sys
 
@@ -43,14 +43,18 @@ def get_version(package_name):
             package_name,
             'version.py'
         )
-        version_module = imp.load_source(
+        spec = importlib.util.spec_from_file_location(
             '%s.version' % package_name,
             version_file
         )
+        version_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(version_module)
         package_version = version_module.__version__
     except Exception as e:
-        raise ValueError('can not determine "%s" version: %s :: %s' % (
-            package_name, type(e), e)
+        raise ValueError(
+            'can not determine "%s" version: %s :: %s' % (
+                package_name, type(e), e
+            )
         )
     else:
         return package_version
@@ -60,24 +64,23 @@ NAME = 'fastapi-plugins'
 NAME_PACKAGE = NAME.replace('-', '_')
 VERSION = get_version(NAME_PACKAGE)
 DESCRIPTION = 'Plugins for FastAPI framework'
-URL = 'https://github.com/madkote/fastapi-plugins'
+URL = 'https://github.com/madkote/%s' % NAME
 REQUIRES_INSTALL = [
     'aioredis==1.3.*',
     'fastapi>=0.41.*',
+    'tenacity>=6.0.*'
 ]
-REQUIRES_DEV = [
-    'docker-compose==1.24.*',
-    'm2r',
-    'uvicorn',
-]
-REQUIRES_TESTS = REQUIRES_DEV + [
+REQUIRES_TESTS = REQUIRES_INSTALL + [
+    'bandit',
+    'docker-compose',
     'flake8',
+    'm2r',
     'pytest',
     'pytest-cov',
     'tox',
+    'uvicorn',
 ]
 REQUIRES_EXTRA = {
-    'dev':  REQUIRES_DEV,
     'test': REQUIRES_TESTS
 }
 PACKAGES = find_packages(exclude=('scripts', 'tests'))

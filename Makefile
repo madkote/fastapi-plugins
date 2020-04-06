@@ -45,17 +45,26 @@ clean: clean-build clean-pyc clean-pycache
 install: clean
 	@echo $@
 	pip install --no-cache-dir -U -r requirements.txt
+	# flake8 --install-hook git
+	# git config --local --bool flake8.strict true
 
 demo: clean
 	@echo $@
-	# python demo.py
-	# uvicorn scripts/demo_app:app
+	python demo.py
+
+demo-app: clean
+	@echo $@
+	uvicorn scripts/demo_app:app
 
 flake: clean
 	@echo $@
-	flake8 --ignore E252 fastapi_plugins tests scripts
+	flake8 --statistics --ignore E252 fastapi_plugins tests scripts
 
-test-unit: clean flake
+bandit: clean
+	@echo $@
+	bandit -r  tl_logging_sdk/ tests/ demo_app/ demo.py
+
+test-unit: clean bandit flake
 	@echo $@
 	# python -m pytest -v -x tests/
 	python -m pytest -v -x tests/ --cov=fastapi_plugins

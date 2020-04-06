@@ -1,7 +1,10 @@
--r requirements_dev.txt
+-r requirements_core.txt
 
-
+bandit
+docker-compose
 flake8
+m2r
 pytest
 pytest-cov
 tox
+uvicorn

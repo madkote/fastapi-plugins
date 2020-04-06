@@ -1,2 +1,3 @@
 aioredis==1.3.*
 fastapi>=0.41.*
+tenacity>=6.0.*

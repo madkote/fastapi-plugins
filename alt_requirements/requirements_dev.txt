@@ -1,5 +1,0 @@
--r requirements_core.txt
-
-docker-compose==1.24.*
-m2r
-uvicorn

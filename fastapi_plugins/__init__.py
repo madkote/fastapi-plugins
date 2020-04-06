@@ -25,6 +25,7 @@ import aioredis
 import fastapi
 import pydantic
 import starlette.requests
+import tenacity
 
 from .version import VERSION
 
@@ -121,6 +122,10 @@ class RedisSettings(PluginSettings):
     redis_sentinel_master: str = 'mymaster'
     #
     # TODO: xxx here fake redis
+    # ...
+    #
+    redis_prestart_tries: int = 60 * 5  # 5 min
+    redis_prestart_wait: int = 1        # 1 second
 
     def get_redis_address(self) -> str:
         return 'redis://%s:%s/%s' % (
@@ -210,7 +215,15 @@ class RedisPlugin(Plugin):
         #
         if not address:
             raise ValueError('redis address is empty')
-        self.redis = await method(address, **opts)
+
+        @tenacity.retry(
+            stop=tenacity.stop_after_attempt(self.config.redis_prestart_tries),
+            wait=tenacity.wait_fixed(self.config.redis_prestart_wait),
+        )
+        async def _inner():
+            return await method(address, **opts)
+
+        self.redis = await _inner()
 
     async def terminate(self):
         self.config = None
