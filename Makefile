@@ -68,7 +68,7 @@ test-unit: clean bandit flake
 
 test-tox: clean
 	@echo $@
-	tox
+	tox -vv
 
 test: test-unit
 	@echo $@
