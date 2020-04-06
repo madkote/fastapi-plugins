@@ -31,7 +31,7 @@ See [release notes](CHANGES.md)
 
 ## Installation
 ```sh
-	pip install fastapi-plugins
+pip install fastapi-plugins
 ```
 
 ## Plugins
@@ -58,36 +58,38 @@ Valid variable are
 * `REDIS_POOL_MAXSIZE` -  Maximum number of connection to keep in pool. Default is `10`. Must be greater than `0`. `None` is disallowed.
 * `REDIS_SENTINELS` - List or a tuple of Redis sentinel addresses.
 * `REDIS_SENTINEL_MASTER` - The name of the master server in a sentinel configuration. Default is `mymaster`.
+* `REDIS_PRESTART_TRIES` - The number tries to connect to the a Redis instance.
+* `REDIS_PRESTART_WAIT` - The interval in seconds to wait between connection failures on application start.
 
 #### Example
 ```python
-	# run with `uvicorn demo_app:app`
-	import typing
-	import aioredis
-	import fastapi
-	import pydantic
-	import fastapi_plugins
-	
-	class AppSettings(OtherSettings, fastapi_plugins.RedisSettings):
-	    api_name: str = str(__name__)
-	
-	app = fastapi.FastAPI()
-	config = AppSettings()
-	
-	@app.get("/")
-	async def root_get(
-	        cache: aioredis.Redis=fastapi.Depends(fastapi_plugins.depends_redis),
-	) -> typing.Dict:
-	    return dict(ping=await cache.ping())
-	
-	@app.on_event('startup')
-	async def on_startup() -> None:
-	    await fastapi_plugins.redis_plugin.init_app(app, config=config)
-	    await fastapi_plugins.redis_plugin.init()
-	
-	@app.on_event('shutdown')
-	async def on_shutdown() -> None:
-	    await fastapi_plugins.redis_plugin.terminate()
+# run with `uvicorn demo_app:app`
+import typing
+import aioredis
+import fastapi
+import pydantic
+import fastapi_plugins
+
+class AppSettings(OtherSettings, fastapi_plugins.RedisSettings):
+    api_name: str = str(__name__)
+
+app = fastapi.FastAPI()
+config = AppSettings()
+
+@app.get("/")
+async def root_get(
+        cache: aioredis.Redis=fastapi.Depends(fastapi_plugins.depends_redis),
+) -> typing.Dict:
+    return dict(ping=await cache.ping())
+
+@app.on_event('startup')
+async def on_startup() -> None:
+    await fastapi_plugins.redis_plugin.init_app(app, config=config)
+    await fastapi_plugins.redis_plugin.init()
+
+@app.on_event('shutdown')
+async def on_shutdown() -> None:
+    await fastapi_plugins.redis_plugin.terminate()
 ```
 
 #### Example with Docker Compose - Redis
