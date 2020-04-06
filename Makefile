@@ -45,8 +45,6 @@ clean: clean-build clean-pyc clean-pycache
 install: clean
 	@echo $@
 	pip install --no-cache-dir -U -r requirements.txt
-	# flake8 --install-hook git
-	# git config --local --bool flake8.strict true
 
 demo: clean
 	@echo $@
@@ -66,7 +64,6 @@ bandit: clean
 
 test-unit: clean bandit flake
 	@echo $@
-	# python -m pytest -v -x tests/
 	python -m pytest -v -x tests/ --cov=fastapi_plugins
 
 test-tox: clean
