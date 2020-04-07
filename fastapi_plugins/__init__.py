@@ -122,6 +122,9 @@ class RedisSettings(PluginSettings):
     #
     # TODO: xxx how to keep track of TTL - time to expire, which is set
     #       only by the command
+    #
+    # > as possible solution, set the `ttl` attribute to the connection/pool
+    #
     # cache_ttl: int = 24 * 3600
     #
     # TODO: xxx the customer validator does not work
