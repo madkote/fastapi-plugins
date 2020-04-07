@@ -21,6 +21,7 @@ from __future__ import absolute_import
 import enum
 import typing
 
+import aiojobs
 import aioredis
 import fastapi
 import pydantic
@@ -33,7 +34,10 @@ __all__ = [
     'PluginError', 'PluginSettings', 'Plugin',
 
     'RedisError', 'RedisType', 'RedisSettings', 'RedisPlugin',
-    'redis_plugin', 'depends_redis'
+    'redis_plugin', 'depends_redis',
+
+    'SchedulerError', 'SchedulerSettings', 'SchedulerPlugin',
+    'scheduler_plugin', 'depends_scheduler',
 ]
 __author__ = 'madkote <madkote(at)bluewin.ch>'
 __version__ = '.'.join(str(x) for x in VERSION)
@@ -238,3 +242,69 @@ redis_plugin = RedisPlugin()
 
 async def depends_redis(request: starlette.requests.Request) -> aioredis.Redis:
     return await request.app.state.REDIS()
+
+
+class SchedulerError(PluginError):
+    pass
+
+
+class SchedulerSettings(PluginSettings):
+    aiojobs_close_timeout: float = 0.1
+    aiojobs_limit: int = 100
+    aiojobs_pending_limit: int = 10000
+
+
+class SchedulerPlugin(Plugin):
+    DEFAULT_CONFIG_CLASS = SchedulerSettings
+
+    def _on_init(self) -> None:
+        self.scheduler: aiojobs.Scheduler = None
+
+    async def _on_call(self) -> aiojobs.Scheduler:
+        if self.scheduler is None:
+            raise SchedulerError('Scheduler is not initialized')
+        return self.scheduler
+
+    async def init_app(
+            self,
+            app: fastapi.FastAPI,
+            config: pydantic.BaseSettings=None
+    ) -> None:
+        self.config = config or self.DEFAULT_CONFIG_CLASS()
+        if self.config is None:
+            raise SchedulerError('Scheduler configuration is not initialized')
+        elif not isinstance(self.config, self.DEFAULT_CONFIG_CLASS):
+            raise SchedulerError('Scheduler configuration is not valid')
+        app.state.AIOJOBS_SCHEDULER = self
+
+    async def init(self):
+        if self.scheduler is not None:
+            raise SchedulerError('Scheduler is already initialized')
+        self.scheduler = await aiojobs.create_scheduler(
+            close_timeout=self.config.aiojobs_close_timeout,
+            limit=self.config.aiojobs_limit,
+            pending_limit=self.config.aiojobs_pending_limit
+        )
+
+    async def terminate(self):
+        self.config = None
+        if self.scheduler is not None:
+            await self.scheduler.close()
+            self.scheduler = None
+
+
+scheduler_plugin = SchedulerPlugin()
+
+
+async def depends_scheduler(
+    request: starlette.requests.Request
+) -> aiojobs.Scheduler:
+    return await request.app.state.AIOJOBS_SCHEDULER()
+
+
+# TODO: health
+# TODO: databases
+# TODO: mq - activemq, rabbitmq, kafka
+# TODO: celery
+# TODO: logging - simple? or more complex example? -> will decide later
+# ... more?

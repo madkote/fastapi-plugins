@@ -66,6 +66,7 @@ VERSION = get_version(NAME_PACKAGE)
 DESCRIPTION = 'Plugins for FastAPI framework'
 URL = 'https://github.com/madkote/%s' % NAME
 REQUIRES_INSTALL = [
+    'aiojobs==0.2.*',
     'aioredis==1.3.*',
     'fastapi>=0.41.*',
     'tenacity>=6.0.*'

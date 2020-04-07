@@ -60,7 +60,7 @@ flake: clean
 
 bandit: clean
 	@echo $@
-	bandit -r  tl_logging_sdk/ tests/ demo_app/ demo.py
+	bandit -r fastapi_plugins/ tests/ scripts/ demo.py
 
 test-unit: clean bandit flake
 	@echo $@
