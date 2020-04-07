@@ -92,6 +92,43 @@ async def test_scheduler():
         print('---test schedule done')
 
 
+# async def test_scheduler_enable_cancel():
+#     async def coro(name, timeout):
+#         try:
+#             print('> sleep', name, timeout)
+#             await asyncio.sleep(timeout)
+#             print('---> sleep done', name, timeout)
+#         except asyncio.CancelledError as e:
+#             print('coro cancelled', name)
+#             raise e
+#
+#     print('--- do schedule test')
+#     app = fastapi.FastAPI()
+#     config = fastapi_plugins.SchedulerSettings()
+#     config = None
+#     config = AppSettings(aiojobs_limit=100)
+#     config = AppSettings(aiojobs_enable_cancel=True)
+#
+#     await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
+#     await fastapi_plugins.scheduler_plugin.init()
+#     try:
+#         print('- play')
+#         s = await fastapi_plugins.scheduler_plugin()
+#         jobs = []
+#         for i in range(2):
+#             job = await s.spawn(coro(str(i), 12.75))
+#             jobs.append(job.id)
+#         print('- sleep', 2)
+#         await asyncio.sleep(2.0)
+#         print('- cancel')
+#         for job_id in jobs:
+#             await s.cancel_job(job_id)
+#         print('- terminate')
+#     finally:
+#         await fastapi_plugins.scheduler_plugin.terminate()
+#         print('---test schedule done')
+
+
 async def test_demo():
     async def coro(con, name, timeout):
         try:
@@ -146,6 +183,7 @@ def main_scheduler():
     print('=' * 50)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test_scheduler())
+    # loop.run_until_complete(test_scheduler_enable_cancel())
 
 
 def main_demo():

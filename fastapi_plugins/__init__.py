@@ -18,8 +18,11 @@ fake     -> simple dictionary  -> TODO: xxx
 
 from __future__ import absolute_import
 
+# import abc
+# import asyncio
 import enum
 import typing
+# import uuid
 
 import aiojobs
 import aioredis
@@ -38,6 +41,7 @@ __all__ = [
 
     'SchedulerError', 'SchedulerSettings', 'SchedulerPlugin',
     'scheduler_plugin', 'depends_scheduler',
+    # 'MadnessScheduler',
 ]
 __author__ = 'madkote <madkote(at)bluewin.ch>'
 __version__ = '.'.join(str(x) for x in VERSION)
@@ -248,10 +252,56 @@ class SchedulerError(PluginError):
     pass
 
 
+# class MadnessScheduler(aiojobs.Scheduler):
+#     def __init__(self, *args, **kwargs):
+#         super(MadnessScheduler, self).__init__(*args, **kwargs)
+#         self._job_map = {}
+#
+#     async def spawn(self, coro):
+#         job = await aiojobs.Scheduler.spawn(self, coro)
+#         self._job_map[job.id] = job
+#         return job
+#
+#     def _done(self, job) -> None:
+#         if job.id in self._job_map:
+#             self._job_map.pop(job.id)
+#         return aiojobs.Scheduler._done(self, job)
+#
+#     async def cancel_job(self, job_id: str) -> None:
+#         if job_id in self._job_map:
+#             await self._job_map[job_id].close()
+#
+#
+# async def create_madness_scheduler(
+#     *args,
+#     close_timeout=0.1,
+#     limit=100,
+#     pending_limit=10000,
+#     exception_handler=None
+# ) -> MadnessScheduler:
+#     if exception_handler is not None and not callable(exception_handler):
+#         raise TypeError(
+#             'A callable object or None is expected, got {!r}'.format(
+#                 exception_handler
+#             )
+#         )
+#     loop = asyncio.get_event_loop()
+#     return MadnessScheduler(
+#         loop=loop,
+#         close_timeout=close_timeout,
+#         limit=limit,
+#         pending_limit=pending_limit,
+#         exception_handler=exception_handler
+#     )
+
+
+# TODO: test settings (values)
+# TODO: write unit tests
 class SchedulerSettings(PluginSettings):
     aiojobs_close_timeout: float = 0.1
     aiojobs_limit: int = 100
     aiojobs_pending_limit: int = 10000
+    # aiojobs_enable_cancel: bool = False
 
 
 class SchedulerPlugin(Plugin):
@@ -280,7 +330,30 @@ class SchedulerPlugin(Plugin):
     async def init(self):
         if self.scheduler is not None:
             raise SchedulerError('Scheduler is already initialized')
-        self.scheduler = await aiojobs.create_scheduler(
+        factory = aiojobs.create_scheduler
+        #
+        # TODO: monkey patching is not preferred way, but waiting for aoilibs
+        #
+        # TODO: provide a pull request (custom, job, better scheduler)
+        #
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#         if self.config.aiojobs_enable_cancel:
+#             class _PatchJob(aiojobs._scheduler.Job):
+#                 def __init__(self, *args, **kwargs):
+#                     super(_PatchJob, self).__init__(*args, **kwargs)
+#                     self._id = str(uuid.uuid4())
+#
+#                 @property
+#                 def id(self):
+#                     return self._id
+#             aiojobs._scheduler.Job = _PatchJob
+#             factory = create_madness_scheduler
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        self.scheduler = await factory(
             close_timeout=self.config.aiojobs_close_timeout,
             limit=self.config.aiojobs_limit,
             pending_limit=self.config.aiojobs_pending_limit
