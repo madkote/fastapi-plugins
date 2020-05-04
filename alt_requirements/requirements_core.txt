@@ -1,4 +1,3 @@
-aiojobs==0.2.*
-aioredis==1.3.*
 fastapi>=0.41.*
+pydantic>=0.32.*
 tenacity>=6.0.*

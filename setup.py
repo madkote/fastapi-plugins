@@ -66,12 +66,28 @@ VERSION = get_version(NAME_PACKAGE)
 DESCRIPTION = 'Plugins for FastAPI framework'
 URL = 'https://github.com/madkote/%s' % NAME
 REQUIRES_INSTALL = [
-    'aiojobs==0.2.*',
-    'aioredis==1.3.*',
     'fastapi>=0.41.*',
-    'tenacity>=6.0.*'
+    'pydantic>=0.32.*',
+    'tenacity>=6.0.*',
+
+    # TODO: xxx
+    'aioredis>=1.3.*',
+
+    # TODO: xxx
+    'aiojobs>=0.2.*',
 ]
-REQUIRES_TESTS = REQUIRES_INSTALL + [
+
+# TODO: xxx
+# REQUIRES_REDIS = REQUIRES_INSTALL + [
+#     'aioredis>=1.3.*'
+# ]
+# REQUIRES_SCHEDULER = REQUIRES_INSTALL + [
+#     'aiojobs>=0.2.*'
+# ]
+# REQUIRES_ALL = REQUIRES_INSTALL + REQUIRES_REDIS + REQUIRES_SCHEDULER
+
+REQUIRES_ALL = REQUIRES_INSTALL
+REQUIRES_TESTS = REQUIRES_ALL + [
     'bandit',
     'docker-compose',
     'flake8',
@@ -82,6 +98,12 @@ REQUIRES_TESTS = REQUIRES_INSTALL + [
     'uvicorn',
 ]
 REQUIRES_EXTRA = {
+    'all': REQUIRES_ALL,
+
+    # TODO: xxx
+    # 'jobs': REQUIRES_SCHEDULER,
+    # 'redis': REQUIRES_REDIS,
+
     'test': REQUIRES_TESTS
 }
 PACKAGES = find_packages(exclude=('scripts', 'tests'))
@@ -100,7 +122,8 @@ setup(
     download_url=URL + '/archive/{}.tar.gz'.format(VERSION),
     license='MIT License',
     keywords=[
-        'async', 'redis', 'aioredis', 'json', 'asyncio', 'plugin', 'fastapi'
+        'async', 'redis', 'aioredis', 'json', 'asyncio', 'plugin', 'fastapi',
+        'aiojobs', 'scheduler', 'starlette'
     ],
     install_requires=REQUIRES_INSTALL,
     tests_require=REQUIRES_TESTS,

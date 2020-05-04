@@ -1,4 +1,6 @@
 # Changes
+## 0.4.0 (2020-04-09)
+- structure and split dependencies to `extra`
 ## 0.3.0 (2020-04-07)
 - Scheduler: tasks scheduler based on `aiojobs`
 ## 0.2.1 (2020-04-06)

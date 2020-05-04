@@ -76,14 +76,18 @@ async def test_scheduler():
     config = None
     config = AppSettings(aiojobs_limit=100)
     config = AppSettings()
+    # config = AppSettings(aiojobs_limit=1)
 
     await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
     await fastapi_plugins.scheduler_plugin.init()
     try:
         print('- play')
         s = await fastapi_plugins.scheduler_plugin()
+        # import random
         for i in range(10):
             await s.spawn(coro(str(i), i/10))
+            # await s.spawn(coro(str(i), i/10 + random.choice([0.1, 0.2, 0.3, 0.4, 0.5])))  # nosec B311
+        # print('----------')
         print('- sleep', 5)
         await asyncio.sleep(5.0)
         print('- terminate')

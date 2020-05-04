@@ -1,4 +1,4 @@
--r requirements_core.txt
+-r requirements_full.txt
 
 bandit
 docker-compose

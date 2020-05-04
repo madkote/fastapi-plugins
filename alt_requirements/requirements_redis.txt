@@ -1,0 +1,3 @@
+-r requirements_core.txt
+
+aioredis>=1.3.*

@@ -62,9 +62,9 @@ bandit: clean
 	@echo $@
 	bandit -r fastapi_plugins/ tests/ scripts/ demo.py
 
-test-unit: clean bandit flake
+test-unit: clean flake bandit
 	@echo $@
-	python -m pytest -v -x tests/ --cov=fastapi_plugins
+	time python -m pytest -v -x tests/ --cov=fastapi_plugins
 
 test-tox: clean
 	@echo $@
@@ -97,7 +97,6 @@ pypy-upload-test: pypy-deps
 pypy-upload: pypy-deps
 	@echo $@
 	python -m twine upload dist/*
-
 
 docker-up:
 	@echo $@
