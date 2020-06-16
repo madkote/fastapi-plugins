@@ -1,4 +1,6 @@
 # Changes
+## 0.4.1 (2020-06-16)
+- Refactor requirements
 ## 0.4.0 (2020-04-09)
 - structure and split dependencies to `extra`
 ## 0.3.0 (2020-04-07)

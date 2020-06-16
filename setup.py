@@ -15,6 +15,7 @@ https://pypi.org/pypi?%3Aaction=list_classifiers
 
 from __future__ import absolute_import
 
+import codecs
 import importlib.util
 import os
 import sys
@@ -60,34 +61,37 @@ def get_version(package_name):
         return package_version
 
 
+def load_requirements(filename):
+    def _is_req(s):
+        return s and not s.startswith('-r ') and not s.startswith('git+http') and not s.startswith('#')  # noqa E501
+
+    def _read():
+        with codecs.open(filename, 'r', encoding='utf-8-sig') as fh:
+            for line in fh:
+                line = line.strip()
+                if _is_req(line):
+                    yield line
+    return sorted(list(_read()))
+
+
 NAME = 'fastapi-plugins'
 NAME_PACKAGE = NAME.replace('-', '_')
 VERSION = get_version(NAME_PACKAGE)
 DESCRIPTION = 'Plugins for FastAPI framework'
 URL = 'https://github.com/madkote/%s' % NAME
+
 REQUIRES_INSTALL = [
     'fastapi>=0.41.*',
     'pydantic>=0.32.*',
-    'tenacity>=6.0.*',
-
-    # TODO: xxx
-    'aioredis>=1.3.*',
-
-    # TODO: xxx
-    'aiojobs>=0.2.*',
+    'tenacity>=6.0.*'
 ]
-
-# TODO: xxx
-# REQUIRES_REDIS = REQUIRES_INSTALL + [
-#     'aioredis>=1.3.*'
-# ]
-# REQUIRES_SCHEDULER = REQUIRES_INSTALL + [
-#     'aiojobs>=0.2.*'
-# ]
-# REQUIRES_ALL = REQUIRES_INSTALL + REQUIRES_REDIS + REQUIRES_SCHEDULER
-
-REQUIRES_ALL = REQUIRES_INSTALL
-REQUIRES_TESTS = REQUIRES_ALL + [
+REQUIRES_INSTALL += [
+    'aioredis>=1.3.*'
+]
+REQUIRES_INSTALL += [
+    'aiojobs>=0.2.*'
+]
+REQUIRES_TESTS = [
     'bandit',
     'docker-compose',
     'flake8',
@@ -95,18 +99,14 @@ REQUIRES_TESTS = REQUIRES_ALL + [
     'pytest',
     'pytest-cov',
     'tox',
-    'uvicorn',
+    'uvicorn'
 ]
 REQUIRES_EXTRA = {
-    'all': REQUIRES_ALL,
-
-    # TODO: xxx
-    # 'jobs': REQUIRES_SCHEDULER,
-    # 'redis': REQUIRES_REDIS,
-
-    'test': REQUIRES_TESTS
+    'test': REQUIRES_INSTALL + REQUIRES_TESTS
 }
+
 PACKAGES = find_packages(exclude=('scripts', 'tests'))
+PACKAGE_DATA = {}
 
 
 # =============================================================================
@@ -129,6 +129,7 @@ setup(
     tests_require=REQUIRES_TESTS,
     extras_require=REQUIRES_EXTRA,
     packages=PACKAGES,
+    package_data=PACKAGE_DATA,
     python_requires='>=3.6.0',
     include_package_data=True,
     long_description='\n\n'.join((long_description, changes_description)),
