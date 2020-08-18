@@ -54,6 +54,20 @@ __copyright__ = 'Copyright 2019, madkote'
 
 @pytest.mark.redis
 class RedisTest(unittest.TestCase):
+    def test_connect_redis_url(self):
+        async def _test():
+            app = fastapi.FastAPI()
+            config = fastapi_plugins.RedisSettings(redis_url="redis://localhost:6379/1")
+            await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
+            await fastapi_plugins.redis_plugin.init()
+            await fastapi_plugins.redis_plugin.terminate()
+
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        coro = asyncio.coroutine(_test)
+        event_loop.run_until_complete(coro())
+        event_loop.close()
+
     def test_connect(self):
         async def _test():
             app = fastapi.FastAPI()
