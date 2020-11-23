@@ -33,7 +33,6 @@ from .version import VERSION
 #     from .scheduler import *  # noqa F401 F403
 
 
-__all__ = []
 __author__ = 'madkote <madkote(at)bluewin.ch>'
 __version__ = '.'.join(str(x) for x in VERSION)
 __copyright__ = 'Copyright 2019, madkote'
