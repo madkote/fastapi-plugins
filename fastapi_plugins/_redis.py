@@ -82,11 +82,14 @@ class RedisSettings(PluginSettings):
     redis_prestart_wait: int = 1        # 1 second
 
     def get_redis_address(self) -> str:
-        return 'redis://%s:%s/%s' % (
-            self.redis_host,
-            self.redis_port,
-            self.redis_db
-        )
+        if self.redis_url:
+            return self.redis_url
+        else:
+            return 'redis://%s:%s/%s' % (
+                self.redis_host,
+                self.redis_port,
+                self.redis_db
+            )
 
     # TODO: xxx the customer validator does not work
     def get_sentinels(self) -> typing.List:
