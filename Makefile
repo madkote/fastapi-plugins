@@ -81,20 +81,20 @@ test-all: test-unit test-tox
 #	m2r _README.md
 #	mv -f _README.rst README.rst
 
-pypy-deps:
+pypi-deps:
 	@echo $@
 	pip install -U twine
 
-pypy-build: clean test-all pypy-deps
+pypi-build: clean test-all pypi-deps
 	@echo $@
 	python setup.py sdist bdist_wheel
 	twine check dist/*
 
-pypy-upload-test: pypy-deps
+pypi-upload-test: pypi-deps
 	@echo $@
 	python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
-pypy-upload: pypy-deps
+pypi-upload: pypi-deps
 	@echo $@
 	python -m twine upload dist/*
 
