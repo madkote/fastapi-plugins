@@ -100,4 +100,8 @@ pypy-upload: pypy-deps
 
 docker-up:
 	@echo $@
-	docker-compose up --build
+	docker container prune -f && docker-compose up --build
+
+docker-up-redis:
+	@echo $@
+	docker container prune -f && docker-compose -f _docker/docker-compose.yml up --build
