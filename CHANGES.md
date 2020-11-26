@@ -1,4 +1,6 @@
 # Changes
+## 0.6.0 (2020-11-26)
+- `[feature]` Memcached
 ## 0.5.0 (2020-11-25)
 - [bug] remove `__all__` since no API as such ([#6][i6]).
 - [typo] Fix typos in README ([#7][i7]).

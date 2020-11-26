@@ -93,6 +93,7 @@ REQUIRES_INSTALL += [
 REQUIRES_INSTALL += [
     'aiojobs>=0.2.*'
 ]
+REQUIRES_MEMCACHED = ['aiomcache>=0.6.*']
 REQUIRES_TESTS = [
     'bandit',
     'docker-compose',
@@ -104,6 +105,10 @@ REQUIRES_TESTS = [
     'uvicorn'
 ]
 REQUIRES_EXTRA = {
+    'all': REQUIRES_INSTALL + REQUIRES_MEMCACHED,
+    #
+    'memcached': REQUIRES_INSTALL + REQUIRES_MEMCACHED,
+    #
     'test': REQUIRES_INSTALL + REQUIRES_TESTS
 }
 
@@ -125,7 +130,7 @@ setup(
     license='MIT License',
     keywords=[
         'async', 'redis', 'aioredis', 'json', 'asyncio', 'plugin', 'fastapi',
-        'aiojobs', 'scheduler', 'starlette'
+        'aiojobs', 'scheduler', 'starlette', 'memcached', 'aiomcache'
     ],
     install_requires=REQUIRES_INSTALL,
     tests_require=REQUIRES_TESTS,

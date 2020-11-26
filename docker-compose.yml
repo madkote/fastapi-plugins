@@ -4,8 +4,12 @@ services:
     image: redis
     ports:
       - "6379:6379"
+  memcached:
+   image: memcached
+   ports:
+     - "11211:11211"
   demo_fastapi_plugin:
-    image:    demo_fastapi_plugin
+    image: demo_fastapi_plugin
     environment:
       - REDIS_TYPE=redis
       - REDIS_HOST=redis

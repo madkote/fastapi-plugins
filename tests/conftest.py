@@ -4,7 +4,7 @@
 '''
 :author:    madkote
 :contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2019, madkote
+:copyright: Copyright 2020, madkote
 
 tests.conftest
 --------------
@@ -22,6 +22,9 @@ __copyright__ = 'Copyright 2019, madkote'
 
 
 def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "memcached: mark test related to Memcached"
+    )
     config.addinivalue_line(
         "markers", "redis: mark test related to Redis"
     )

@@ -67,6 +67,7 @@ class RedisSettings(PluginSettings):
     redis_sentinels: str = None
     redis_sentinel_master: str = 'mymaster'
     #
+    # TODO: xxx - should be shared across caches
     redis_prestart_tries: int = 60 * 5  # 5 min
     redis_prestart_wait: int = 1        # 1 second
 

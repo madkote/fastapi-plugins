@@ -175,6 +175,38 @@ async def test_demo():
         print('---test schedule done')
 
 
+async def test_memcached():
+    print('---test memcached')
+    from fastapi_plugins.memcached import MemcachedSettings
+    from fastapi_plugins.memcached import memcached_plugin
+
+    class MoreSettings(AppSettings, MemcachedSettings):
+        memcached_prestart_tries = 5
+        memcached_prestart_wait = 1
+
+    app = fastapi.FastAPI()
+    config = MoreSettings()
+    await memcached_plugin.init_app(app=app, config=config)
+    await memcached_plugin.init()
+    
+    c = await memcached_plugin()
+    print(await c.get(b'x'))
+    print(await c.set(b'x', str(time.time()).encode()))
+    print(await c.get(b'x'))
+    await memcached_plugin.terminate()
+    print('---test memcached done')
+
+
+# =============================================================================
+# ---
+# =============================================================================
+def main_memcached():
+    print(os.linesep * 3)
+    print('=' * 50)
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_memcached())
+
+
 def main_redis():
     print(os.linesep * 3)
     print('=' * 50)
@@ -201,3 +233,9 @@ if __name__ == '__main__':
     main_redis()
     main_scheduler()
     main_demo()
+    #
+    try:
+        main_memcached()
+    except Exception as e:
+        print(type(e), e)
+

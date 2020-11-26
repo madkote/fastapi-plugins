@@ -1,3 +1,4 @@
 -r requirements_core.txt
 -r requirements_jobs.txt
+-r requirements_memcached.txt
 -r requirements_redis.txt

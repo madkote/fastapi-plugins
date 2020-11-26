@@ -4,7 +4,7 @@
 '''
 :author:    madkote
 :contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2019, madkote
+:copyright: Copyright 2020, madkote
 
 fastapi_plugins
 ---------------
@@ -35,8 +35,10 @@ from .version import VERSION
 
 __author__ = 'madkote <madkote(at)bluewin.ch>'
 __version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 2019, madkote'
+__copyright__ = 'Copyright 2020, madkote'
 
+# TODO: provide a generic cache type (redis, memcached, in-memory)
+#       and share some settings. Module/Sub-Pack cache
 
 # TODO: health
 

@@ -4,7 +4,7 @@
 '''
 :author:    madkote
 :contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2019, madkote
+:copyright: Copyright 2020, madkote
 
 tests
 -----

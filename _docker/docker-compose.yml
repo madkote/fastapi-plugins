@@ -20,3 +20,7 @@ services:
     links:
       - redis-master
       - redis-slave
+  memcached:
+   image: memcached
+   ports:
+     - "11211:11211"
