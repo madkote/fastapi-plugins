@@ -9,8 +9,6 @@
 fastapi_plugins._redis
 ----------------------
 Redis plugin
-
-TODO: fake -> simple dictionary
 '''
 
 from __future__ import absolute_import
@@ -47,7 +45,6 @@ class RedisError(PluginError):
 class RedisType(str, enum.Enum):
     redis = 'redis'
     sentinel = 'sentinel'
-    fake = 'fake'
 
 
 class RedisSettings(PluginSettings):
@@ -63,20 +60,12 @@ class RedisSettings(PluginSettings):
     redis_pool_minsize: int = 1
     redis_pool_maxsize: int = 10
     #
-    # TODO: xxx how to keep track of TTL - time to expire, which is set
-    #       only by the command
-    #
-    # > as possible solution, set the `ttl` attribute to the connection/pool
-    #
-    # cache_ttl: int = 24 * 3600
+    redis_ttl: int = 3600
     #
     # TODO: xxx the customer validator does not work
     # redis_sentinels: typing.List = None
     redis_sentinels: str = None
     redis_sentinel_master: str = 'mymaster'
-    #
-    # TODO: xxx here fake redis
-    # ...
     #
     redis_prestart_tries: int = 60 * 5  # 5 min
     redis_prestart_wait: int = 1        # 1 second
@@ -112,10 +101,6 @@ class RedisSettings(PluginSettings):
         else:
             return []
 
-# TODO: xxx mock connection
-# class MyConnection(aioredis.RedisConnection):
-#     pass
-
 
 class RedisPlugin(Plugin):
     DEFAULT_CONFIG_CLASS = RedisSettings
@@ -126,11 +111,18 @@ class RedisPlugin(Plugin):
     async def _on_call(self) -> typing.Any:
         if self.redis is None:
             raise RedisError('Redis is not initialized')
-        # TODO: xxx dot it better without IF
+        #
         if self.config.redis_type == RedisType.sentinel:
-            return self.redis.master_for(self.config.redis_sentinel_master)
+            conn = self.redis.master_for(self.config.redis_sentinel_master)
+        elif self.config.redis_type == RedisType.redis:
+            conn = self.redis
         else:
-            return self.redis
+            raise NotImplementedError(
+                'Redis type %s is not implemented' % self.config.redis_type
+            )
+        #
+        conn.TTL = self.config.redis_ttl
+        return conn
 
     async def init_app(
             self,
@@ -153,9 +145,6 @@ class RedisPlugin(Plugin):
             password=self.config.redis_password,
             minsize=self.config.redis_pool_minsize,
             maxsize=self.config.redis_pool_maxsize,
-            #
-            # TODO: xxx mock connection
-            # connection_cls=MyConnection
         )
         #
         if self.config.redis_type == RedisType.redis:
@@ -171,7 +160,7 @@ class RedisPlugin(Plugin):
             )
         #
         if not address:
-            raise ValueError('redis address is empty')
+            raise ValueError('Redis address is empty')
 
         @tenacity.retry(
             stop=tenacity.stop_after_attempt(self.config.redis_prestart_tries),

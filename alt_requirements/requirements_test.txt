@@ -1,5 +1,4 @@
 -r requirements_full.txt
-
 bandit
 docker-compose
 flake8
