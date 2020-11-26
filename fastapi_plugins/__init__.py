@@ -56,8 +56,5 @@ __copyright__ = 'Copyright 2019, madkote'
 
 # ... more?
 
- 
-
-
 # TODO: logging - simple? or more complex example? -> will decide later
 #       what is an exact use case? log requests? log extra information?

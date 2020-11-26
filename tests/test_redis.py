@@ -125,6 +125,32 @@ class RedisTest(unittest.TestCase):
         event_loop.run_until_complete(coro())
         event_loop.close()
 
+    def test_get_set_ttl(self):
+        redis_ttl = 61
+
+        async def _test():
+            app = fastapi.FastAPI()
+            config = fastapi_plugins.RedisSettings(redis_ttl=redis_ttl)
+            await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
+            await fastapi_plugins.redis_plugin.init()
+            try:
+                c = await fastapi_plugins.redis_plugin()
+                value = str(uuid.uuid4())
+                r = await c.set('x', value, expire=c.TTL)
+                self.assertTrue(r, 'set failed')
+                r = await c.get('x', encoding='utf-8')
+                self.assertTrue(r == value, 'get failed')
+                r = await c.ttl('x')
+                self.assertTrue(r == redis_ttl, 'ttl failed')
+            finally:
+                await fastapi_plugins.redis_plugin.terminate()
+
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        coro = asyncio.coroutine(_test)
+        event_loop.run_until_complete(coro())
+        event_loop.close()
+
 
 @pytest.mark.redis
 @pytest.mark.sentinel
@@ -184,6 +210,36 @@ class RedisSentinelTest(unittest.TestCase):
                 self.assertTrue(r, 'set failed')
                 r = await c.get('x', encoding='utf-8')
                 self.assertTrue(r == value, 'get failed')
+            finally:
+                await fastapi_plugins.redis_plugin.terminate()
+
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        coro = asyncio.coroutine(_test)
+        event_loop.run_until_complete(coro())
+        event_loop.close()
+
+    def test_get_set_ttl(self):
+        redis_ttl = 61
+
+        async def _test():
+            app = fastapi.FastAPI()
+            config = fastapi_plugins.RedisSettings(
+                redis_type='sentinel',
+                redis_sentinels='localhost:26379',
+                redis_ttl=redis_ttl
+            )
+            await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
+            await fastapi_plugins.redis_plugin.init()
+            try:
+                c = await fastapi_plugins.redis_plugin()
+                value = str(uuid.uuid4())
+                r = await c.set('x', value, expire=c.TTL)
+                self.assertTrue(r, 'set failed')
+                r = await c.get('x', encoding='utf-8')
+                self.assertTrue(r == value, 'get failed')
+                r = await c.ttl('x')
+                self.assertTrue(r == redis_ttl, 'ttl failed')
             finally:
                 await fastapi_plugins.redis_plugin.terminate()
 
