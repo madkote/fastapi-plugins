@@ -1,5 +1,6 @@
 # Changes
 ## 0.5.0 (2020-11-25)
+- [bug] remove `__all__` since no API as such ([#6][i6]).
 - [typo] Fix typos in README ([#7][i7]).
 - [feature] Add Redis TTL ([#8][i8]).
 ## 0.4.2 (2020-11-24)
@@ -18,5 +19,6 @@
 - Initial release: simple redis pool client
 
 [i4]: https://github.com/madkote/fastapi-plugins/pull/4
+[i6]: https://github.com/madkote/fastapi-plugins/pull/6
 [i7]: https://github.com/madkote/fastapi-plugins/pull/7
-[i7]: https://github.com/madkote/fastapi-plugins/issues/8
+[i8]: https://github.com/madkote/fastapi-plugins/issues/8
