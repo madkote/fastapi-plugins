@@ -19,7 +19,7 @@
 # fastapi-plugins
 FastAPI framework plugins
 
-* Cache
+* [Cache](#cache)
   * [Memcached](#memcached)
   * [Redis](#redis)
 * [Scheduler](#scheduler)
