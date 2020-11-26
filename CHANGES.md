@@ -1,4 +1,7 @@
 # Changes
+## 0.5.0 (2020-11-25)
+- [typo] Fix typos in README ([#7][i7]).
+- [feature] Add Redis TTL ([#8][i8]).
 ## 0.4.2 (2020-11-24)
 - [bug] Fix Redis URL ([#4][i4]). 
 ## 0.4.1 (2020-06-16)
@@ -15,3 +18,5 @@
 - Initial release: simple redis pool client
 
 [i4]: https://github.com/madkote/fastapi-plugins/pull/4
+[i7]: https://github.com/madkote/fastapi-plugins/pull/7
+[i7]: https://github.com/madkote/fastapi-plugins/issues/8

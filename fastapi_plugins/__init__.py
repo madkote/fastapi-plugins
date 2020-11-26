@@ -33,18 +33,31 @@ from .version import VERSION
 #     from .scheduler import *  # noqa F401 F403
 
 
-__all__ = []
 __author__ = 'madkote <madkote(at)bluewin.ch>'
 __version__ = '.'.join(str(x) for x in VERSION)
 __copyright__ = 'Copyright 2019, madkote'
 
 
 # TODO: health
+
 # TODO: databases
+
 # TODO: mq - activemq, rabbitmq, kafka
 #   -> publish(topic, message, headers)
 #   -> consume(topic, callback)
 
 # TODO: celery
-# TODO: logging - simple? or more complex example? -> will decide later
+
+# TOOD: abstract routers with configurable endpoints
+
+# TODO: check socketio (python-socketio) - do we need this?
+
+# TODO: look at fastapi-cache (memcache?) look at mqtt?
+
 # ... more?
+
+ 
+
+
+# TODO: logging - simple? or more complex example? -> will decide later
+#       what is an exact use case? log requests? log extra information?
