@@ -44,7 +44,7 @@ Supports
 
 Valid variable are
 * `REDIS_TYPE`
-  * `redis` - single Redis isntance
+  * `redis` - single Redis instance
   * `sentinel` - Redis cluster
   * `fake` - by using fake Redis
 * `REDIS_URL` - URL to connect to Redis server. Example
