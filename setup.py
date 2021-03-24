@@ -91,7 +91,7 @@ REQUIRES_INSTALL += [
     'aioredis>=1.3.*'
 ]
 REQUIRES_INSTALL += [
-    'aiojobs>=0.2.*'
+    'aiojobs>=0.3.*'
 ]
 REQUIRES_MEMCACHED = ['aiomcache>=0.6.*']
 REQUIRES_TESTS = [
@@ -106,9 +106,7 @@ REQUIRES_TESTS = [
 ]
 REQUIRES_EXTRA = {
     'all': REQUIRES_INSTALL + REQUIRES_MEMCACHED,
-    #
     'memcached': REQUIRES_INSTALL + REQUIRES_MEMCACHED,
-    #
     'test': REQUIRES_INSTALL + REQUIRES_TESTS
 }
 

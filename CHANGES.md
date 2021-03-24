@@ -1,4 +1,6 @@
 # Changes
+## 0.6.1 (2020-03-24)
+- `[fix]` Bump `aiojobs`to get rid of not required dependencies
 ## 0.6.0 (2020-11-26)
 - `[feature]` Memcached
 ## 0.5.0 (2020-11-25)

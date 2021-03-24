@@ -1,4 +1,4 @@
-FROM redis
+FROM redis:5
 LABEL maintainer="madkote(at)bluewin.ch"
 EXPOSE 26379
 

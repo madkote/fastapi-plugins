@@ -1,11 +1,11 @@
 version: '3.7'
 services:
   redis-master:
-    image: redis
+    image: redis:5
     ports:
       - "6379:6379"
   redis-slave:
-    image: redis
+    image: redis:5
     command: redis-server --slaveof redis-master 6379
     links:
       - redis-master

@@ -1,2 +1,2 @@
 -r requirements_core.txt
-aiojobs>=0.2.*
+aiojobs>=0.3.*
