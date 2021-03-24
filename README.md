@@ -197,7 +197,7 @@ Valid variable are:
 
 
 ```python
-# run with `uvicorn demo_app:app`
+'''run with `uvicorn demo_app:app` '''
 import ...
 import fastapi_plugins
 

@@ -1,13 +1,5 @@
 version: '3.7'
 services:
-  redis:
-    image: redis:5
-    ports:
-      - "6379:6379"
-  memcached:
-   image: memcached
-   ports:
-     - "11211:11211"
   demo_fastapi_plugin:
     image: demo_fastapi_plugin
     environment:

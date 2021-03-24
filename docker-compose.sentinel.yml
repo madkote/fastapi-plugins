@@ -11,7 +11,7 @@ services:
       - redis-master
   redis-sentinel:
     build:
-      context: sentinel
+      context: _docker/sentinel
     ports:
       - "26379:26379"
     environment:
@@ -20,7 +20,3 @@ services:
     links:
       - redis-master
       - redis-slave
-  memcached:
-   image: memcached
-   ports:
-     - "11211:11211"
