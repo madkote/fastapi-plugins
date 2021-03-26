@@ -23,6 +23,12 @@ __copyright__ = 'Copyright 2019, madkote'
 
 def pytest_configure(config):
     config.addinivalue_line(
+        "markers", "control: mark test related to Control"
+    )
+    config.addinivalue_line(
+        "markers", "scheduler: mark test related to Scheduler"
+    )
+    config.addinivalue_line(
         "markers", "memcached: mark test related to Memcached"
     )
     config.addinivalue_line(
