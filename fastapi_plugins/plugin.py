@@ -65,7 +65,9 @@ class Plugin:
     async def init_app(
             self,
             app: fastapi.FastAPI,
-            config: pydantic.BaseSettings=None
+            config: pydantic.BaseSettings=None,
+            *args,
+            **kwargs
     ) -> None:
         pass
 

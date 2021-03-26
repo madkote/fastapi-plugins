@@ -13,9 +13,10 @@ FastAPI plugins
 
 from __future__ import absolute_import
 
-from .plugin import *     # noqa F401 F403
-from ._redis import *     # noqa F401 F403
-from .scheduler import *  # noqa F401 F403
+from .plugin import *       # noqa F401 F403
+from .control import *      # noqa F401 F403
+from ._redis import *       # noqa F401 F403
+from .scheduler import *    # noqa F401 F403
 from .version import VERSION
 
 # try:

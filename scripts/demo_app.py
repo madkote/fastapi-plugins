@@ -25,9 +25,15 @@ import fastapi
 import pydantic
 import starlette.status
 
-import fastapi_plugins
+try:
+    import fastapi_plugins
+except ImportError:
+    import os
+    import sys
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) # noqa E501
+    import fastapi_plugins
 
-VERSION = (0, 1, 0)
+VERSION = (0, 1, 2)
 
 __all__ = []
 __author__ = 'madkote <madkote(at)bluewin.ch>'
@@ -41,6 +47,7 @@ class OtherSettings(pydantic.BaseSettings):
 
 class AppSettings(
         OtherSettings,
+        fastapi_plugins.ControlSettings,
         fastapi_plugins.RedisSettings,
         fastapi_plugins.SchedulerSettings
 ):
@@ -99,6 +106,8 @@ async def job_get(
 
 @app.on_event('startup')
 async def on_startup() -> None:
+    await fastapi_plugins.control_plugin.init_app(app, config=config, version=__version__)  # noqa E501
+    await fastapi_plugins.control_plugin.init()
     await fastapi_plugins.redis_plugin.init_app(app, config=config)
     await fastapi_plugins.redis_plugin.init()
     await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
@@ -109,3 +118,4 @@ async def on_startup() -> None:
 async def on_shutdown() -> None:
     await fastapi_plugins.scheduler_plugin.terminate()
     await fastapi_plugins.redis_plugin.terminate()
+    await fastapi_plugins.control_plugin.terminate()
