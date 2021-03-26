@@ -16,8 +16,10 @@ Controller plugin
 /control/health/...
 /control/version
 -----------------------
-TODO: control version must be object -> version response
-TODO: health should be Health response
+TODO: control version must be object   -> ControlEnviron
+TODO: control environ must be object   -> ControlVersion
+TODO: health should be Health response -> ControlHealth
+
 TODO: test base model with various pydantic version
 
 TODO: add more routes to health
@@ -59,11 +61,13 @@ class Controller(object):
             self,
             router_prefix: str=DEFAULT_CONTROL_ROUTER_PREFIX,
             router_tag: str=DEFAULT_CONTROL_ROUTER_PREFIX,
-            version: str=DEFAULT_CONTROL_VERSION
+            version: str=DEFAULT_CONTROL_VERSION,
+            environ: typing.Dict=None
     ):
         self.router_prefix = router_prefix
         self.router_tag = router_tag
         self.version = version
+        self.environ = environ
 
     def patch_app(self, app: fastapi.FastAPI) -> None:
         router_control = fastapi.APIRouter()
@@ -75,6 +79,14 @@ class Controller(object):
         )
         async def version_get() -> typing.Dict:
             return dict(version=await self.get_version())
+
+        @router_control.get(
+            '/environ',
+            summary='Environment',
+            description='Get the environment'
+        )
+        async def environ_get() -> typing.Dict:
+            return dict(**(await self.get_environ()))
 
         @router_control.get(
             '/health',
@@ -104,6 +116,9 @@ class Controller(object):
             tags=[self.router_tag],
         )
 
+    async def get_environ(self) -> typing.Dict:
+        return self.environ if self.environ is not None else {}
+
     async def get_health(self) -> bool:
         return True
 
@@ -132,7 +147,8 @@ class ControlPlugin(Plugin):
             app: fastapi.FastAPI,
             config: pydantic.BaseSettings=None,
             *,
-            version=DEFAULT_CONTROL_VERSION
+            version: str=DEFAULT_CONTROL_VERSION,
+            environ: typing.Dict=None
     ) -> None:
         self.config = config or self.DEFAULT_CONFIG_CLASS()
         if self.config is None:
@@ -146,6 +162,7 @@ class ControlPlugin(Plugin):
             router_prefix=self.config.control_router_prefix,
             router_tag=self.config.control_router_tag,
             version=version,
+            environ=environ
         )
         self.controller.patch_app(app)
 

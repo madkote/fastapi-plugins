@@ -39,17 +39,18 @@ class ControlTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_app(self, config=None, version=None):
+    def make_app(self, config=None, version=None, environ=None):
         app = fastapi.FastAPI()
         if config is None:
             config = fastapi_plugins.ControlSettings()
 
         @app.on_event('startup')
         async def on_startup() -> None:
+            kwargs = {}
             if version:
-                kwargs = dict(version=version)
-            else:
-                kwargs = {}
+                kwargs.update(**dict(version=version))
+            if environ:
+                kwargs.update(**dict(environ=environ))
             await fastapi_plugins.control_plugin.init_app(app, config, **kwargs)    # noqa E501
             await fastapi_plugins.control_plugin.init()
 
@@ -62,6 +63,30 @@ class ControlTest(unittest.TestCase):
     # =========================================================================
     # CONTROLLER
     # =========================================================================
+    def test_controller_environ(self):
+        async def _test():
+            c = fastapi_plugins.Controller()
+            res = await c.get_environ()
+            exp = {}
+            self.assertTrue(d2json(exp) == d2json(res), 'environ failed')
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        coro = asyncio.coroutine(_test)
+        event_loop.run_until_complete(coro())
+        event_loop.close()
+
+    def test_controller_environ_custom(self):
+        async def _test():
+            exp = dict(ping='pong')
+            c = fastapi_plugins.Controller(environ=exp)
+            res = await c.get_environ()
+            self.assertTrue(d2json(exp) == d2json(res), 'environ failed')
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        coro = asyncio.coroutine(_test)
+        event_loop.run_until_complete(coro())
+        event_loop.close()
+
     def test_controller_health(self):
         async def _test():
             c = fastapi_plugins.Controller()
@@ -100,6 +125,43 @@ class ControlTest(unittest.TestCase):
     # =========================================================================
     # ROUTER
     # =========================================================================
+    def test_router_environ(self):
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        try:
+            client = starlette.testclient.TestClient(self.make_app())
+            with client as c:
+                endpoint = '/control/environ'
+                response = c.get(endpoint)
+                exp = 200
+                res = response.status_code
+                self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
+                exp = {}
+                res = response.json()
+                self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
+        finally:
+            event_loop.close()
+
+    def test_router_environ_custom(self):
+        myenviron = dict(ping='pong')
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        try:
+            client = starlette.testclient.TestClient(
+                self.make_app(environ=myenviron)
+            )
+            with client as c:
+                endpoint = '/control/environ'
+                response = c.get(endpoint)
+                exp = 200
+                res = response.status_code
+                self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
+                exp = myenviron
+                res = response.json()
+                self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
+        finally:
+            event_loop.close()
+
     def test_router_version(self):
         from fastapi_plugins.control import DEFAULT_CONTROL_VERSION
         event_loop = asyncio.new_event_loop()

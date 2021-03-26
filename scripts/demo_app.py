@@ -106,7 +106,12 @@ async def job_get(
 
 @app.on_event('startup')
 async def on_startup() -> None:
-    await fastapi_plugins.control_plugin.init_app(app, config=config, version=__version__)  # noqa E501
+    await fastapi_plugins.control_plugin.init_app(
+        app,
+        config=config,
+        version=__version__,
+        environ=config.dict()
+    )
     await fastapi_plugins.control_plugin.init()
     await fastapi_plugins.redis_plugin.init_app(app, config=config)
     await fastapi_plugins.redis_plugin.init()
