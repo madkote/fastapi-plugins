@@ -21,6 +21,7 @@ import fastapi
 import pytest
 
 from . import VERSION
+from . import d2json
 
 __all__ = []
 __author__ = 'roman-telepathy-ai <roman.schroeder(at)telepathy.ai>'
@@ -65,6 +66,34 @@ class MemcachedTest(unittest.TestCase):
                 c = await memcached_plugin()
                 r = await c.ping()
                 self.assertTrue(r, 'set failed')
+            finally:
+                await memcached_plugin.terminate()
+
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        coro = asyncio.coroutine(_test)
+        event_loop.run_until_complete(coro())
+        event_loop.close()
+
+    def test_health(self):
+        from fastapi_plugins.memcached import memcached_plugin
+
+        async def _test():
+            app = fastapi.FastAPI()
+            config = self.fixture_get_config()
+            await memcached_plugin.init_app(app=app, config=config)
+            await memcached_plugin.init()
+            try:
+                exp = dict(
+                    host=config.memcached_host,
+                    port=config.memcached_port,
+                    version='1.6.9'
+                )
+                res = await memcached_plugin.health()
+                self.assertTrue(
+                    d2json(exp) == d2json(res),
+                    'health failed: %s != %s' % (exp, res)
+                )
             finally:
                 await memcached_plugin.terminate()
 

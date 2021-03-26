@@ -10,24 +10,35 @@ fastapi_plugins.control
 -----------------------
 Controller plugin
 
------------------------
-/control
-/control/health
-/control/health/...
-/control/version
+Health is inspired by
+"https://dzone.com/articles/an-overview-of-health-check-patterns"
+
+
+
 -----------------------
 TODO: control version must be object   -> ControlEnviron
 TODO: control environ must be object   -> ControlVersion
 TODO: health should be Health response -> ControlHealth
 
 TODO: test base model with various pydantic version
+  * identify edge version of pydantic + fastapi
+  * store them as separete requirements
+  * run tox with various ini files
 
-TODO: add more routes to health
-TODO: add health observer
+TODO: document Control
+* docs/cache#redis
+* docs/cache#memcached
+* docs/cache#scheduler
+* docs/cache#control
+* example in Readme with redis and control
+  (code and curl to health, version, redis)
 '''
 
 from __future__ import absolute_import
 
+import abc
+import asyncio
+import pprint
 import typing
 
 import fastapi
@@ -40,7 +51,7 @@ from .plugin import Plugin
 from .version import VERSION
 
 __all__ = [
-    'ControlError', 'ControlSettings', 'Controller',
+    'ControlError', 'ControlHealthMixin', 'ControlSettings', 'Controller',
     'ControlPlugin', 'control_plugin', 'depends_control'
 ]
 __author__ = 'madkote <madkote(at)bluewin.ch>'
@@ -56,71 +67,127 @@ class ControlError(PluginError):
     pass
 
 
+class ControlHealthMixin(object):
+    @abc.abstractmethod
+    async def health(self) -> typing.Dict:
+        pass
+
+
 class Controller(object):
     def __init__(
             self,
             router_prefix: str=DEFAULT_CONTROL_ROUTER_PREFIX,
             router_tag: str=DEFAULT_CONTROL_ROUTER_PREFIX,
             version: str=DEFAULT_CONTROL_VERSION,
-            environ: typing.Dict=None
+            environ: typing.Dict=None,
+            failfast: bool=True
     ):
         self.router_prefix = router_prefix
         self.router_tag = router_tag
         self.version = version
         self.environ = environ
+        self.plugins: typing.List[ControlHealthMixin] = []
+        self.failfast = failfast
 
-    def patch_app(self, app: fastapi.FastAPI) -> None:
+    def patch_app(
+            self,
+            app: fastapi.FastAPI,
+            enable_environ: bool=True,
+            enable_health: bool=True,
+            enable_version: bool=True
+    ) -> None:
+        #
+        # register plugins
+        for name, state in app.state._state.items():
+            if isinstance(state, ControlHealthMixin):
+                self.plugins.append((name, state))
+        #
+        # register endpoints
+        if not (enable_environ or enable_health or enable_version):
+            return
+
         router_control = fastapi.APIRouter()
 
-        @router_control.get(
-            '/version',
-            summary='Version',
-            description='Get the version',
-        )
-        async def version_get() -> typing.Dict:
-            return dict(version=await self.get_version())
+        if enable_version:
+            @router_control.get(
+                '/version',
+                summary='Version',
+                description='Get the version',
+            )
+            async def version_get() -> typing.Dict:
+                return dict(version=await self.get_version())
 
-        @router_control.get(
-            '/environ',
-            summary='Environment',
-            description='Get the environment'
-        )
-        async def environ_get() -> typing.Dict:
-            return dict(**(await self.get_environ()))
+        if enable_environ:
+            @router_control.get(
+                '/environ',
+                summary='Environment',
+                description='Get the environment'
+            )
+            async def environ_get() -> typing.Dict:
+                return dict(**(await self.get_environ()))
 
-        @router_control.get(
-            '/health',
-            summary='Health',
-            description='Get the health',
-            responses={
-                starlette.status.HTTP_200_OK: {
-                    'description': 'UP and healthy',
-                },
-                starlette.status.HTTP_417_EXPECTATION_FAILED: {
-                    'description': 'NOT healthy',
+        if enable_health:
+            @router_control.get(
+                '/health',
+                summary='Health',
+                description='Get the health',
+                responses={
+                    starlette.status.HTTP_200_OK: {
+                        'description': 'UP and healthy',
+                    },
+                    starlette.status.HTTP_417_EXPECTATION_FAILED: {
+                        'description': 'NOT healthy',
+                    }
                 }
-            }
-        )
-        async def health_get() -> typing.Dict:
-            if await self.get_health():
-                return dict(status='UP')
-            else:
-                raise fastapi.HTTPException(
-                    status_code=starlette.status.HTTP_417_EXPECTATION_FAILED,
-                    detail='NOT healthy'
-                )
+            )
+            async def health_get() -> typing.Dict:
+                health = await self.get_health()
+                if health['status']:
+                    return health
+                else:
+                    raise fastapi.HTTPException(
+                        status_code=starlette.status.HTTP_417_EXPECTATION_FAILED,   # noqa E501
+                        detail=health
+                    )
 
+        #
+        # register router
         app.include_router(
             router_control,
             prefix='/' + self.router_prefix,
             tags=[self.router_tag],
         )
 
+    async def register_plugin(self, plugin: ControlHealthMixin):
+        raise NotImplementedError
+
     async def get_environ(self) -> typing.Dict:
         return self.environ if self.environ is not None else {}
 
     async def get_health(self) -> bool:
-        return True
+        shared_obj = type('', (), {})()
+        shared_obj.status = True
+
+        async def wrappit(name, hfunc):  # TODO: implement failfast -> wait()
+            try:
+                details = await hfunc or {}
+                status = True
+            except Exception as e:
+                details = dict(error=str(e))
+                status = False
+                shared_obj.status = False
+            finally:
+                return dict(name=name, status=status, details=details)
+
+        # TODO: perform all checks with this function asyncio.wait(fs)
+        # TODO: perform without shared object
+        results = await asyncio.gather(
+            *[wrappit(name, plugin.health()) for name, plugin in self.plugins]
+        )
+        return dict(
+            status=shared_obj.status,
+            checks=results
+        )
 
     async def get_version(self) -> str:
         return self.version
@@ -129,6 +196,9 @@ class Controller(object):
 class ControlSettings(PluginSettings):
     control_router_prefix: str = DEFAULT_CONTROL_ROUTER_PREFIX
     control_router_tag: str = DEFAULT_CONTROL_ROUTER_PREFIX
+    control_enable_environ: bool = True
+    control_enable_health: bool = True
+    control_enable_version: bool = True
 
 
 class ControlPlugin(Plugin):
@@ -164,11 +234,25 @@ class ControlPlugin(Plugin):
             version=version,
             environ=environ
         )
-        self.controller.patch_app(app)
+        self.controller.patch_app(
+            app,
+            enable_environ=self.config.control_enable_environ,
+            enable_health=self.config.control_enable_health,
+            enable_version=self.config.control_enable_version
+        )
 
     async def init(self):
         if self.controller is None:
             raise ControlError('Control cannot be initialized')
+        if self.config.control_enable_health:
+            health = await self.controller.get_health()
+            if not health['status']:
+                print()
+                print('-' * 79)
+                pprint.pprint(health)
+                print('-' * 79)
+                print()
+                raise ControlError('failed health control')
 
     async def terminate(self):
         self.config = None

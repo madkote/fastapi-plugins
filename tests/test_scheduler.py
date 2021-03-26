@@ -143,6 +143,52 @@ class SchedulerTest(unittest.TestCase):
         event_loop.run_until_complete(coro())
         event_loop.close()
 
+    def test_health(self):
+        async def _test():
+            app = fastapi.FastAPI()
+            config = fastapi_plugins.SchedulerSettings()
+            await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config) # noqa E501
+            await fastapi_plugins.scheduler_plugin.init()
+            try:
+                count = 3
+                exp = dict([(str(i), str(i)) for i in range(count)])
+                res = {}
+
+                async def coro(name, timeout):
+                    try:
+                        await asyncio.sleep(timeout)
+                        res[name] = name
+                    except asyncio.CancelledError as e:
+                        res[name] = 'cancel'
+                        raise e
+
+                s = await fastapi_plugins.scheduler_plugin()
+                for i in range(count):
+                    await s.spawn(coro(str(i), i / 10))
+                await asyncio.sleep(1)
+                self.assertTrue(d2json(exp) == d2json(res), 'scheduler failed')
+                #
+                exp = dict(
+                    jobs=0,
+                    active=0,
+                    pending=0,
+                    limit=100,
+                    closed=False
+                )
+                res = await fastapi_plugins.scheduler_plugin.health()
+                self.assertTrue(
+                    d2json(exp) == d2json(res),
+                    'health failed: %s != %s' % (exp, res)
+                )
+            finally:
+                await fastapi_plugins.scheduler_plugin.terminate()
+
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        coro = asyncio.coroutine(_test)
+        event_loop.run_until_complete(coro())
+        event_loop.close()
+
     def test_endpoints(self):
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)

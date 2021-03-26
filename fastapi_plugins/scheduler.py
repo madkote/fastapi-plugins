@@ -13,6 +13,8 @@ Scheduler plugin (based on `aiojobs`)
 
 from __future__ import absolute_import
 
+import typing
+
 import aiojobs
 import fastapi
 import pydantic
@@ -21,6 +23,8 @@ import starlette.requests
 from .plugin import PluginError
 from .plugin import PluginSettings
 from .plugin import Plugin
+
+from .control import ControlHealthMixin
 
 from .version import VERSION
 
@@ -90,7 +94,7 @@ class SchedulerSettings(PluginSettings):
     # aiojobs_enable_cancel: bool = False
 
 
-class SchedulerPlugin(Plugin):
+class SchedulerPlugin(Plugin, ControlHealthMixin):
     DEFAULT_CONFIG_CLASS = SchedulerSettings
 
     def _on_init(self) -> None:
@@ -150,6 +154,15 @@ class SchedulerPlugin(Plugin):
         if self.scheduler is not None:
             await self.scheduler.close()
             self.scheduler = None
+
+    async def health(self) -> typing.Dict:
+        return dict(
+            jobs=len(self.scheduler),
+            active=self.scheduler.active_count,
+            pending=self.scheduler.pending_count,
+            limit=self.scheduler.limit,
+            closed=self.scheduler.closed
+        )
 
 
 scheduler_plugin = SchedulerPlugin()

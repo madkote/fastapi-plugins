@@ -24,6 +24,7 @@ import pytest
 import fastapi_plugins
 
 from . import VERSION
+from . import d2json
 
 __all__ = []
 __author__ = 'madkote <madkote(at)bluewin.ch>'
@@ -94,6 +95,32 @@ class RedisTest(unittest.TestCase):
                 c = await fastapi_plugins.redis_plugin()
                 r = (await c.ping()).decode()
                 self.assertTrue(r == 'PONG', 'ping-pong failed == %s' % r)
+            finally:
+                await fastapi_plugins.redis_plugin.terminate()
+
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        coro = asyncio.coroutine(_test)
+        event_loop.run_until_complete(coro())
+        event_loop.close()
+
+    def test_health(self):
+        async def _test():
+            app = fastapi.FastAPI()
+            config = fastapi_plugins.RedisSettings()
+            await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
+            await fastapi_plugins.redis_plugin.init()
+            try:
+                exp = dict(
+                    redis_type=config.redis_type,
+                    redis_address=config.get_redis_address(),
+                    redis_pong='PONG'
+                )
+                res = await fastapi_plugins.redis_plugin.health()
+                self.assertTrue(
+                    d2json(exp) == d2json(res),
+                    'health failed: %s != %s' % (exp, res)
+                )
             finally:
                 await fastapi_plugins.redis_plugin.terminate()
 
@@ -185,6 +212,35 @@ class RedisSentinelTest(unittest.TestCase):
                 c = await fastapi_plugins.redis_plugin()
                 r = (await c.ping()).decode()
                 self.assertTrue(r == 'PONG', 'ping-pong failed == %s' % r)
+            finally:
+                await fastapi_plugins.redis_plugin.terminate()
+
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        coro = asyncio.coroutine(_test)
+        event_loop.run_until_complete(coro())
+        event_loop.close()
+
+    def test_health(self):
+        async def _test():
+            app = fastapi.FastAPI()
+            config = fastapi_plugins.RedisSettings(
+                redis_type='sentinel',
+                redis_sentinels='localhost:26379'
+            )
+            await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
+            await fastapi_plugins.redis_plugin.init()
+            try:
+                exp = dict(
+                    redis_type=config.redis_type,
+                    redis_address=config.get_sentinels(),
+                    redis_pong='PONG'
+                )
+                res = await fastapi_plugins.redis_plugin.health()
+                self.assertTrue(
+                    d2json(exp) == d2json(res),
+                    'health failed: %s != %s' % (exp, res)
+                )
             finally:
                 await fastapi_plugins.redis_plugin.terminate()
 

@@ -13,6 +13,8 @@ Memcached plugin
 
 from __future__ import absolute_import
 
+import typing
+
 try:
     import aiomcache
 except ImportError:
@@ -26,6 +28,9 @@ import tenacity
 from .plugin import PluginError
 from .plugin import PluginSettings
 from .plugin import Plugin
+
+from .control import ControlHealthMixin
+
 from .version import VERSION
 
 __all__ = [
@@ -57,7 +62,7 @@ class MemcachedClient(aiomcache.Client):
         return await self.version()
 
 
-class MemcachedPlugin(Plugin):
+class MemcachedPlugin(Plugin, ControlHealthMixin):
     DEFAULT_CONFIG_CLASS = MemcachedSettings
 
     def _on_init(self) -> None:
@@ -114,6 +119,13 @@ class MemcachedPlugin(Plugin):
             await self.memcached.flush_all()
             await self.memcached.close()
             self.memcached = None
+
+    async def health(self) -> typing.Dict:
+        return dict(
+            host=self.config.memcached_host,
+            port=self.config.memcached_port,
+            version=(await self.memcached.ping()).decode()
+        )
 
 
 memcached_plugin = MemcachedPlugin()

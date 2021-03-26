@@ -26,6 +26,8 @@ from .plugin import PluginError
 from .plugin import PluginSettings
 from .plugin import Plugin
 
+from .control import ControlHealthMixin
+
 from .version import VERSION
 
 __all__ = [
@@ -103,7 +105,7 @@ class RedisSettings(PluginSettings):
             return []
 
 
-class RedisPlugin(Plugin):
+class RedisPlugin(Plugin, ControlHealthMixin):
     DEFAULT_CONFIG_CLASS = RedisSettings
 
     def _on_init(self) -> None:
@@ -178,6 +180,13 @@ class RedisPlugin(Plugin):
             self.redis.close()
             await self.redis.wait_closed()
             self.redis = None
+
+    async def health(self) -> typing.Dict:
+        return dict(
+            redis_type=self.config.redis_type,
+            redis_address=self.config.get_sentinels() if self.config.redis_type == RedisType.sentinel else self.config.get_redis_address(), # noqa E501
+            redis_pong=(await self.redis.ping()).decode()
+        )
 
 
 redis_plugin = RedisPlugin()

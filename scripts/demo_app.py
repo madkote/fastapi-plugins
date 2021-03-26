@@ -33,6 +33,11 @@ except ImportError:
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) # noqa E501
     import fastapi_plugins
 
+from fastapi_plugins.memcached import MemcachedSettings
+from fastapi_plugins.memcached import MemcachedClient
+from fastapi_plugins.memcached import depends_memcached
+from fastapi_plugins.memcached import memcached_plugin
+
 VERSION = (0, 1, 2)
 
 __all__ = []
@@ -49,9 +54,12 @@ class AppSettings(
         OtherSettings,
         fastapi_plugins.ControlSettings,
         fastapi_plugins.RedisSettings,
-        fastapi_plugins.SchedulerSettings
+        fastapi_plugins.SchedulerSettings,
+        MemcachedSettings,
 ):
     api_name: str = str(__name__)
+    # redis_type = fastapi_plugins.RedisType.sentinel
+    # redis_sentinels = 'localhost:26379'
 
 
 app = fastapi.FastAPI()
@@ -104,8 +112,24 @@ async def job_get(
     return dict(job_id=job_id, status=status)
 
 
+@app.post("/memcached/demo/<key>")
+async def memcached_demo_post(
+    key: str=fastapi.Query(..., title='the job id'),
+    cache: MemcachedClient=fastapi.Depends(depends_memcached),
+) -> typing.Dict:
+    await cache.set(key.encode(), str(key + '_value').encode())
+    value = await cache.get(key.encode())
+    return dict(ping=(await cache.ping()).decode(), key=key, value=value)
+
+
 @app.on_event('startup')
 async def on_startup() -> None:
+    await memcached_plugin.init_app(app, config)
+    await memcached_plugin.init()
+    await fastapi_plugins.redis_plugin.init_app(app, config=config)
+    await fastapi_plugins.redis_plugin.init()
+    await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.scheduler_plugin.init()
     await fastapi_plugins.control_plugin.init_app(
         app,
         config=config,
@@ -113,14 +137,11 @@ async def on_startup() -> None:
         environ=config.dict()
     )
     await fastapi_plugins.control_plugin.init()
-    await fastapi_plugins.redis_plugin.init_app(app, config=config)
-    await fastapi_plugins.redis_plugin.init()
-    await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
-    await fastapi_plugins.scheduler_plugin.init()
 
 
 @app.on_event('shutdown')
 async def on_shutdown() -> None:
+    await fastapi_plugins.control_plugin.terminate()
     await fastapi_plugins.scheduler_plugin.terminate()
     await fastapi_plugins.redis_plugin.terminate()
-    await fastapi_plugins.control_plugin.terminate()
+    await memcached_plugin.terminate()
