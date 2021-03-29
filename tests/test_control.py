@@ -173,7 +173,7 @@ class ControlTest(unittest.TestCase):
         async def _test():
             c = fastapi_plugins.Controller()
             exp = dict(status=True, checks=[])
-            res = await c.get_health()
+            res = (await c.get_health()).dict()
             self.assertTrue(
                 d2json(exp) == d2json(res),
                 'health failed: %s != %s' % (exp, res)
@@ -204,7 +204,7 @@ class ControlTest(unittest.TestCase):
                         )
                     ]
                 )
-                res = await c.get_health()
+                res = (await c.get_health()).dict()
                 self.assertTrue(
                     d2json(exp) == d2json(res),
                     'health failed: %s != %s' % (exp, res)
@@ -237,7 +237,7 @@ class ControlTest(unittest.TestCase):
                         )
                     ]
                 )
-                res = await c.get_health()
+                res = (await c.get_health()).dict()
                 self.assertTrue(
                     d2json(exp) == d2json(res),
                     'health failed: %s != %s' % (exp, res)
@@ -270,7 +270,7 @@ class ControlTest(unittest.TestCase):
                         )
                     ]
                 )
-                res = await c.get_health()
+                res = (await c.get_health()).dict()
                 self.assertTrue(
                     d2json(exp) == d2json(res),
                     'health failed: %s != %s' % (exp, res)
@@ -321,7 +321,7 @@ class ControlTest(unittest.TestCase):
                 exp = 200
                 res = response.status_code
                 self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
-                exp = {}
+                exp = dict(environ={})
                 res = response.json()
                 self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
         finally:
@@ -341,7 +341,7 @@ class ControlTest(unittest.TestCase):
                 exp = 200
                 res = response.status_code
                 self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
-                exp = myenviron
+                exp = dict(environ=myenviron)
                 res = response.json()
                 self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
         finally:
@@ -738,7 +738,7 @@ class ControlTest(unittest.TestCase):
                 exp = 200
                 res = response.status_code
                 self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
-                exp = {}
+                exp = dict(environ={})
                 res = response.json()
                 self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
                 #
@@ -779,7 +779,7 @@ class ControlTest(unittest.TestCase):
                 exp = 200
                 res = response.status_code
                 self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
-                exp = {}
+                exp = dict(environ={})
                 res = response.json()
                 self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
                 #

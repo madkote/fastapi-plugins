@@ -224,7 +224,7 @@ class SchedulerTest(unittest.TestCase):
                 res = response.json()
                 self.assertTrue(d2json(res) == d2json(exp), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
                 #
-                tries = 1000
+                tries = 10000
                 attempt = 0
                 exp = {'job_id': job_id, 'status': 'success'}
                 endpoint = '/jobs/status?job_id=%s' % job_id

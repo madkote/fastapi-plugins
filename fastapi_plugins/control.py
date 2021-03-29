@@ -16,10 +16,6 @@ Health is inspired by
 
 
 -----------------------
-TODO: control version must be object   -> ControlEnviron
-TODO: control environ must be object   -> ControlVersion
-TODO: health should be Health response -> ControlHealth
-
 TODO: test base model with various pydantic version
   * identify edge version of pydantic + fastapi
   * store them as separete requirements
@@ -51,6 +47,9 @@ from .plugin import Plugin
 from .version import VERSION
 
 __all__ = [
+    'ControlEnviron', 'ControlHealthCheck', 'ControlHealth',
+    'ControlHealthError', 'ControlVersion',
+    #
     'ControlError', 'ControlHealthMixin', 'ControlSettings', 'Controller',
     'ControlPlugin', 'control_plugin', 'depends_control'
 ]
@@ -65,6 +64,85 @@ DEFAULT_CONTROL_VERSION = '0.0.1'
 
 class ControlError(PluginError):
     pass
+
+
+class ControlBaseModel(pydantic.BaseModel):
+    class Config:
+        use_enum_values = True
+        validate_all = True
+
+
+class ControlEnviron(ControlBaseModel):
+    environ: typing.Dict = pydantic.Field(
+        ...,
+        title='Environment',
+        example=dict(var1='variable1', var2='variable2')
+    )
+
+
+class ControlHealthStatus(ControlBaseModel):
+    status: bool = pydantic.Field(
+        ...,
+        title='Health status',
+        example=True
+    )
+
+
+class ControlHealthCheck(ControlHealthStatus):
+    name: str = pydantic.Field(
+        ...,
+        title='Health check name',
+        min_length=1,
+        example='Redis'
+    )
+    details: typing.Dict = pydantic.Field(
+        ...,
+        title='Health check details',
+        example=dict(detail1='detail1', detail2='detail2')
+    )
+
+
+class ControlHealth(ControlHealthStatus):
+    checks: typing.List[ControlHealthCheck] = pydantic.Field(
+        ...,
+        title='Health checks',
+        example=[
+            ControlHealthCheck(
+                name='Redis',
+                status=True,
+                details=dict(
+                    redis_type='redis',
+                    redis_host='localhost',
+                )
+            ).dict()
+        ]
+    )
+
+
+class ControlHealthError(ControlBaseModel):
+    detail: ControlHealth = pydantic.Field(
+        ...,
+        title='Health error',
+        example=ControlHealth(
+            status=False,
+            checks=[
+                ControlHealthCheck(
+                    name='Redis',
+                    status=False,
+                    details=dict(error='Some error')
+                )
+            ]
+        )
+    )
+
+
+class ControlVersion(ControlBaseModel):
+    version: str = pydantic.Field(
+        ...,
+        title='Version',
+        min_length=1,
+        example='1.2.3'
+    )
 
 
 class ControlHealthMixin(object):
@@ -113,41 +191,48 @@ class Controller(object):
                 '/version',
                 summary='Version',
                 description='Get the version',
+                response_model=ControlVersion
             )
-            async def version_get() -> typing.Dict:
-                return dict(version=await self.get_version())
+            async def version_get() -> ControlVersion:
+                return ControlVersion(version=await self.get_version())
 
         if enable_environ:
             @router_control.get(
                 '/environ',
                 summary='Environment',
-                description='Get the environment'
+                description='Get the environment',
+                response_model=ControlEnviron
             )
-            async def environ_get() -> typing.Dict:
-                return dict(**(await self.get_environ()))
+            async def environ_get() -> ControlEnviron:
+                return ControlEnviron(
+                    environ=dict(**(await self.get_environ()))
+                )
 
         if enable_health:
             @router_control.get(
                 '/health',
                 summary='Health',
                 description='Get the health',
+                response_model=ControlHealth,
                 responses={
-                    starlette.status.HTTP_200_OK: {
-                        'description': 'UP and healthy',
-                    },
-                    starlette.status.HTTP_417_EXPECTATION_FAILED: {
-                        'description': 'NOT healthy',
-                    }
+                    starlette.status.HTTP_200_OK: dict(
+                        description='UP and healthy',
+                        model=ControlHealth
+                    ),
+                    starlette.status.HTTP_417_EXPECTATION_FAILED: dict(
+                        description='NOT healthy',
+                        model=ControlHealthError
+                    )
                 }
             )
-            async def health_get() -> typing.Dict:
+            async def health_get() -> ControlHealth:
                 health = await self.get_health()
-                if health['status']:
+                if health.status:
                     return health
                 else:
                     raise fastapi.HTTPException(
                         status_code=starlette.status.HTTP_417_EXPECTATION_FAILED,   # noqa E501
-                        detail=health
+                        detail=health.dict()
                     )
 
         #
@@ -164,11 +249,12 @@ class Controller(object):
     async def get_environ(self) -> typing.Dict:
         return self.environ if self.environ is not None else {}
 
-    async def get_health(self) -> bool:
+    async def get_health(self) -> ControlHealth:
         shared_obj = type('', (), {})()
         shared_obj.status = True
 
-        async def wrappit(name, hfunc):  # TODO: implement failfast -> wait()
+        # TODO: implement failfast -> wait()
+        async def wrappit(name, hfunc) -> ControlHealthCheck:
             try:
                 details = await hfunc or {}
                 status = True
@@ -177,14 +263,18 @@ class Controller(object):
                 status = False
                 shared_obj.status = False
             finally:
-                return dict(name=name, status=status, details=details)
+                return ControlHealthCheck(
+                    name=name,
+                    status=status,
+                    details=details
+                )
 
         # TODO: perform all checks with this function asyncio.wait(fs)
         # TODO: perform without shared object
         results = await asyncio.gather(
             *[wrappit(name, plugin.health()) for name, plugin in self.plugins]
         )
-        return dict(
+        return ControlHealth(
             status=shared_obj.status,
             checks=results
         )
@@ -246,10 +336,10 @@ class ControlPlugin(Plugin):
             raise ControlError('Control cannot be initialized')
         if self.config.control_enable_health:
             health = await self.controller.get_health()
-            if not health['status']:
+            if not health.status:
                 print()
                 print('-' * 79)
-                pprint.pprint(health)
+                pprint.pprint(health.dict())
                 print('-' * 79)
                 print()
                 raise ControlError('failed health control')
