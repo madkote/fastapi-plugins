@@ -27,6 +27,7 @@ FastAPI framework plugins
   * [Version](./docs/control.md#version)
   * [Environment](./docs/control.md#environment)
   * [Health](./docs/control.md#health)
+  * [Heartbeat](./docs/control.md#heartbeat)
 * Celery
 * MQ
 * and much more is already in progress...

@@ -283,6 +283,21 @@ class ControlTest(unittest.TestCase):
         event_loop.run_until_complete(coro())
         event_loop.close()
 
+    def test_controller_heartbeat(self):
+        async def _test():
+            c = fastapi_plugins.Controller()
+            exp = True
+            res = await c.get_heart_beat()
+            self.assertTrue(
+                exp == res,
+                'heart beat failed: %s != %s' % (exp, res)
+            )
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        coro = asyncio.coroutine(_test)
+        event_loop.run_until_complete(coro())
+        event_loop.close()
+
     def test_controller_version(self):
         async def _test():
             from fastapi_plugins.control import DEFAULT_CONTROL_VERSION
@@ -380,6 +395,25 @@ class ControlTest(unittest.TestCase):
                 res = response.status_code
                 self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
                 exp = {'version': myversion}
+                res = response.json()
+                self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
+        finally:
+            event_loop.close()
+
+    def test_router_heartbeat(self):
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        try:
+            client = starlette.testclient.TestClient(
+                self.make_app()
+            )
+            with client as c:
+                endpoint = '/control/heartbeat'
+                response = c.get(endpoint)
+                exp = 200
+                res = response.status_code
+                self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
+                exp = dict(is_alive=True)
                 res = response.json()
                 self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
         finally:
@@ -651,6 +685,7 @@ class ControlTest(unittest.TestCase):
             config = fastapi_plugins.ControlSettings(
                 control_enable_environ=False,
                 control_enable_health=False,
+                control_enable_heartbeat=False,
                 control_enable_version=False
             )
             client = starlette.testclient.TestClient(
@@ -665,6 +700,12 @@ class ControlTest(unittest.TestCase):
                 self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
                 #
                 endpoint = '/control/version'
+                response = c.get(endpoint)
+                exp = 404
+                res = response.status_code
+                self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
+                #
+                endpoint = '/control/heartbeat'
                 response = c.get(endpoint)
                 exp = 404
                 res = response.status_code
@@ -686,6 +727,7 @@ class ControlTest(unittest.TestCase):
             config = fastapi_plugins.ControlSettings(
                 control_enable_environ=False,
                 control_enable_health=True,
+                control_enable_heartbeat=True,
                 control_enable_version=True
             )
             client = starlette.testclient.TestClient(
@@ -708,6 +750,15 @@ class ControlTest(unittest.TestCase):
                 res = response.json()
                 self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
                 #
+                endpoint = '/control/heartbeat'
+                response = c.get(endpoint)
+                exp = 200
+                res = response.status_code
+                self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
+                exp = {'is_alive': True}
+                res = response.json()
+                self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
+                #
                 endpoint = '/control/health'
                 response = c.get(endpoint)
                 exp = 200
@@ -725,6 +776,7 @@ class ControlTest(unittest.TestCase):
         try:
             config = fastapi_plugins.ControlSettings(
                 control_enable_environ=True,
+                control_enable_heartbeat=True,
                 control_enable_health=True,
                 control_enable_version=False
             )
@@ -748,6 +800,15 @@ class ControlTest(unittest.TestCase):
                 res = response.status_code
                 self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
                 #
+                endpoint = '/control/heartbeat'
+                response = c.get(endpoint)
+                exp = 200
+                res = response.status_code
+                self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
+                exp = {'is_alive': True}
+                res = response.json()
+                self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
+                #
                 endpoint = '/control/health'
                 response = c.get(endpoint)
                 exp = 200
@@ -767,6 +828,7 @@ class ControlTest(unittest.TestCase):
             config = fastapi_plugins.ControlSettings(
                 control_enable_environ=True,
                 control_enable_health=False,
+                control_enable_heartbeat=True,
                 control_enable_version=True
             )
             client = starlette.testclient.TestClient(
@@ -792,11 +854,71 @@ class ControlTest(unittest.TestCase):
                 res = response.json()
                 self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
                 #
+                endpoint = '/control/heartbeat'
+                response = c.get(endpoint)
+                exp = 200
+                res = response.status_code
+                self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
+                exp = {'is_alive': True}
+                res = response.json()
+                self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
+                #
                 endpoint = '/control/health'
                 response = c.get(endpoint)
                 exp = 404
                 res = response.status_code
                 self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
+        finally:
+            event_loop.close()
+
+    def test_router_disable_heartbeat(self):
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+        try:
+            from fastapi_plugins.control import DEFAULT_CONTROL_VERSION
+            config = fastapi_plugins.ControlSettings(
+                control_enable_environ=True,
+                control_enable_health=True,
+                control_enable_heartbeat=False,
+                control_enable_version=True
+            )
+            client = starlette.testclient.TestClient(
+                self.make_app(config=config)
+            )
+            with client as c:
+                #
+                endpoint = '/control/environ'
+                response = c.get(endpoint)
+                exp = 200
+                res = response.status_code
+                self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
+                exp = dict(environ={})
+                res = response.json()
+                self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
+                #
+                endpoint = '/control/version'
+                response = c.get(endpoint)
+                exp = 200
+                res = response.status_code
+                self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
+                exp = {'version': DEFAULT_CONTROL_VERSION}
+                res = response.json()
+                self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
+                #
+                endpoint = '/control/heartbeat'
+                response = c.get(endpoint)
+                exp = 404
+                res = response.status_code
+                self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
+                #
+                endpoint = '/control/health'
+                response = c.get(endpoint)
+                exp = 200
+                res = response.status_code
+                self.assertTrue(exp == res, '[%s] status code : %s != %s' % (endpoint, exp, res))  # noqa E501
+                exp = dict(status=True, checks=[])
+                res = response.json()
+                self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
         finally:
             event_loop.close()
 

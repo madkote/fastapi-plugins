@@ -1,6 +1,6 @@
 # Changes
 ## 0.7.0 (2020-03-29)
-- `[feature]` Control plugin with Health, Environment and Version
+- `[feature]` Control plugin with Health, Heartbeat, Environment and Version
 ## 0.6.1 (2020-03-24)
 - `[fix]` Bump `aiojobs`to get rid of not required dependencies
 ## 0.6.0 (2020-11-26)

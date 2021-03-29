@@ -32,7 +32,7 @@ from .version import VERSION
 
 __all__ = [
     'ControlEnviron', 'ControlHealthCheck', 'ControlHealth',
-    'ControlHealthError', 'ControlVersion',
+    'ControlHealthError', 'ControlHeartBeat', 'ControlVersion',
     #
     'ControlError', 'ControlHealthMixin', 'ControlSettings', 'Controller',
     'ControlPlugin', 'control_plugin', 'depends_control'
@@ -120,6 +120,14 @@ class ControlHealthError(ControlBaseModel):
     )
 
 
+class ControlHeartBeat(ControlBaseModel):
+    is_alive: bool = pydantic.Field(
+        ...,
+        title='Alive flag',
+        example=True
+    )
+
+
 class ControlVersion(ControlBaseModel):
     version: str = pydantic.Field(
         ...,
@@ -156,6 +164,7 @@ class Controller(object):
             app: fastapi.FastAPI,
             enable_environ: bool=True,
             enable_health: bool=True,
+            enable_heartbeat: bool=True,
             enable_version: bool=True
     ) -> None:
         #
@@ -165,7 +174,7 @@ class Controller(object):
                 self.plugins.append((name, state))
         #
         # register endpoints
-        if not (enable_environ or enable_health or enable_version):
+        if not (enable_environ or enable_health or enable_heartbeat or enable_version): # noqa E501
             return
 
         router_control = fastapi.APIRouter()
@@ -191,6 +200,16 @@ class Controller(object):
                 return ControlEnviron(
                     environ=dict(**(await self.get_environ()))
                 )
+
+        if enable_heartbeat:
+            @router_control.get(
+                '/heartbeat',
+                summary='Heart beat',
+                description='Get the alive signal',
+                response_model=ControlHeartBeat
+            )
+            async def heartbeat_get() -> ControlHeartBeat:
+                return ControlHeartBeat(is_alive=await self.get_heart_beat())
 
         if enable_health:
             @router_control.get(
@@ -263,6 +282,9 @@ class Controller(object):
             checks=results
         )
 
+    async def get_heart_beat(self) -> bool:
+        return True
+
     async def get_version(self) -> str:
         return self.version
 
@@ -270,9 +292,9 @@ class Controller(object):
 class ControlSettings(PluginSettings):
     control_router_prefix: str = DEFAULT_CONTROL_ROUTER_PREFIX
     control_router_tag: str = DEFAULT_CONTROL_ROUTER_PREFIX
-    control_enable_beep: bool = True
     control_enable_environ: bool = True
     control_enable_health: bool = True
+    control_enable_heartbeat: bool = True
     control_enable_version: bool = True
 
 
@@ -313,6 +335,7 @@ class ControlPlugin(Plugin):
             app,
             enable_environ=self.config.control_enable_environ,
             enable_health=self.config.control_enable_health,
+            enable_heartbeat=self.config.control_enable_heartbeat,
             enable_version=self.config.control_enable_version
         )
 

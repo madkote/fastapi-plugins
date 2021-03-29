@@ -2,6 +2,7 @@
 Control you application out of the box with:
 * `/control/environ` - return the application's environment
 * `/control/health` - return the application's and it's plugins health
+* `/control/heartbeat` - return the application's heart beat
 * `/control/version` - return the application's version
 
 Valid variables are:
@@ -9,6 +10,7 @@ Valid variables are:
 * `CONTROL_ROUTER_TAG` - The router tag for `control` plugin. Default is `control`.
 * `CONTROL_ENABLE_ENVIRON` - The flag to enable or disable `environ` endpoint. Default is `True` - enabled.
 * `CONTROL_ENABLE_HEALTH` - The flag to enable or disable `health` endpoint. Default is `True` - enabled.
+* `CONTROL_ENABLE_HEARTBEAT` - The flag to enable or disable `heartbeat` endpoint. Default is `True` - enabled.
 * `CONTROL_ENABLE_VERSION` - The flag to enable or disable `version` endpoint. Default is `True` - enabled.
 
 ## Environment
@@ -75,6 +77,9 @@ exception.
 	    await fastapi_plugins.myplugin.terminate()
 ```
 
+## Heartbeat
+The endpoint `/control/heartbeat` returns heart beat of the application - simple health without any plugins.
+
 ## Example
 ```python
     # run with `uvicorn demo_app:app`
@@ -90,6 +95,7 @@ exception.
         #
         # control_enable_environ: bool = True
         # control_enable_health: bool = True
+        # control_enable_heartbeat: bool = True
         # control_enable_version: bool = True
     
     app = fastapi.FastAPI()
@@ -192,5 +198,14 @@ Parameters `version` and `environ` will return these values on endpoint calls.
 	      }
 	    }
 	  ]
+	}
+```
+
+#### Heartbeat
+```bash
+	curl -X 'GET' 'http://localhost:8000/control/heartbeat' -H 'accept: application/json'
+	
+	{
+	  "is_alive": true
 	}
 ```
