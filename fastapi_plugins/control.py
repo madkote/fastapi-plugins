@@ -12,22 +12,6 @@ Controller plugin
 
 Health is inspired by
 "https://dzone.com/articles/an-overview-of-health-check-patterns"
-
-
-
------------------------
-TODO: test base model with various pydantic version
-  * identify edge version of pydantic + fastapi
-  * store them as separete requirements
-  * run tox with various ini files
-
-TODO: document Control
-* docs/cache#redis
-* docs/cache#memcached
-* docs/cache#scheduler
-* docs/cache#control
-* example in Readme with redis and control
-  (code and curl to health, version, redis)
 '''
 
 from __future__ import absolute_import
@@ -286,6 +270,7 @@ class Controller(object):
 class ControlSettings(PluginSettings):
     control_router_prefix: str = DEFAULT_CONTROL_ROUTER_PREFIX
     control_router_tag: str = DEFAULT_CONTROL_ROUTER_PREFIX
+    control_enable_beep: bool = True
     control_enable_environ: bool = True
     control_enable_health: bool = True
     control_enable_version: bool = True
