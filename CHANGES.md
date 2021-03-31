@@ -1,4 +1,6 @@
 # Changes
+## 0.8.1 (2020-03-31)
+- `[fix]` Fix settings for Python 3.7
 ## 0.8.0 (2020-03-31)
 - `[feature]` Settings plugin
 ## 0.7.0 (2020-03-29)
