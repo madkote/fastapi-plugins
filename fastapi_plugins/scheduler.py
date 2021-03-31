@@ -169,6 +169,6 @@ scheduler_plugin = SchedulerPlugin()
 
 
 async def depends_scheduler(
-    request: starlette.requests.Request
+    conn: starlette.requests.HTTPConnection
 ) -> aiojobs.Scheduler:
-    return await request.app.state.AIOJOBS_SCHEDULER()
+    return await conn.app.state.AIOJOBS_SCHEDULER()

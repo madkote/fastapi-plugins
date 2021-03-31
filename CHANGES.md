@@ -1,4 +1,6 @@
 # Changes
+## 0.8.0 (2020-03-31)
+- `[feature]` Settings plugin
 ## 0.7.0 (2020-03-29)
 - `[feature]` Control plugin with Health, Heartbeat, Environment and Version
 ## 0.6.1 (2020-03-24)

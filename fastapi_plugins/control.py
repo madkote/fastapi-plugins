@@ -128,6 +128,15 @@ class ControlHeartBeat(ControlBaseModel):
     )
 
 
+# class ControlInfo(ControlBaseModel):
+#     status: str = pydantic.Field(
+#         'API is up and running',
+#         title='status',
+#         min_length=1,
+#         exampe='API is up and running'
+#     )
+
+
 class ControlVersion(ControlBaseModel):
     version: str = pydantic.Field(
         ...,
@@ -322,7 +331,7 @@ class ControlPlugin(Plugin):
             raise ControlError('Control configuration is not initialized')
         elif not isinstance(self.config, self.DEFAULT_CONFIG_CLASS):
             raise ControlError('Control configuration is not valid')
-        app.state.CONTROL = self
+        app.state.PLUGIN_CONTROL = self
         #
         # initialize here while `app` is available
         self.controller = Controller(
@@ -361,6 +370,6 @@ control_plugin = ControlPlugin()
 
 
 async def depends_control(
-    request: starlette.requests.Request
+    conn: starlette.requests.HTTPConnection
 ) -> Controller:
-    return await request.app.state.CONTROL()
+    return await conn.app.state.PLUGIN_CONTROL()

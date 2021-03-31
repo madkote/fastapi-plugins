@@ -17,7 +17,9 @@
 </p>
 
 # fastapi-plugins
-FastAPI framework plugins
+FastAPI framework plugins - simple way to share `fastapi` code and utilities across applications.
+
+The concept is `plugin` - plug a functional utility into your application without or with minimal effort.
 
 * [Cache](./docs/cache.md)
   * [Memcached](./docs/cache.md#memcached)
@@ -28,6 +30,7 @@ FastAPI framework plugins
   * [Environment](./docs/control.md#environment)
   * [Health](./docs/control.md#health)
   * [Heartbeat](./docs/control.md#heartbeat)
+* [Application settings/configuration](./docs/settings.md)
 * Celery
 * MQ
 * and much more is already in progress...
@@ -50,6 +53,13 @@ pip install fastapi-plugins[all]
 ```
 
 ## Quick start
+### Plugin
+Add information about plugin system.
+### Application settings
+Add information about settings.
+### Application configuration
+Add information about configuration of an application
+### Complete example
 ```python
 import fastapi
 import fastapi_plugins
@@ -63,6 +73,7 @@ import asyncio
 import aiojobs
 import aioredis
 
+@fastapi_plugins.registered_configuration
 class AppSettings(
         fastapi_plugins.ControlSettings,
         fastapi_plugins.RedisSettings,
@@ -71,14 +82,22 @@ class AppSettings(
 ):
     api_name: str = str(__name__)
 
+
+@fastapi_plugins.registered_configuration(name='sentinel')
+class AppSettingsSentinel(AppSettings):
+    redis_type = fastapi_plugins.RedisType.sentinel
+    redis_sentinels = 'localhost:26379'
+
+
 app = fastapi.FastAPI()
-config = AppSettings()
+config = fastapi_plugins.get_config()
 
 @app.get("/")
 async def root_get(
         cache: aioredis.Redis=fastapi.Depends(fastapi_plugins.depends_redis),
+        conf: pydantic.BaseSettings=fastapi.Depends(fastapi_plugins.depends_config) # noqa E501
 ) -> typing.Dict:
-    return dict(ping=await cache.ping())
+    return dict(ping=await cache.ping(), api_name=conf.api_name)
 
 
 @app.post("/jobs/schedule/<timeout>")
@@ -132,6 +151,8 @@ async def memcached_demo_post(
 
 @app.on_event('startup')
 async def on_startup() -> None:
+    await fastapi_plugins.config_plugin.init_app(app, config)
+    await fastapi_plugins.config_plugin.init()
     await memcached_plugin.init_app(app, config)
     await memcached_plugin.init()
     await fastapi_plugins.redis_plugin.init_app(app, config=config)
@@ -153,6 +174,7 @@ async def on_shutdown() -> None:
     await fastapi_plugins.scheduler_plugin.terminate()
     await fastapi_plugins.redis_plugin.terminate()
     await memcached_plugin.terminate()
+    await fastapi_plugins.config_plugin.terminate()
 ```
 
 # Development

@@ -17,6 +17,7 @@ from .plugin import *       # noqa F401 F403
 from .control import *      # noqa F401 F403
 from ._redis import *       # noqa F401 F403
 from .scheduler import *    # noqa F401 F403
+from .settings import *     # noqa F401 F403
 from .version import VERSION
 
 # try:
@@ -41,8 +42,6 @@ __copyright__ = 'Copyright 2020, madkote'
 # TODO: provide a generic cache type (redis, memcached, in-memory)
 #       and share some settings. Module/Sub-Pack cache
 
-# TODO: health
-
 # TODO: databases
 
 # TODO: mq - activemq, rabbitmq, kafka
@@ -50,8 +49,6 @@ __copyright__ = 'Copyright 2020, madkote'
 #   -> consume(topic, callback)
 
 # TODO: celery
-
-# TOOD: abstract routers with configurable endpoints
 
 # TODO: check socketio (python-socketio) - do we need this?
 

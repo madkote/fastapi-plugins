@@ -37,3 +37,6 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "sentinel: mark test related to Redis Sentinel"
     )
+    config.addinivalue_line(
+        "markers", "settings: mark test related to Settings and Configuration"
+    )

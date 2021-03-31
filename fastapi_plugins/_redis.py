@@ -192,5 +192,7 @@ class RedisPlugin(Plugin, ControlHealthMixin):
 redis_plugin = RedisPlugin()
 
 
-async def depends_redis(request: starlette.requests.Request) -> aioredis.Redis:
-    return await request.app.state.REDIS()
+async def depends_redis(
+    conn: starlette.requests.HTTPConnection
+) -> aioredis.Redis:
+    return await conn.app.state.REDIS()

@@ -132,6 +132,6 @@ memcached_plugin = MemcachedPlugin()
 
 
 async def depends_memcached(
-    request: starlette.requests.Request
+    conn: starlette.requests.HTTPConnection
 ) -> MemcachedClient:
-    return await request.app.state.MEMCACHED()
+    return await conn.app.state.MEMCACHED()

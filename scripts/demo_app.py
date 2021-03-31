@@ -50,6 +50,7 @@ class OtherSettings(pydantic.BaseSettings):
     other: str = 'other'
 
 
+@fastapi_plugins.registered_configuration
 class AppSettings(
         OtherSettings,
         fastapi_plugins.ControlSettings,
@@ -58,19 +59,29 @@ class AppSettings(
         MemcachedSettings,
 ):
     api_name: str = str(__name__)
-    # redis_type = fastapi_plugins.RedisType.sentinel
-    # redis_sentinels = 'localhost:26379'
+
+
+@fastapi_plugins.registered_configuration(name='sentinel')
+class AppSettingsSentinel(AppSettings):
+    redis_type = fastapi_plugins.RedisType.sentinel
+    redis_sentinels = 'localhost:26379'
+
+
+@fastapi_plugins.registered_configuration_local
+class AppSettingsLocal(AppSettings):
+    pass
 
 
 app = fastapi.FastAPI()
-config = AppSettings()
+config = fastapi_plugins.get_config()
 
 
 @app.get("/")
 async def root_get(
         cache: aioredis.Redis=fastapi.Depends(fastapi_plugins.depends_redis),
+        conf: pydantic.BaseSettings=fastapi.Depends(fastapi_plugins.depends_config) # noqa E501
 ) -> typing.Dict:
-    return dict(ping=await cache.ping())
+    return dict(ping=await cache.ping(), api_name=conf.api_name)
 
 
 @app.post("/jobs/schedule/<timeout>")
@@ -124,6 +135,8 @@ async def memcached_demo_post(
 
 @app.on_event('startup')
 async def on_startup() -> None:
+    await fastapi_plugins.config_plugin.init_app(app, config)
+    await fastapi_plugins.config_plugin.init()
     await memcached_plugin.init_app(app, config)
     await memcached_plugin.init()
     await fastapi_plugins.redis_plugin.init_app(app, config=config)
@@ -145,3 +158,4 @@ async def on_shutdown() -> None:
     await fastapi_plugins.scheduler_plugin.terminate()
     await fastapi_plugins.redis_plugin.terminate()
     await memcached_plugin.terminate()
+    await fastapi_plugins.config_plugin.terminate()
