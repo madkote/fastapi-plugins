@@ -109,7 +109,8 @@ def register_config_test(config: pydantic.BaseSettings) -> None:
     _manager.register(CONFIG_NAME_TEST, config)
 
 
-def registered_configuration(cls=None, /, *, name: str=None):
+# def registered_configuration(cls=None, /, *, name: str=None):
+def registered_configuration(cls=None, *, name: str=None):
     if not name:
         name = CONFIG_NAME_DEFAULT
 
