@@ -81,14 +81,14 @@ DESCRIPTION = 'Plugins for FastAPI framework'
 URL = 'https://github.com/madkote/%s' % NAME
 
 REQUIRES_INSTALL = [
-#    'fastapi>=0.61.*',
+#    'fastapi>=0.63.*',
 #    'pydantic >=1.0.0,<2.0.0',
     'fastapi>=0.41.*',
     'pydantic>=0.32.*',
     'tenacity>=6.2.*'
 ]
 REQUIRES_INSTALL += [
-    'aioredis>=1.3.*'
+    'aioredis<=1.3.1'
 ]
 REQUIRES_INSTALL += [
     'aiojobs>=0.3.*'

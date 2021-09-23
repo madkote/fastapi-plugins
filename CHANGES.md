@@ -1,11 +1,13 @@
 # Changes
-## 0.8.1 (2020-03-31)
+## 0.8.2 (2021-09-23)
+- `[fix]` Fix dependency for aioredis
+## 0.8.1 (2021-03-31)
 - `[fix]` Fix settings for Python 3.7
-## 0.8.0 (2020-03-31)
+## 0.8.0 (2021-03-31)
 - `[feature]` Settings plugin
-## 0.7.0 (2020-03-29)
+## 0.7.0 (2021-03-29)
 - `[feature]` Control plugin with Health, Heartbeat, Environment and Version
-## 0.6.1 (2020-03-24)
+## 0.6.1 (2021-03-24)
 - `[fix]` Bump `aiojobs`to get rid of not required dependencies
 ## 0.6.0 (2020-11-26)
 - `[feature]` Memcached

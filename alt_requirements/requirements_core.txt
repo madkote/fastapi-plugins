@@ -1,4 +1,4 @@
-#fastapi>=0.61.*
+#fastapi>=0.63.*
 #pydantic >=1.0.0,<2.0.0
 fastapi>=0.41.*
 pydantic>=0.32.*
