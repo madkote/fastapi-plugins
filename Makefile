@@ -101,7 +101,8 @@ pypi-upload: pypi-deps
 
 docker-up:
 	@echo $@
-	docker container prune -f && docker-compose -f docker-compose.yml -f docker-compose.redis.yml -f docker-compose.memcached.yml up --build
+	docker container prune -f && docker-compose build --force-rm --no-cache --pull && docker-compose -f docker-compose.yml -f docker-compose.redis.yml -f docker-compose.memcached.yml up --build
+	# docker container prune -f && docker-compose -f docker-compose.yml -f docker-compose.redis.yml -f docker-compose.memcached.yml up --build --force-rm --no-cache --pull
 
 docker-up-dev:
 	@echo $@

@@ -3,6 +3,7 @@ services:
   demo_fastapi_plugin:
     image: demo_fastapi_plugin
     environment:
+      - MEMCACHED_HOST=memcached
       - REDIS_TYPE=redis
       - REDIS_HOST=redis
       - LOGGING_LEVEL=10    # 0, 10, 20, 30, 40, 50

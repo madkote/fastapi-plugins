@@ -68,11 +68,13 @@ class AppSettings(
 class AppSettingsSentinel(AppSettings):
     redis_type = fastapi_plugins.RedisType.sentinel
     redis_sentinels = 'localhost:26379'
+    memcached_host: str = 'localhost'
 
 
-@fastapi_plugins.registered_configuration_local
-class AppSettingsLocal(AppSettings):
-    pass
+# @fastapi_plugins.registered_configuration_local
+# class AppSettingsLocal(AppSettings):
+#     memcached_host: str = 'memcached'
+#     redis_sentinels = 'redis-sentinel:26379'
 
 
 app = fastapi_plugins.register_middleware(fastapi.FastAPI())
