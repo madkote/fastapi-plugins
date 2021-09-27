@@ -4,11 +4,11 @@
 '''
 :author:    madkote
 :contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2020, madkote
+:copyright: Copyright 2021, madkote
 
 tests.test_memcached
 --------------------
-Module
+Memcached tests
 '''
 
 from __future__ import absolute_import
@@ -18,6 +18,7 @@ import unittest
 import uuid
 
 import fastapi
+import fastapi_plugins
 import pytest
 
 from . import VERSION
@@ -26,7 +27,7 @@ from . import d2json
 __all__ = []
 __author__ = 'roman-telepathy-ai <roman.schroeder(at)telepathy.ai>'
 __version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 2020, Telepathy Labs'
+__copyright__ = 'Copyright 2021, Telepathy Labs'
 
 
 @pytest.mark.memcached
@@ -42,7 +43,7 @@ class MemcachedTest(unittest.TestCase):
         from fastapi_plugins.memcached import memcached_plugin
 
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = self.fixture_get_config()
             await memcached_plugin.init_app(app=app, config=config)
             await memcached_plugin.init()
@@ -58,7 +59,7 @@ class MemcachedTest(unittest.TestCase):
         from fastapi_plugins.memcached import memcached_plugin
 
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = self.fixture_get_config()
             await memcached_plugin.init_app(app=app, config=config)
             await memcached_plugin.init()
@@ -79,7 +80,7 @@ class MemcachedTest(unittest.TestCase):
         from fastapi_plugins.memcached import memcached_plugin
 
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = self.fixture_get_config()
             await memcached_plugin.init_app(app=app, config=config)
             await memcached_plugin.init()
@@ -107,7 +108,7 @@ class MemcachedTest(unittest.TestCase):
         from fastapi_plugins.memcached import memcached_plugin
 
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = self.fixture_get_config()
             await memcached_plugin.init_app(app=app, config=config)
             await memcached_plugin.init()
@@ -128,7 +129,7 @@ class MemcachedTest(unittest.TestCase):
         from fastapi_plugins.memcached import memcached_plugin
 
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = self.fixture_get_config()
             await memcached_plugin.init_app(app=app, config=config)
             await memcached_plugin.init()

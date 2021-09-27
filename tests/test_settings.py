@@ -7,8 +7,8 @@
 :copyright: Copyright 2021, madkote RES
 
 tests.test_settings
----------
-Module
+-------------------
+Settings tests
 '''
 
 from __future__ import absolute_import
@@ -358,7 +358,7 @@ class TestSettings(unittest.TestCase):
             class MyConfigLocal(fastapi_plugins.PluginSettings):
                 api_name: str = 'local'
 
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.get_config()
 
             await fastapi_plugins.config_plugin.init_app(app=app, config=config)    # noqa E501
@@ -391,7 +391,7 @@ class TestSettings(unittest.TestCase):
                 class MyConfigLocal(fastapi_plugins.PluginSettings):
                     api_name: str = 'local'
 
-                app = fastapi.FastAPI()
+                app = fastapi_plugins.register_middleware(fastapi.FastAPI())
                 config = fastapi_plugins.get_config()
 
                 await fastapi_plugins.config_plugin.init_app(app=app, config=config)    # noqa E501

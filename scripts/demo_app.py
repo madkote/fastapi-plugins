@@ -4,7 +4,7 @@
 '''
 :author:    madkote
 :contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2019, madkote
+:copyright: Copyright 2021, madkote
 
 demo
 ----
@@ -16,6 +16,7 @@ uvicorn demo_app:app
 from __future__ import absolute_import
 
 import asyncio
+import logging
 import typing
 import uuid
 
@@ -56,9 +57,11 @@ class AppSettings(
         fastapi_plugins.ControlSettings,
         fastapi_plugins.RedisSettings,
         fastapi_plugins.SchedulerSettings,
+        fastapi_plugins.LoggingSettings,
         MemcachedSettings,
 ):
     api_name: str = str(__name__)
+    logging_level: int = logging.DEBUG
 
 
 @fastapi_plugins.registered_configuration(name='sentinel')
@@ -72,16 +75,19 @@ class AppSettingsLocal(AppSettings):
     pass
 
 
-app = fastapi.FastAPI()
+app = fastapi_plugins.register_middleware(fastapi.FastAPI())
 config = fastapi_plugins.get_config()
 
 
 @app.get("/")
 async def root_get(
         cache: aioredis.Redis=fastapi.Depends(fastapi_plugins.depends_redis),
-        conf: pydantic.BaseSettings=fastapi.Depends(fastapi_plugins.depends_config) # noqa E501
+        conf: pydantic.BaseSettings=fastapi.Depends(fastapi_plugins.depends_config),    # noqa E501
+        logger: logging.Logger=fastapi.Depends(fastapi_plugins.depends_logging)
 ) -> typing.Dict:
-    return dict(ping=await cache.ping(), api_name=conf.api_name)
+    ping = await cache.ping()
+    logger.debug('root_get', extra=dict(ping=ping, api_name=conf.api_name))
+    return dict(ping=ping, api_name=conf.api_name)
 
 
 @app.post("/jobs/schedule/<timeout>")
@@ -89,22 +95,30 @@ async def job_post(
     timeout: int=fastapi.Query(..., title='the job sleep time'),
     cache: aioredis.Redis=fastapi.Depends(fastapi_plugins.depends_redis),
     scheduler: aiojobs.Scheduler=fastapi.Depends(fastapi_plugins.depends_scheduler),  # noqa E501
+    logger: logging.Logger=fastapi.Depends(fastapi_plugins.depends_logging)
 ) -> str:
     async def coro(job_id, timeout, cache):
         await cache.set(job_id, 'processing')
         try:
             await asyncio.sleep(timeout)
             if timeout == 8:
+                logger.critical('Ugly erred job %s' % job_id)
                 raise Exception('ugly error')
         except asyncio.CancelledError:
             await cache.set(job_id, 'canceled')
+            logger.warning('Cancel job %s' % job_id)
         except Exception:
             await cache.set(job_id, 'erred')
+            logger.error('Erred job %s' % job_id)
         else:
             await cache.set(job_id, 'success')
+            logger.info('Done job %s' % job_id)
 
     job_id = str(uuid.uuid4()).replace('-', '')
+    logger = await fastapi_plugins.log_adapter(logger, extra=dict(job_id=job_id, timeout=timeout))    # noqa E501
+    logger.info('New job %s' % job_id)
     await cache.set(job_id, 'pending')
+    logger.debug('Pending job %s' % job_id)
     await scheduler.spawn(coro(job_id, timeout, cache))
     return job_id
 
@@ -137,6 +151,8 @@ async def memcached_demo_post(
 async def on_startup() -> None:
     await fastapi_plugins.config_plugin.init_app(app, config)
     await fastapi_plugins.config_plugin.init()
+    await fastapi_plugins.log_plugin.init_app(app, config, name=__name__)
+    await fastapi_plugins.log_plugin.init()
     await memcached_plugin.init_app(app, config)
     await memcached_plugin.init()
     await fastapi_plugins.redis_plugin.init_app(app, config=config)
@@ -158,4 +174,5 @@ async def on_shutdown() -> None:
     await fastapi_plugins.scheduler_plugin.terminate()
     await fastapi_plugins.redis_plugin.terminate()
     await memcached_plugin.terminate()
+    await fastapi_plugins.log_plugin.terminate()
     await fastapi_plugins.config_plugin.terminate()

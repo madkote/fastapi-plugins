@@ -4,7 +4,7 @@
 '''
 :author:    madkote
 :contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2020, madkote
+:copyright: Copyright 2021, madkote
 
 tests.conftest
 --------------
@@ -18,7 +18,7 @@ from . import VERSION
 __all__ = []
 __author__ = 'madkote <madkote(at)bluewin.ch>'
 __version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 2019, madkote'
+__copyright__ = 'Copyright 2021, madkote'
 
 
 def pytest_configure(config):
@@ -39,4 +39,7 @@ def pytest_configure(config):
     )
     config.addinivalue_line(
         "markers", "settings: mark test related to Settings and Configuration"
+    )
+    config.addinivalue_line(
+        "markers", "logger: mark test related to Logger"
     )

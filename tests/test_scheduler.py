@@ -8,7 +8,7 @@
 
 tests.test_scheduler
 --------------------
-Module
+Scheduler tests
 '''
 
 from __future__ import absolute_import
@@ -45,7 +45,7 @@ class SchedulerTest(unittest.TestCase):
         pass
 
     def make_app(self, config=None):
-        app = fastapi.FastAPI()
+        app = fastapi_plugins.register_middleware(fastapi.FastAPI())
         if config is None:
             class AppSettings(
                     fastapi_plugins.RedisSettings,
@@ -112,7 +112,7 @@ class SchedulerTest(unittest.TestCase):
 
     def test_basic(self):
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.SchedulerSettings()
             await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config) # noqa E501
             await fastapi_plugins.scheduler_plugin.init()
@@ -145,7 +145,7 @@ class SchedulerTest(unittest.TestCase):
 
     def test_health(self):
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.SchedulerSettings()
             await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config) # noqa E501
             await fastapi_plugins.scheduler_plugin.init()

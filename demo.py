@@ -4,7 +4,7 @@
 '''
 :author:    madkote
 :contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2019, madkote
+:copyright: Copyright 2021, madkote
 
 demo
 ----
@@ -14,6 +14,7 @@ Demo
 from __future__ import absolute_import
 
 import asyncio
+import logging
 import os
 import time
 
@@ -22,12 +23,10 @@ import pydantic
 
 import fastapi_plugins
 
-VERSION = (1, 0, 0)
-
 __all__ = []
 __author__ = 'madkote <madkote(at)bluewin.ch>'
-__version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 2019, madkote'
+__version__ = '.'.join(str(x) for x in fastapi_plugins.VERSION)
+__copyright__ = 'Copyright 2021, madkote'
 
 
 class OtherSettings(pydantic.BaseSettings):
@@ -36,15 +35,17 @@ class OtherSettings(pydantic.BaseSettings):
 
 class AppSettings(
         OtherSettings,
+        fastapi_plugins.LoggingSettings,
         fastapi_plugins.RedisSettings,
         fastapi_plugins.SchedulerSettings
 ):
     api_name: str = str(__name__)
+    logging_level: int = logging.INFO
 
 
 async def test_redis():
     print('--- do redis test')
-    app = fastapi.FastAPI()
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
     config = fastapi_plugins.RedisSettings()
     config = None
     config = AppSettings(redis_host='127.0.0.1')
@@ -71,7 +72,7 @@ async def test_scheduler():
             raise e
 
     print('--- do schedule test')
-    app = fastapi.FastAPI()
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
     config = fastapi_plugins.SchedulerSettings()
     config = None
     config = AppSettings(aiojobs_limit=100)
@@ -146,9 +147,11 @@ async def test_demo():
             raise e
 
     print('--- do demo')
-    app = fastapi.FastAPI()
-    config = AppSettings()
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
+    config = AppSettings(logging_style=fastapi_plugins.LoggingStyle.logfmt)
 
+    await fastapi_plugins.log_plugin.init_app(app, config, name=__name__)
+    await fastapi_plugins.log_plugin.init()
     await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
     await fastapi_plugins.redis_plugin.init()
     await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
@@ -159,20 +162,104 @@ async def test_demo():
         num_sleep = 0.25
 
         print('- play')
+        l = await fastapi_plugins.log_plugin()
         c = await fastapi_plugins.redis_plugin()
         s = await fastapi_plugins.scheduler_plugin()
         for i in range(num_jobs):
             await s.spawn(coro(c, str(i), i/10))
-        print('- sleep', num_sleep)
+        l.info('- sleep %s' % num_sleep)
+        # print('- sleep', num_sleep)
         await asyncio.sleep(num_sleep)
-        print('- check')
+        l.info('- check')
+        # print('- check')
         for i in range(num_jobs):
-            print(i, '==', await c.get(str(i)))
+            l.info('%s == %s' % (i, await c.get(str(i))))
+            # print(i, '==', await c.get(str(i)))
     finally:
         print('- terminate')
         await fastapi_plugins.scheduler_plugin.terminate()
         await fastapi_plugins.redis_plugin.terminate()
-        print('---test schedule done')
+        await fastapi_plugins.log_plugin.terminate()
+        print('---demo done')
+
+
+async def test_demo_custom_log():
+    async def coro(con, name, timeout):
+        try:
+            await con.set(name, '...')
+            print('> sleep', name, timeout)
+            await asyncio.sleep(timeout)
+            await con.set(name, 'done')
+            print('---> sleep done', name, timeout)
+        except asyncio.CancelledError as e:
+            print('coro cancelled', name)
+            raise e
+
+    class CustomLoggingSettings(fastapi_plugins.LoggingSettings):
+        another_format: str = '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
+
+    class CustomLoggingPlugin(fastapi_plugins.LoggingPlugin):
+        def _create_logger(
+            self, 
+            name:str, 
+            config:pydantic.BaseSettings=None
+        ) -> logging.Logger:
+            import sys
+            handler = logging.StreamHandler(stream=sys.stderr)
+            formatter = logging.Formatter(config.another_format)
+            logger = logging.getLogger(name)
+            #
+            logger.setLevel(config.logging_level)
+            handler.setLevel(config.logging_level)
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+            return logger
+
+    class AppSettings(
+            OtherSettings,
+            fastapi_plugins.RedisSettings,
+            fastapi_plugins.SchedulerSettings,
+            CustomLoggingSettings
+    ):
+        api_name: str = str(__name__)
+        logging_level: int = logging.INFO
+
+    print('--- do demo')
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
+    config = AppSettings(logging_style=fastapi_plugins.LoggingStyle.logfmt)
+    mylog_plugin = CustomLoggingPlugin()
+
+    await mylog_plugin.init_app(app, config, name=__name__)
+    await mylog_plugin.init()
+    await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.redis_plugin.init()
+    await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.scheduler_plugin.init()
+
+    try:
+        num_jobs = 10
+        num_sleep = 0.25
+
+        print('- play')
+        l = await mylog_plugin()
+        c = await fastapi_plugins.redis_plugin()
+        s = await fastapi_plugins.scheduler_plugin()
+        for i in range(num_jobs):
+            await s.spawn(coro(c, str(i), i/10))
+        l.info('- sleep %s' % num_sleep)
+        # print('- sleep', num_sleep)
+        await asyncio.sleep(num_sleep)
+        l.info('- check')
+        # print('- check')
+        for i in range(num_jobs):
+            l.info('%s == %s' % (i, await c.get(str(i))))
+            # print(i, '==', await c.get(str(i)))
+    finally:
+        print('- terminate')
+        await fastapi_plugins.scheduler_plugin.terminate()
+        await fastapi_plugins.redis_plugin.terminate()
+        await mylog_plugin.terminate()
+        print('---demo done')
 
 
 async def test_memcached():
@@ -184,7 +271,7 @@ async def test_memcached():
         memcached_prestart_tries = 5
         memcached_prestart_wait = 1
 
-    app = fastapi.FastAPI()
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
     config = MoreSettings()
     await memcached_plugin.init_app(app=app, config=config)
     await memcached_plugin.init()
@@ -228,11 +315,18 @@ def main_demo():
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test_demo())
 
+def main_demo_custom_log():
+    print(os.linesep * 3)
+    print('=' * 50)
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_demo_custom_log())
+
 
 if __name__ == '__main__':
     main_redis()
     main_scheduler()
     main_demo()
+    main_demo_custom_log()
     #
     try:
         main_memcached()

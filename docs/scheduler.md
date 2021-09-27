@@ -17,7 +17,7 @@ import fastapi_plugins
 class AppSettings(OtherSettings, fastapi_plugins.RedisSettings, fastapi_plugins.SchedulerSettings):
     api_name: str = str(__name__)
 
-app = fastapi.FastAPI()
+app = fastapi_plugins.register_middleware(fastapi.FastAPI())
 config = AppSettings()
 
 @app.post("/jobs/schedule/<timeout>")

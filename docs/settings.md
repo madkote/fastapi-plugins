@@ -94,7 +94,7 @@ import fastapi
 import fastapi_plugins
 ...
 
-app = fastapi.FastAPI()
+app = fastapi_plugins.register_middleware(fastapi.FastAPI())
 config = fastapi_plugins.get_config()
 
 @app.get("/")

@@ -5,6 +5,9 @@ services:
     environment:
       - REDIS_TYPE=redis
       - REDIS_HOST=redis
+      - LOGGING_LEVEL=10    # 0, 10, 20, 30, 40, 50
+      - LOGGING_STYLE=json  # txt, json, logfmt
+      - LOGGING_FMT=        # "%(asctime)s %(levelname) %(message)s"
     ports:
       - "8000:8000"
     build:

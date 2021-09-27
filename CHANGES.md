@@ -1,4 +1,7 @@
 # Changes
+## 0.9.0 (2021-09-27)
+- `[feature]` Logging plugin
+- `[feature]` Middleware interface - register middleware at application
 ## 0.8.2 (2021-09-23)
 - `[fix]` Fix dependency for aioredis
 ## 0.8.1 (2021-03-31)

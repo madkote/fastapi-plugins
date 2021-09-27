@@ -4,7 +4,7 @@
 '''
 :author:    madkote
 :contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2020, madkote
+:copyright: Copyright 2021, madkote
 
 fastapi_plugins._redis
 ----------------------
@@ -36,7 +36,7 @@ __all__ = [
 ]
 __author__ = 'madkote <madkote(at)bluewin.ch>'
 __version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 2020, madkote'
+__copyright__ = 'Copyright 2021, madkote'
 
 
 class RedisError(PluginError):

@@ -4,7 +4,7 @@
 '''
 :author:    madkote
 :contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2019, madkote
+:copyright: Copyright 2021, madkote
 
 setup
 -----
@@ -24,7 +24,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 __author__ = 'madkote <madkote(at)bluewin.ch>'
-__copyright__ = 'Copyright 2019, madkote'
+__copyright__ = 'Copyright 2021, madkote'
 
 
 if sys.version_info < (3, 6, 0):
@@ -86,6 +86,9 @@ REQUIRES_INSTALL = [
     'fastapi>=0.41.*',
     'pydantic>=0.32.*',
     'tenacity>=6.2.*'
+]
+REQUIRES_INSTALL += [
+    'python-json-logger>=2.0.*'
 ]
 REQUIRES_INSTALL += [
     'aioredis<=1.3.1'

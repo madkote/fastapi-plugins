@@ -4,7 +4,7 @@
 '''
 :author:    madkote
 :contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2020, madkote
+:copyright: Copyright 2021, madkote
 
 fastapi_plugins
 ---------------
@@ -13,11 +13,13 @@ FastAPI plugins
 
 from __future__ import absolute_import
 
-from .plugin import *       # noqa F401 F403
-from .control import *      # noqa F401 F403
-from ._redis import *       # noqa F401 F403
-from .scheduler import *    # noqa F401 F403
-from .settings import *     # noqa F401 F403
+from .plugin import *           # noqa F401 F403
+from .control import *          # noqa F401 F403
+from .logger import *           # noqa F401 F403
+from .middleware import *       # noqa F401 F403
+from ._redis import *           # noqa F401 F403
+from .scheduler import *        # noqa F401 F403
+from .settings import *         # noqa F401 F403
 from .version import VERSION
 
 # try:
@@ -37,7 +39,7 @@ from .version import VERSION
 
 __author__ = 'madkote <madkote(at)bluewin.ch>'
 __version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 2020, madkote'
+__copyright__ = 'Copyright 2021, madkote'
 
 # TODO: provide a generic cache type (redis, memcached, in-memory)
 #       and share some settings. Module/Sub-Pack cache
@@ -55,6 +57,3 @@ __copyright__ = 'Copyright 2020, madkote'
 # TODO: look at fastapi-cache (memcache?) look at mqtt?
 
 # ... more?
-
-# TODO: logging - simple? or more complex example? -> will decide later
-#       what is an exact use case? log requests? log extra information?

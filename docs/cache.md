@@ -23,7 +23,7 @@ Valid variable are
     class AppSettings(OtherSettings, MemcachedSettings):
         api_name: str = str(__name__)
     
-    app = fastapi.FastAPI()
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
     config = AppSettings()
     
     @app.get("/")
@@ -81,7 +81,7 @@ Valid variable are
     class AppSettings(OtherSettings, fastapi_plugins.RedisSettings):
         api_name: str = str(__name__)
     
-    app = fastapi.FastAPI()
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
     config = AppSettings()
     
     @app.get("/")

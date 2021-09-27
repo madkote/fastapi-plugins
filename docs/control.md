@@ -50,7 +50,7 @@ exception.
 	            return dict(myinfo='OK', mytype='counter health')
 	
 	myplugin = MyPluginWithHealth()
-	app = fastapi.FastAPI()
+	app = fastapi_plugins.register_middleware(fastapi.FastAPI())
 	config = AppSettings()
 	
 	@app.get("/")
@@ -98,7 +98,7 @@ The endpoint `/control/heartbeat` returns heart beat of the application - simple
         # control_enable_heartbeat: bool = True
         # control_enable_version: bool = True
     
-    app = fastapi.FastAPI()
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
     config = AppSettings()
     
     @app.get("/")

@@ -4,11 +4,11 @@
 '''
 :author:    madkote
 :contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2020, madkote
+:copyright: Copyright 2021, madkote
 
 tests.test_redis
------------
-Package
+----------------
+Redis tests
 '''
 
 from __future__ import absolute_import
@@ -29,7 +29,7 @@ from . import d2json
 __all__ = []
 __author__ = 'madkote <madkote(at)bluewin.ch>'
 __version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 2019, madkote'
+__copyright__ = 'Copyright 2021, madkote'
 
 
 # def redis_must_be_running(cls):
@@ -57,7 +57,7 @@ __copyright__ = 'Copyright 2019, madkote'
 class RedisTest(unittest.TestCase):
     def test_connect_redis_url(self):
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.RedisSettings(
                 redis_url='redis://localhost:6379/1'
             )
@@ -73,7 +73,7 @@ class RedisTest(unittest.TestCase):
 
     def test_connect(self):
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.RedisSettings()
             await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
             await fastapi_plugins.redis_plugin.init()
@@ -87,7 +87,7 @@ class RedisTest(unittest.TestCase):
 
     def test_ping(self):
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.RedisSettings()
             await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
             await fastapi_plugins.redis_plugin.init()
@@ -106,7 +106,7 @@ class RedisTest(unittest.TestCase):
 
     def test_health(self):
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.RedisSettings()
             await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
             await fastapi_plugins.redis_plugin.init()
@@ -132,7 +132,7 @@ class RedisTest(unittest.TestCase):
 
     def test_get_set(self):
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.RedisSettings()
             await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
             await fastapi_plugins.redis_plugin.init()
@@ -156,7 +156,7 @@ class RedisTest(unittest.TestCase):
         redis_ttl = 61
 
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.RedisSettings(redis_ttl=redis_ttl)
             await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
             await fastapi_plugins.redis_plugin.init()
@@ -184,7 +184,7 @@ class RedisTest(unittest.TestCase):
 class RedisSentinelTest(unittest.TestCase):
     def test_connect(self):
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.RedisSettings(
                 redis_type='sentinel',
                 redis_sentinels='localhost:26379'
@@ -201,7 +201,7 @@ class RedisSentinelTest(unittest.TestCase):
 
     def test_ping(self):
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.RedisSettings(
                 redis_type='sentinel',
                 redis_sentinels='localhost:26379'
@@ -223,7 +223,7 @@ class RedisSentinelTest(unittest.TestCase):
 
     def test_health(self):
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.RedisSettings(
                 redis_type='sentinel',
                 redis_sentinels='localhost:26379'
@@ -252,7 +252,7 @@ class RedisSentinelTest(unittest.TestCase):
 
     def test_get_set(self):
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.RedisSettings(
                 redis_type='sentinel',
                 redis_sentinels='localhost:26379'
@@ -279,7 +279,7 @@ class RedisSentinelTest(unittest.TestCase):
         redis_ttl = 61
 
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.RedisSettings(
                 redis_type='sentinel',
                 redis_sentinels='localhost:26379',

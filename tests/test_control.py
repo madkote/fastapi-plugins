@@ -8,7 +8,7 @@
 
 tests.test_control
 ------------------
-Module
+Control plugin tests
 '''
 
 from __future__ import absolute_import
@@ -117,7 +117,7 @@ class ControlTest(unittest.TestCase):
     def make_app(self, config=None, version=None, environ=None, plugins=None):
         if plugins is None:
             plugins = []
-        app = fastapi.FastAPI()
+        app = fastapi_plugins.register_middleware(fastapi.FastAPI())
         if config is None:
             config = fastapi_plugins.ControlSettings()
 
@@ -186,7 +186,7 @@ class ControlTest(unittest.TestCase):
 
     def test_controller_health_plugin_ok(self):
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.ControlSettings()
             dummy = DummyPluginHealthOK()
             await dummy.init_app(app, config)
@@ -219,7 +219,7 @@ class ControlTest(unittest.TestCase):
 
     def test_controller_health_plugin_notdefined(self):
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.ControlSettings()
             dummy = DummyPluginHealthNotDefined()
             await dummy.init_app(app, config)
@@ -252,7 +252,7 @@ class ControlTest(unittest.TestCase):
 
     def test_controller_health_plugin_failing(self):
         async def _test():
-            app = fastapi.FastAPI()
+            app = fastapi_plugins.register_middleware(fastapi.FastAPI())
             config = fastapi_plugins.ControlSettings()
             dummy = DummyPluginHealthFail()
             await dummy.init_app(app, config)
