@@ -512,8 +512,8 @@ class ControlTest(unittest.TestCase):
                             'status': True,
                             'details': {
                                 'redis_type': 'redis',
-                                'redis_address': 'redis://localhost:6379/0',
-                                'redis_pong': 'PONG'
+                                'redis_address': 'redis://localhost:6379',
+                                'redis_pong': True
                             }
                         },
                         {

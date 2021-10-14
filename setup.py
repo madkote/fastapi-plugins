@@ -91,7 +91,7 @@ REQUIRES_INSTALL += [
     'python-json-logger>=2.0.*'
 ]
 REQUIRES_INSTALL += [
-    'aioredis<=1.3.1'
+    'aioredis>=2.0.*'
 ]
 REQUIRES_INSTALL += [
     'aiojobs>=0.3.*'

@@ -93,8 +93,8 @@ class RedisTest(unittest.TestCase):
             await fastapi_plugins.redis_plugin.init()
             try:
                 c = await fastapi_plugins.redis_plugin()
-                r = (await c.ping()).decode()
-                self.assertTrue(r == 'PONG', 'ping-pong failed == %s' % r)
+                r = (await c.ping())
+                self.assertTrue(r is True, 'ping-pong failed == %s' % r)
             finally:
                 await fastapi_plugins.redis_plugin.terminate()
 
@@ -114,7 +114,7 @@ class RedisTest(unittest.TestCase):
                 exp = dict(
                     redis_type=config.redis_type,
                     redis_address=config.get_redis_address(),
-                    redis_pong='PONG'
+                    redis_pong=True
                 )
                 res = await fastapi_plugins.redis_plugin.health()
                 self.assertTrue(
@@ -141,7 +141,7 @@ class RedisTest(unittest.TestCase):
                 value = str(uuid.uuid4())
                 r = await c.set('x', value)
                 self.assertTrue(r, 'set failed')
-                r = await c.get('x', encoding='utf-8')
+                r = await c.get('x')
                 self.assertTrue(r == value, 'get failed')
             finally:
                 await fastapi_plugins.redis_plugin.terminate()
@@ -163,9 +163,9 @@ class RedisTest(unittest.TestCase):
             try:
                 c = await fastapi_plugins.redis_plugin()
                 value = str(uuid.uuid4())
-                r = await c.set('x', value, expire=c.TTL)
+                r = await c.setex('x', c.TTL, value)
                 self.assertTrue(r, 'set failed')
-                r = await c.get('x', encoding='utf-8')
+                r = await c.get('x')
                 self.assertTrue(r == value, 'get failed')
                 r = await c.ttl('x')
                 self.assertTrue(r == redis_ttl, 'ttl failed')
@@ -210,8 +210,8 @@ class RedisSentinelTest(unittest.TestCase):
             await fastapi_plugins.redis_plugin.init()
             try:
                 c = await fastapi_plugins.redis_plugin()
-                r = (await c.ping()).decode()
-                self.assertTrue(r == 'PONG', 'ping-pong failed == %s' % r)
+                r = (await c.ping())
+                self.assertTrue(r is True, 'ping-pong failed == %s' % r)
             finally:
                 await fastapi_plugins.redis_plugin.terminate()
 
@@ -234,7 +234,7 @@ class RedisSentinelTest(unittest.TestCase):
                 exp = dict(
                     redis_type=config.redis_type,
                     redis_address=config.get_sentinels(),
-                    redis_pong='PONG'
+                    redis_pong=True
                 )
                 res = await fastapi_plugins.redis_plugin.health()
                 self.assertTrue(
@@ -264,7 +264,7 @@ class RedisSentinelTest(unittest.TestCase):
                 value = str(uuid.uuid4())
                 r = await c.set('x', value)
                 self.assertTrue(r, 'set failed')
-                r = await c.get('x', encoding='utf-8')
+                r = await c.get('x')
                 self.assertTrue(r == value, 'get failed')
             finally:
                 await fastapi_plugins.redis_plugin.terminate()
@@ -290,9 +290,9 @@ class RedisSentinelTest(unittest.TestCase):
             try:
                 c = await fastapi_plugins.redis_plugin()
                 value = str(uuid.uuid4())
-                r = await c.set('x', value, expire=c.TTL)
+                r = await c.setex('x', c.TTL, value)
                 self.assertTrue(r, 'set failed')
-                r = await c.get('x', encoding='utf-8')
+                r = await c.get('x')
                 self.assertTrue(r == value, 'get failed')
                 r = await c.ttl('x')
                 self.assertTrue(r == redis_ttl, 'ttl failed')
