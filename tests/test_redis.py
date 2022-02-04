@@ -67,8 +67,7 @@ class RedisTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_connect(self):
@@ -81,8 +80,7 @@ class RedisTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_ping(self):
@@ -100,8 +98,7 @@ class RedisTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_health(self):
@@ -126,8 +123,7 @@ class RedisTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_get_set(self):
@@ -148,8 +144,7 @@ class RedisTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_get_set_ttl(self):
@@ -174,8 +169,7 @@ class RedisTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
 
@@ -195,8 +189,7 @@ class RedisSentinelTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_ping(self):
@@ -217,8 +210,7 @@ class RedisSentinelTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_health(self):
@@ -246,8 +238,7 @@ class RedisSentinelTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_get_set(self):
@@ -271,8 +262,7 @@ class RedisSentinelTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_get_set_ttl(self):
@@ -301,8 +291,7 @@ class RedisSentinelTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
 

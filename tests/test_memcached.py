@@ -51,8 +51,7 @@ class MemcachedTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_ping(self):
@@ -72,8 +71,7 @@ class MemcachedTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_health(self):
@@ -88,7 +86,7 @@ class MemcachedTest(unittest.TestCase):
                 exp = dict(
                     host=config.memcached_host,
                     port=config.memcached_port,
-                    version='1.6.9'
+                    version='1.6.13'
                 )
                 res = await memcached_plugin.health()
                 self.assertTrue(
@@ -100,8 +98,7 @@ class MemcachedTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_version(self):
@@ -121,8 +118,7 @@ class MemcachedTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_get_set(self):
@@ -145,8 +141,7 @@ class MemcachedTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
 

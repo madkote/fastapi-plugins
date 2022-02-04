@@ -63,8 +63,7 @@ class LoggerTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_name_and_level(self):
@@ -100,8 +99,7 @@ class LoggerTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_format_default(self):
@@ -163,8 +161,7 @@ class LoggerTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_format_json(self):
@@ -248,8 +245,7 @@ class LoggerTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_format_logfmt(self):
@@ -315,8 +311,7 @@ class LoggerTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_adapter(self):
@@ -402,8 +397,7 @@ class LoggerTest(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
 
