@@ -48,6 +48,7 @@ class RedisError(PluginError):
 class RedisType(str, enum.Enum):
     redis = 'redis'
     sentinel = 'sentinel'
+    # cluster = 'cluster'
 
 
 class RedisSettings(PluginSettings):
