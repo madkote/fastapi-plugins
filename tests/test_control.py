@@ -14,6 +14,7 @@ Control plugin tests
 from __future__ import absolute_import
 
 import asyncio
+import pprint
 import typing
 import unittest
 
@@ -153,8 +154,7 @@ class ControlTest(unittest.TestCase):
             self.assertTrue(d2json(exp) == d2json(res), 'environ failed')
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_controller_environ_custom(self):
@@ -165,8 +165,7 @@ class ControlTest(unittest.TestCase):
             self.assertTrue(d2json(exp) == d2json(res), 'environ failed')
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_controller_health(self):
@@ -180,8 +179,7 @@ class ControlTest(unittest.TestCase):
             )
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_controller_health_plugin_ok(self):
@@ -213,8 +211,7 @@ class ControlTest(unittest.TestCase):
                 await dummy.terminate()
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_controller_health_plugin_notdefined(self):
@@ -246,8 +243,7 @@ class ControlTest(unittest.TestCase):
                 await dummy.terminate()
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_controller_health_plugin_failing(self):
@@ -279,8 +275,7 @@ class ControlTest(unittest.TestCase):
                 await dummy.terminate()
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_controller_heartbeat(self):
@@ -294,8 +289,7 @@ class ControlTest(unittest.TestCase):
             )
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_controller_version(self):
@@ -306,8 +300,7 @@ class ControlTest(unittest.TestCase):
             self.assertTrue(r == DEFAULT_CONTROL_VERSION, 'version failed')
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_controller_version_custom(self):
@@ -318,8 +311,7 @@ class ControlTest(unittest.TestCase):
             self.assertTrue(r == v, 'version failed')
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     # =========================================================================
@@ -533,13 +525,23 @@ class ControlTest(unittest.TestCase):
                             'details': {
                                 'host': 'localhost',
                                 'port': 11211,
-                                'version': '1.6.9'
+                                'version': '1.6.13'
                             }
                         }
                     ]
                 )
                 res = response.json()
-                self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
+                try:
+                    self.assertTrue(d2json(exp) == d2json(res), '[%s] json : %s != %s' % (endpoint, exp, res))  # noqa E501
+                except Exception as e:
+                    print()
+                    print('---EXP')
+                    pprint.pprint(d2json(exp))
+                    print()
+                    print('---RES')
+                    pprint.pprint(d2json(res))
+                    print()
+                    raise e
         finally:
             event_loop.close()
 

@@ -375,8 +375,7 @@ class TestSettings(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
     def test_app_config_environ(self):
@@ -410,8 +409,7 @@ class TestSettings(unittest.TestCase):
 
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
-        coro = asyncio.coroutine(_test)
-        event_loop.run_until_complete(coro())
+        event_loop.run_until_complete(_test())
         event_loop.close()
 
 

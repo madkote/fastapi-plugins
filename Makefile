@@ -36,15 +36,19 @@ clean-build:
 	rm --force --recursive *.egg-info
 	rm --force --recursive .pytest_cache/
 
+clean-docker:
+	@echo $@
+	docker container prune -f
+
 clean-pycache:
 	@echo $@
 	find . -name '__pycache__' -exec rm -rf {} +
 
-clean: clean-build clean-pyc clean-pycache
+clean: clean-build clean-docker clean-pyc clean-pycache
 
 install: clean
 	@echo $@
-	pip install --no-cache-dir -U pip setuptools
+	pip install --no-cache-dir -U pip setuptools wheel
 	pip install --no-cache-dir -U -r requirements.txt
 
 demo: clean
@@ -63,9 +67,12 @@ bandit: clean
 	@echo $@
 	bandit -r fastapi_plugins/ tests/ scripts/ demo.py
 
-test-unit: clean flake bandit
+test-unit-pytest:
 	@echo $@
 	time python -m pytest -v -x tests/ --cov=fastapi_plugins
+
+test-unit: clean flake bandit docker-up-test test-unit-pytest docker-down-test
+	@echo $@
 
 test-tox: clean
 	@echo $@
@@ -99,11 +106,25 @@ pypi-upload: pypi-deps
 	@echo $@
 	python -m twine upload dist/*
 
-docker-up:
+docker-build-dev:
 	@echo $@
-	docker container prune -f && docker-compose build --force-rm --no-cache --pull && docker-compose -f docker-compose.yml -f docker-compose.redis.yml -f docker-compose.memcached.yml up --build
-	# docker container prune -f && docker-compose -f docker-compose.yml -f docker-compose.redis.yml -f docker-compose.memcached.yml up --build --force-rm --no-cache --pull
+	docker-compose -f docker-compose.memcached.yml -f docker-compose.sentinel.yml build
 
-docker-up-dev:
+docker-up: clean-docker
 	@echo $@
-	docker container prune -f && docker-compose -f docker-compose.memcached.yml -f docker-compose.sentinel.yml up --build
+	docker-compose build --force-rm --no-cache --pull && docker-compose -f docker-compose.yml -f docker-compose.redis.yml -f docker-compose.memcached.yml up --build
+	# docker-compose -f docker-compose.yml -f docker-compose.redis.yml -f docker-compose.memcached.yml up --build --force-rm --no-cache --pull
+
+docker-up-dev: clean-docker docker-build-dev
+	@echo $@
+	docker-compose -f docker-compose.memcached.yml -f docker-compose.sentinel.yml up
+
+docker-up-test: clean-docker docker-build-dev
+	@echo $@
+	docker-compose -f docker-compose.memcached.yml -f docker-compose.sentinel.yml up -d
+	sleep 5
+	docker ps
+
+docker-down-test:
+	@echo $@
+	docker-compose -f docker-compose.memcached.yml -f docker-compose.sentinel.yml down
