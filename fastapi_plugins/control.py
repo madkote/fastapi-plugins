@@ -4,7 +4,7 @@
 '''
 :author:    madkote
 :contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2021, madkote RES
+:copyright: Copyright 2022, madkote RES
 
 fastapi_plugins.control
 -----------------------
@@ -251,7 +251,7 @@ class Controller(object):
         # register router
         app.include_router(
             router_control,
-            prefix='/' + self.router_prefix,
+            prefix='' if not self.router_prefix else '/' + self.router_prefix,
             tags=[self.router_tag],
         )
 

@@ -4,7 +4,7 @@
 '''
 :author:    madkote
 :contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2021, madkote
+:copyright: Copyright 2022, madkote
 
 fastapi_plugins.version
 -----------------------
@@ -13,7 +13,7 @@ Version
 
 from __future__ import absolute_import
 
-VERSION = (0, 9, 0)
+VERSION = (0, 9, 1)
 
 __all__ = []
 __author__ = 'madkote <madkote(at)bluewin.ch>'

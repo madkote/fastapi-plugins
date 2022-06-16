@@ -4,7 +4,7 @@
 '''
 :author:    madkote
 :contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2021, madkote
+:copyright: Copyright 2022, madkote
 
 setup
 -----

@@ -1,4 +1,6 @@
 # Changes
+## 0.9.1 (2022-06-16)
+- `[fix]` Fix empty router prefix for control plugin
 ## 0.9.0 (2021-09-27)
 - `[feature]` Logging plugin
 - `[feature]` Middleware interface - register middleware at application
