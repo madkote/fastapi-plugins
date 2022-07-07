@@ -1,2 +1,2 @@
 -r requirements_core.txt
-aiomcache>=0.6.*
+aiomcache>=0.7.*

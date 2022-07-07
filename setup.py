@@ -81,22 +81,18 @@ DESCRIPTION = 'Plugins for FastAPI framework'
 URL = 'https://github.com/madkote/%s' % NAME
 
 REQUIRES_INSTALL = [
-#    'fastapi>=0.63.*',
-#    'pydantic >=1.0.0,<2.0.0',
-    'fastapi>=0.41.*',
-    'pydantic>=0.32.*',
-    'tenacity>=6.2.*'
+    'fastapi>=0.74.*',
+    'pydantic >=1.0.0,<2.0.0',
+    'tenacity>=8.0.*'
 ]
-REQUIRES_INSTALL += [
-    'python-json-logger>=2.0.*'
-]
-REQUIRES_INSTALL += [
-    'aioredis[hiredis]>=2.0.*'
-]
-REQUIRES_INSTALL += [
-    'aiojobs>=0.3.*'
-]
-REQUIRES_MEMCACHED = ['aiomcache>=0.6.*']
+REQUIRES_INSTALL += ['python-json-logger>=2.0.*']
+REQUIRES_INSTALL += ['aioredis[hiredis]>=2.0.*']
+REQUIRES_INSTALL += ['aiojobs>=1.0.*']
+
+REQUIRES_FAKEREDIS = ['fakeredis>=1.8.*']
+
+REQUIRES_MEMCACHED = ['aiomcache>=0.7.*']
+
 REQUIRES_TESTS = [
     'bandit',
     'docker-compose',
@@ -107,10 +103,12 @@ REQUIRES_TESTS = [
     'tox',
     'uvicorn'
 ]
+
 REQUIRES_EXTRA = {
     'all': REQUIRES_INSTALL + REQUIRES_MEMCACHED,
+    'fakeredis': REQUIRES_INSTALL + REQUIRES_FAKEREDIS,
     'memcached': REQUIRES_INSTALL + REQUIRES_MEMCACHED,
-    'test': REQUIRES_INSTALL + REQUIRES_TESTS
+    'test': REQUIRES_INSTALL + REQUIRES_MEMCACHED + REQUIRES_FAKEREDIS + REQUIRES_TESTS,    # noqa E501
 }
 
 PACKAGES = find_packages(exclude=('scripts', 'tests'))
