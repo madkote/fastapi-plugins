@@ -11,6 +11,10 @@ demo
 Demo
 
 uvicorn demo_app:app
+
+make docker-up-dev
+uvicorn --host 0.0.0.0 scripts.demo_app:app
+CONTROL_ROUTER_PREFIX= uvicorn --host 0.0.0.0 scripts.demo_app:app
 '''
 
 from __future__ import absolute_import

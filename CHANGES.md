@@ -1,6 +1,8 @@
 # Changes
 ## 0.X.0 (yyyy-mm-dd)
 - `[feature]` Update `aioredis` to `2.x.x`
+## 0.9.1 (2022-06-16)
+- `[fix]` Fix empty router prefix for control plugin
 ## 0.9.0 (2021-09-27)
 - `[feature]` Logging plugin
 - `[feature]` Middleware interface - register middleware at application

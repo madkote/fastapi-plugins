@@ -525,7 +525,7 @@ class ControlTest(unittest.TestCase):
                             'details': {
                                 'host': 'localhost',
                                 'port': 11211,
-                                'version': '1.6.14'
+                                'version': '1.6.15'
                             }
                         }
                     ]
@@ -536,10 +536,10 @@ class ControlTest(unittest.TestCase):
                 except Exception as e:
                     print()
                     print('---EXP')
-                    pprint.pprint(exp)
+                    pprint.pprint(d2json(exp))
                     print()
                     print('---RES')
-                    pprint.pprint(res)
+                    pprint.pprint(d2json(res))
                     print()
                     raise e
         finally:
