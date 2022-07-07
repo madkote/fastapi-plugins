@@ -74,14 +74,17 @@ test-unit-pytest:
 test-unit: clean flake bandit docker-up-test test-unit-pytest docker-down-test
 	@echo $@
 
-test-tox: clean
+test-toxtox:
 	@echo $@
 	tox -vv
+
+test-tox: clean docker-up-test test-toxtox docker-down-test
+	@echo $@
 
 test: test-unit
 	@echo $@
 
-test-all: test-unit test-tox
+test-all: clean flake bandit docker-up-test test-unit-pytest test-toxtox docker-down-test
 	@echo $@
 
 #md2rst:
