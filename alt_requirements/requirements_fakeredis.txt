@@ -1,2 +1,2 @@
 -r requirements_redis.txt
-fakeredis>=1.8.*
+fakeredis[lua]>=1.8.*

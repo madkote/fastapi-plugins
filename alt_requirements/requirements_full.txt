@@ -3,3 +3,4 @@
 -r requirements_logger.txt
 -r requirements_memcached.txt
 -r requirements_redis.txt
+-r requirements_fakeredis.txt

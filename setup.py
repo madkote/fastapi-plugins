@@ -89,7 +89,7 @@ REQUIRES_INSTALL += ['python-json-logger>=2.0.*']
 REQUIRES_INSTALL += ['aioredis[hiredis]>=2.0.*']
 REQUIRES_INSTALL += ['aiojobs>=1.0.*']
 
-REQUIRES_FAKEREDIS = ['fakeredis>=1.8.*']
+REQUIRES_FAKEREDIS = ['fakeredis[lua]>=1.8.*']
 
 REQUIRES_MEMCACHED = ['aiomcache>=0.7.*']
 
