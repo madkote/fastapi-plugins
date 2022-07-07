@@ -13,7 +13,7 @@ Version
 
 from __future__ import absolute_import
 
-VERSION = (0, 9, 1)
+VERSION = (0, 10, 0)
 
 __all__ = []
 __author__ = 'madkote <madkote(at)bluewin.ch>'

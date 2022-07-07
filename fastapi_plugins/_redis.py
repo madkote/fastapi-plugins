@@ -48,6 +48,7 @@ class RedisError(PluginError):
 class RedisType(str, enum.Enum):
     redis = 'redis'
     sentinel = 'sentinel'
+    fakeredis = 'fakeredis'
     # cluster = 'cluster'
 
 
@@ -126,6 +127,8 @@ class RedisPlugin(Plugin, ControlHealthMixin):
             conn = self.redis.master_for(self.config.redis_sentinel_master)
         elif self.config.redis_type == RedisType.redis:
             conn = self.redis
+        elif self.config.redis_type == RedisType.fakeredis:
+            conn = self.redis
         else:
             raise NotImplementedError(
                 'Redis type %s is not implemented' % self.config.redis_type
@@ -164,6 +167,14 @@ class RedisPlugin(Plugin, ControlHealthMixin):
             address = self.config.get_redis_address()
             method = aioredis.from_url
             # opts.update(dict(timeout=self.config.redis_connection_timeout))
+        elif self.config.redis_type == RedisType.fakeredis:
+            try:
+                import fakeredis.aioredis
+            except ImportError:
+                raise RedisError(f'{self.config.redis_type} requires fakeredis to be installed')    # noqa E501
+            else:
+                address = self.config.get_redis_address()
+                method = fakeredis.aioredis.FakeRedis.from_url
         elif self.config.redis_type == RedisType.sentinel:
             address = self.config.get_sentinels()
             method = aioredis.sentinel.Sentinel
@@ -203,6 +214,8 @@ class RedisPlugin(Plugin, ControlHealthMixin):
 
     async def ping(self):
         if self.config.redis_type == RedisType.redis:
+            return await self.redis.ping()
+        elif self.config.redis_type == RedisType.fakeredis:
             return await self.redis.ping()
         elif self.config.redis_type == RedisType.sentinel:
             return await self.redis.master_for(self.config.redis_sentinel_master).ping()    # noqa E501

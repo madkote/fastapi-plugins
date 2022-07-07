@@ -1,6 +1,7 @@
 # Changes
-## 0.X.0 (yyyy-mm-dd)
+## 0.10.0 (2022-07-07)
 - `[feature]` Update `aioredis` to `2.x.x`
+- `[feature]` Add `fakeredis` optionally for development purpose
 ## 0.9.1 (2022-06-16)
 - `[fix]` Fix empty router prefix for control plugin
 ## 0.9.0 (2021-09-27)

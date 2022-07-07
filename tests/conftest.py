@@ -35,6 +35,9 @@ def pytest_configure(config):
         "markers", "redis: mark test related to Redis"
     )
     config.addinivalue_line(
+        "markers", "fakeredis: mark test related to Fake Redis"
+    )
+    config.addinivalue_line(
         "markers", "sentinel: mark test related to Redis Sentinel"
     )
     config.addinivalue_line(
