@@ -525,7 +525,7 @@ class ControlTest(unittest.TestCase):
                             'details': {
                                 'host': 'localhost',
                                 'port': 11211,
-                                'version': '1.6.15'
+                                'version': '1.6.17'
                             }
                         }
                     ]
