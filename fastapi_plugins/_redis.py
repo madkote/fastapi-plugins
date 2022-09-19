@@ -16,10 +16,10 @@ from __future__ import absolute_import
 import enum
 import typing
 
-import aioredis  # @UnusedImport
-import aioredis.sentinel
 import fastapi
 import pydantic
+import redis.asyncio as aioredis
+import redis.asyncio.sentinel as aioredis_sentinel
 import starlette.requests
 import tenacity
 
@@ -117,7 +117,7 @@ class RedisPlugin(Plugin, ControlHealthMixin):
     DEFAULT_CONFIG_CLASS = RedisSettings
 
     def _on_init(self) -> None:
-        self.redis: typing.Union[aioredis.Redis, aioredis.sentinel.Sentinel] = None # noqa E501
+        self.redis: typing.Union[aioredis.Redis, aioredis_sentinel.Sentinel] = None # noqa E501
 
     async def _on_call(self) -> typing.Any:
         if self.redis is None:
@@ -177,7 +177,7 @@ class RedisPlugin(Plugin, ControlHealthMixin):
                 method = fakeredis.aioredis.FakeRedis.from_url
         elif self.config.redis_type == RedisType.sentinel:
             address = self.config.get_sentinels()
-            method = aioredis.sentinel.Sentinel
+            method = aioredis_sentinel.Sentinel
         else:
             raise NotImplementedError(
                 'Redis type %s is not implemented' % self.config.redis_type

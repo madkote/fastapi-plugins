@@ -86,7 +86,7 @@ REQUIRES_INSTALL = [
     'tenacity>=8.0.*'
 ]
 REQUIRES_INSTALL += ['python-json-logger>=2.0.*']
-REQUIRES_INSTALL += ['aioredis[hiredis]>=2.0.*']
+REQUIRES_INSTALL += ['redis[hiredis]>=4.3.*']
 REQUIRES_INSTALL += ['aiojobs>=1.0.*']
 
 REQUIRES_FAKEREDIS = ['fakeredis[lua]>=1.8.*']

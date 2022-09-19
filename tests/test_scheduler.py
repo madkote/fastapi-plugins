@@ -19,7 +19,7 @@ import unittest
 import uuid
 
 import aiojobs
-import aioredis
+import redis.asyncio as aioredis
 import fastapi
 import pytest
 import starlette.testclient

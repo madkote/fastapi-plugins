@@ -1,4 +1,6 @@
 # Changes
+## 0.11.0 (2022-09-19)
+- `[feature]` `redis-py` replaces `aioredis`
 ## 0.10.0 (2022-07-07)
 - `[feature]` Update `aioredis` to `2.x.x`
 - `[feature]` Add `fakeredis` optionally for development purpose
