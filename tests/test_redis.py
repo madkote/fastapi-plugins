@@ -1,15 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # tests.test_redis
-'''
-:author:    madkote
-:contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2021, madkote
-
-tests.test_redis
-----------------
-Redis tests
-'''
 
 from __future__ import absolute_import
 
@@ -17,19 +8,12 @@ import asyncio
 import unittest
 import uuid
 
-# import aioredis
 import fastapi
 import pytest
 
 import fastapi_plugins
 
-from . import VERSION
 from . import d2json
-
-__all__ = []
-__author__ = 'madkote <madkote(at)bluewin.ch>'
-__version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 2021, madkote'
 
 
 # def redis_must_be_running(cls):

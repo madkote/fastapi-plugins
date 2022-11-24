@@ -1,19 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # setup
-'''
-:author:    madkote
-:contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2022, madkote
-
-setup
------
-Setup script
-
-https://pypi.org/pypi?%3Aaction=list_classifiers
-'''
-
-from __future__ import absolute_import
 
 import codecs
 import importlib.util
@@ -74,6 +61,15 @@ def load_requirements(filename):
     return sorted(list(_read()))
 
 
+def package_files(directory=None):
+    paths = []
+    if directory:
+        for (path, directories, filenames) in os.walk(directory):  # @UnusedVariable # noqa E501
+            for filename in filenames:
+                paths.append(os.path.join('..', path, filename))
+    return paths
+
+
 NAME = 'fastapi-plugins'
 NAME_PACKAGE = NAME.replace('-', '_')
 VERSION = get_version(NAME_PACKAGE)
@@ -83,36 +79,35 @@ URL = 'https://github.com/madkote/%s' % NAME
 REQUIRES_INSTALL = [
     'fastapi>=0.74.*',
     'pydantic >=1.0.0,<2.0.0',
-    'tenacity>=8.0.*'
+    'tenacity>=8.0.*',
+    #
+    'python-json-logger>=2.0.*',
+    'redis[hiredis]>=4.3.*',
+    'aiojobs>=1.0.*'
 ]
-REQUIRES_INSTALL += ['python-json-logger>=2.0.*']
-REQUIRES_INSTALL += ['redis[hiredis]>=4.3.*']
-REQUIRES_INSTALL += ['aiojobs>=1.0.*']
-
 REQUIRES_FAKEREDIS = ['fakeredis[lua]>=1.8.*']
-
 REQUIRES_MEMCACHED = ['aiomcache>=0.7.*']
-
 REQUIRES_TESTS = [
     'bandit',
     'docker-compose',
     'flake8',
-    'm2r',
     'pytest',
     'pytest-cov',
     'tox',
-    'uvicorn'
+    #
+    'fastapi[all]',
 ]
 
 REQUIRES_EXTRA = {
-    'all': REQUIRES_INSTALL + REQUIRES_MEMCACHED,
-    'fakeredis': REQUIRES_INSTALL + REQUIRES_FAKEREDIS,
-    'memcached': REQUIRES_INSTALL + REQUIRES_MEMCACHED,
-    'test': REQUIRES_INSTALL + REQUIRES_MEMCACHED + REQUIRES_FAKEREDIS + REQUIRES_TESTS,    # noqa E501
+    'all': REQUIRES_MEMCACHED,
+    'fakeredis': REQUIRES_FAKEREDIS,
+    'memcached': REQUIRES_MEMCACHED,
+    'dev': REQUIRES_MEMCACHED + REQUIRES_FAKEREDIS + REQUIRES_TESTS,
 }
 
 PACKAGES = find_packages(exclude=('scripts', 'tests'))
-PACKAGE_DATA = {}
+PACKAGE_DATA = {'': []}
+
 
 
 # =============================================================================
@@ -146,6 +141,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Utilities',
         'Topic :: Software Development :: Libraries',
         'Topic :: Software Development :: Libraries :: Python Modules',

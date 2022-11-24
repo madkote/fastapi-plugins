@@ -1,2 +1,0 @@
--r requirements_core.txt
-python-json-logger>=2.0.*

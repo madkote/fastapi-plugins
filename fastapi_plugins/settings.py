@@ -1,15 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # fastapi_plugins.settings
-'''
-:author:    madkote
-:contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2021, madkote RES
-
-fastapi_plugins.settings
-------------------------
-Settings plugin
-'''
 
 from __future__ import absolute_import
 

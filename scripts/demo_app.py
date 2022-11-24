@@ -1,15 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# demo
+# scripts.demo_app
 '''
-:author:    madkote
-:contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2021, madkote
-
-demo
-----
-Demo
-
 uvicorn demo_app:app
 
 make docker-up-dev
@@ -42,13 +34,6 @@ from fastapi_plugins.memcached import MemcachedSettings
 from fastapi_plugins.memcached import MemcachedClient
 from fastapi_plugins.memcached import depends_memcached
 from fastapi_plugins.memcached import memcached_plugin
-
-VERSION = (0, 1, 2)
-
-__all__ = []
-__author__ = 'madkote <madkote(at)bluewin.ch>'
-__version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 2019, madkote'
 
 
 class OtherSettings(pydantic.BaseSettings):
@@ -168,7 +153,7 @@ async def on_startup() -> None:
     await fastapi_plugins.control_plugin.init_app(
         app,
         config=config,
-        version=__version__,
+        version=fastapi_plugins.__version__,
         environ=config.dict()
     )
     await fastapi_plugins.control_plugin.init()

@@ -24,9 +24,9 @@ help:
 
 clean-pyc:
 	@echo $@
-	find . -name '*.pyc' -exec rm --force {} +
-	find . -name '*.pyo' -exec rm --force {} +
-	find . -name '*~'    -exec rm --force {} +
+	find ./fastapi_plugins -name '*.pyc' -exec rm --force {} +
+	find ./fastapi_plugins -name '*.pyo' -exec rm --force {} +
+	find ./fastapi_plugins -name '*~'    -exec rm --force {} +
 
 clean-build:
 	@echo $@
@@ -48,8 +48,9 @@ clean: clean-build clean-docker clean-pyc clean-pycache
 
 install: clean
 	@echo $@
-	pip install --no-cache-dir -U pip setuptools wheel
+	pip install --no-cache-dir -U pip setuptools twine wheel
 	pip install --no-cache-dir -U -r requirements.txt
+	rm -rf build *.egg-info
 
 demo: clean
 	@echo $@
@@ -87,25 +88,16 @@ test: test-unit
 test-all: clean flake bandit docker-up-test test-unit-pytest test-toxtox docker-down-test
 	@echo $@
 
-#md2rst:
-#	@echo $@
-#	m2r _README.md
-#	mv -f _README.rst README.rst
-
-pypi-deps:
-	@echo $@
-	pip install -U twine
-
-pypi-build: clean test-all pypi-deps
+pypi-build: clean test-all
 	@echo $@
 	python setup.py sdist bdist_wheel
 	twine check dist/*
 
-pypi-upload-test: pypi-deps
+pypi-upload-test:
 	@echo $@
 	python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
-pypi-upload: pypi-deps
+pypi-upload:
 	@echo $@
 	python -m twine upload dist/*
 
@@ -116,7 +108,6 @@ docker-build-dev:
 docker-up: clean-docker
 	@echo $@
 	docker-compose build --force-rm --no-cache --pull && docker-compose -f docker-compose.yml -f docker-compose.redis.yml -f docker-compose.memcached.yml up --build
-	# docker-compose -f docker-compose.yml -f docker-compose.redis.yml -f docker-compose.memcached.yml up --build --force-rm --no-cache --pull
 
 docker-up-dev: clean-docker docker-build-dev
 	@echo $@

@@ -1,15 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # tests.test_control
-'''
-:author:    madkote
-:contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2021, madkote RES
-
-tests.test_control
-------------------
-Control plugin tests
-'''
 
 from __future__ import absolute_import
 
@@ -28,13 +19,7 @@ import fastapi_plugins
 from fastapi_plugins.memcached import memcached_plugin
 from fastapi_plugins.memcached import MemcachedSettings
 
-from . import VERSION
 from . import d2json
-
-__all__ = []
-__author__ = 'madkote <madkote(at)bluewin.ch>'
-__version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 2021, madkote RES'
 
 
 class DummyPluginHealthOK(

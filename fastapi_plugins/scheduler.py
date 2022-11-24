@@ -1,15 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # fastapi_plugins.scheduler
-'''
-:author:    madkote
-:contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2021, madkote
-
-fastapi_plugins.scheduler
--------------------------
-Scheduler plugin (based on `aiojobs`)
-'''
 
 from __future__ import absolute_import
 

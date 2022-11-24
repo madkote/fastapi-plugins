@@ -1,15 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # fastapi_plugins._redis
-'''
-:author:    madkote
-:contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2021, madkote
-
-fastapi_plugins._redis
-----------------------
-Redis plugin
-'''
 
 from __future__ import absolute_import
 
@@ -29,15 +20,10 @@ from .plugin import Plugin
 
 from .control import ControlHealthMixin
 
-from .version import VERSION
-
 __all__ = [
     'RedisError', 'RedisType', 'RedisSettings', 'RedisPlugin',
     'redis_plugin', 'depends_redis'
 ]
-__author__ = 'madkote <madkote(at)bluewin.ch>'
-__version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 2021, madkote'
 
 
 class RedisError(PluginError):

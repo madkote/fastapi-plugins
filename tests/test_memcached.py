@@ -1,15 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # tests.test_memcached
-'''
-:author:    madkote
-:contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2021, madkote
-
-tests.test_memcached
---------------------
-Memcached tests
-'''
 
 from __future__ import absolute_import
 
@@ -21,13 +12,7 @@ import fastapi
 import fastapi_plugins
 import pytest
 
-from . import VERSION
 from . import d2json
-
-__all__ = []
-__author__ = 'roman-telepathy-ai <roman.schroeder(at)telepathy.ai>'
-__version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 2021, Telepathy Labs'
 
 
 @pytest.mark.memcached

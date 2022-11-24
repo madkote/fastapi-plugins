@@ -1,2 +1,0 @@
--r requirements_core.txt
-redis[hiredis]>=4.3.*

@@ -1,15 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # fastapi_plugins.logger
-'''
-:author:    madkote
-:contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2021, madkote RES
-
-fastapi_plugins.logger
-----------------------
-Logging plugin
-'''
 
 from __future__ import absolute_import
 
@@ -33,15 +24,10 @@ from .plugin import Plugin
 
 from .control import ControlHealthMixin
 
-from .version import VERSION
-
 __all__ = [
     'LoggingError', 'LoggingStyle', 'LoggingHandlerType', 'LoggingSettings',
     'LoggingPlugin', 'log_plugin', 'log_adapter', 'depends_logging'
 ]
-__author__ = 'madkote <madkote(at)bluewin.ch>'
-__version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 2021, madkote RES'
 
 
 class QueueHandler(logging.Handler):
