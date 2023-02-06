@@ -4,7 +4,7 @@
 '''
 :author:    madkote
 :contact:   madkote(at)bluewin.ch
-:copyright: Copyright 2021, madkote
+:copyright: Copyright 2023, madkote
 
 fastapi_plugins
 ---------------
@@ -38,7 +38,7 @@ from .version import VERSION
 
 __author__ = 'madkote <madkote(at)bluewin.ch>'
 __version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 2021, madkote'
+__copyright__ = 'Copyright 20213, madkote'
 
 # TODO: provide a generic cache type (redis, memcached, in-memory)
 #       and share some settings. Module/Sub-Pack cache
@@ -50,8 +50,6 @@ __copyright__ = 'Copyright 2021, madkote'
 #   -> consume(topic, callback)
 
 # TODO: celery
-
-# TODO: check socketio (python-socketio) - do we need this?
 
 # TODO: look at fastapi-cache (memcache?) look at mqtt?
 
