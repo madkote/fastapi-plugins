@@ -71,7 +71,7 @@ class MemcachedTest(unittest.TestCase):
                 exp = dict(
                     host=config.memcached_host,
                     port=config.memcached_port,
-                    version='1.6.17'
+                    version='1.6.18'
                 )
                 res = await memcached_plugin.health()
                 self.assertTrue(

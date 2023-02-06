@@ -51,6 +51,7 @@ install: clean
 	pip install --no-cache-dir -U pip setuptools twine wheel
 	pip install --no-cache-dir -U -r requirements.txt
 	rm -rf build *.egg-info
+	pip uninstall fastapi-plugins -y || true
 
 demo: clean
 	@echo $@
