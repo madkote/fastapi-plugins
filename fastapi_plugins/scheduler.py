@@ -111,30 +111,7 @@ class SchedulerPlugin(Plugin, ControlHealthMixin):
     async def init(self):
         if self.scheduler is not None:
             raise SchedulerError('Scheduler is already initialized')
-        factory = aiojobs.create_scheduler
-        #
-        # TODO: monkey patching is not preferred way, but waiting for aoilibs
-        #
-        # TODO: provide a pull request (custom, job, better scheduler)
-        #
-        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#         if self.config.aiojobs_enable_cancel:
-#             class _PatchJob(aiojobs._scheduler.Job):
-#                 def __init__(self, *args, **kwargs):
-#                     super(_PatchJob, self).__init__(*args, **kwargs)
-#                     self._id = str(uuid.uuid4())
-#
-#                 @property
-#                 def id(self):
-#                     return self._id
-#             aiojobs._scheduler.Job = _PatchJob
-#             factory = create_madness_scheduler
-        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        self.scheduler = await factory(
+        self.scheduler = aiojobs.Scheduler(
             close_timeout=self.config.aiojobs_close_timeout,
             limit=self.config.aiojobs_limit,
             pending_limit=self.config.aiojobs_pending_limit
