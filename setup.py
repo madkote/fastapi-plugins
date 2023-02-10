@@ -64,7 +64,7 @@ def load_requirements(filename):
 def package_files(directory=None):
     paths = []
     if directory:
-        for (path, directories, filenames) in os.walk(directory):  # @UnusedVariable # noqa E501
+        for (path, _, filenames) in os.walk(directory):
             for filename in filenames:
                 paths.append(os.path.join('..', path, filename))
     return paths
@@ -92,6 +92,7 @@ REQUIRES_TESTS = [
     'docker-compose',
     'flake8',
     'pytest',
+    'pytest-asyncio',
     'pytest-cov',
     'tox',
     #
@@ -107,7 +108,6 @@ REQUIRES_EXTRA = {
 
 PACKAGES = find_packages(exclude=('scripts', 'tests'))
 PACKAGE_DATA = {'': []}
-
 
 
 # =============================================================================

@@ -3,11 +3,12 @@
 .DEFAULT_GOAL := help
 
 SHELL = /bin/bash
+PYPACKAGE = fastapi_plugins
 
 help:
 	@echo ""
 	@echo " +---------------------------------------+"
-	@echo " | FastAPI Plugins                       |"
+	@echo " | ${PYPACKAGE}                       |"
 	@echo " +---------------------------------------+"
 	@echo "    clean"
 	@echo "        Remove python and build artifacts"
@@ -24,9 +25,9 @@ help:
 
 clean-pyc:
 	@echo $@
-	find ./fastapi_plugins -name '*.pyc' -exec rm --force {} +
-	find ./fastapi_plugins -name '*.pyo' -exec rm --force {} +
-	find ./fastapi_plugins -name '*~'    -exec rm --force {} +
+	find ./${PYPACKAGE} -name '*.pyc' -exec rm --force {} +
+	find ./${PYPACKAGE} -name '*.pyo' -exec rm --force {} +
+	find ./${PYPACKAGE} -name '*~'    -exec rm --force {} +
 
 clean-build:
 	@echo $@
@@ -51,7 +52,7 @@ install: clean
 	pip install --no-cache-dir -U pip setuptools twine wheel
 	pip install --no-cache-dir -U -r requirements.txt
 	rm -rf build *.egg-info
-	pip uninstall fastapi-plugins -y || true
+	pip uninstall ${PYPACKAGE} -y || true
 
 demo: clean
 	@echo $@
@@ -63,15 +64,16 @@ demo-app: clean
 
 flake: clean
 	@echo $@
-	flake8 --statistics --ignore E252 fastapi_plugins tests scripts
+	flake8 --statistics --ignore E252 ${PYPACKAGE} tests scripts setup.py
 
 bandit: clean
 	@echo $@
-	bandit -r fastapi_plugins/ tests/ scripts/ demo.py
+	bandit -r ${PYPACKAGE}/ scripts/ demo.py setup.py
+	bandit -s B101 -r tests/
 
 test-unit-pytest:
 	@echo $@
-	time python -m pytest -v -x tests/ --cov=fastapi_plugins
+	python -m pytest -v -x tests/ --cov=${PYPACKAGE}
 
 test-unit: clean flake bandit docker-up-test test-unit-pytest docker-down-test
 	@echo $@

@@ -4,6 +4,8 @@
 
 from __future__ import absolute_import
 
+import pytest
+
 
 def pytest_configure(config):
     config.addinivalue_line("markers", "control: tests for Control")
@@ -14,3 +16,8 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "sentinel: tests for Redis Sentinel")
     config.addinivalue_line("markers", "settings: tests for Settings and Configuration")    # noqa E501
     config.addinivalue_line("markers", "logger: tests for Logger")
+
+
+@pytest.fixture(scope='session')
+def anyio_backend():
+    return 'asyncio'
