@@ -11,7 +11,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 __author__ = 'madkote <madkote(at)bluewin.ch>'
-__copyright__ = 'Copyright 2021, madkote'
+__copyright__ = 'Copyright 2023, madkote'
 
 
 if sys.version_info < (3, 6, 0):
@@ -64,7 +64,7 @@ def load_requirements(filename):
 def package_files(directory=None):
     paths = []
     if directory:
-        for (path, directories, filenames) in os.walk(directory):  # @UnusedVariable # noqa E501
+        for (path, _, filenames) in os.walk(directory):
             for filename in filenames:
                 paths.append(os.path.join('..', path, filename))
     return paths
@@ -77,21 +77,22 @@ DESCRIPTION = 'Plugins for FastAPI framework'
 URL = 'https://github.com/madkote/%s' % NAME
 
 REQUIRES_INSTALL = [
-    'fastapi>=0.74.*',
+    'fastapi>=0.74.0',
     'pydantic >=1.0.0,<2.0.0',
-    'tenacity>=8.0.*',
+    'tenacity>=8.0.0',
     #
-    'python-json-logger>=2.0.*',
-    'redis[hiredis]>=4.3.*',
-    'aiojobs>=1.0.*'
+    'python-json-logger>=2.0.0',
+    'redis[hiredis]>=4.3.0',
+    'aiojobs>=1.0.0'
 ]
-REQUIRES_FAKEREDIS = ['fakeredis[lua]>=1.8.*']
-REQUIRES_MEMCACHED = ['aiomcache>=0.7.*']
+REQUIRES_FAKEREDIS = ['fakeredis[lua]>=1.8.0']
+REQUIRES_MEMCACHED = ['aiomcache>=0.7.0']
 REQUIRES_TESTS = [
     'bandit',
     'docker-compose',
     'flake8',
     'pytest',
+    'pytest-asyncio',
     'pytest-cov',
     'tox',
     #
@@ -107,7 +108,6 @@ REQUIRES_EXTRA = {
 
 PACKAGES = find_packages(exclude=('scripts', 'tests'))
 PACKAGE_DATA = {'': []}
-
 
 
 # =============================================================================
