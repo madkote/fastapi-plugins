@@ -50,7 +50,7 @@ clean: clean-build clean-docker clean-pyc clean-pycache
 install: clean
 	@echo $@
 	pip install --no-cache-dir -U pip setuptools twine wheel
-	pip install --no-cache-dir -U -r requirements.txt
+	pip install --no-cache-dir -U --force-reinstall -r requirements.txt
 	rm -rf build *.egg-info
 	pip uninstall ${PYPACKAGE} -y || true
 

@@ -11,6 +11,7 @@ Valid variable are
 ### Example
 ```python
     # run with `uvicorn demo_app:app`
+    import contextlib
     import typing
     import fastapi
     import pydantic
@@ -23,8 +24,15 @@ Valid variable are
     class AppSettings(OtherSettings, MemcachedSettings):
         api_name: str = str(__name__)
     
-    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
-    config = AppSettings()
+    @contextlib.asynccontextmanager
+    async def lifespan(app: fastapi.FastAPI):
+        config = AppSettings()
+        await memcached_plugin.init_app(app, config=config)
+        await memcached_plugin.init()
+        yield
+        await memcached_plugin.terminate()
+    
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI(lifespan=lifespan))
     
     @app.get("/")
     async def root_get(
@@ -33,15 +41,6 @@ Valid variable are
         await cache.set(b'Hello', b'World')
         await cache.get(b'Hello')
         return dict(ping=await cache.ping())
-    
-    @app.on_event('startup')
-    async def on_startup() -> None:
-        await memcached_plugin.init_app(app, config=config)
-        await memcached_plugin.init()
-    
-    @app.on_event('shutdown')
-    async def on_shutdown() -> None:
-        await memcached_plugin.terminate()
 ```
 
 ## Redis
@@ -72,6 +71,7 @@ Valid variable are
 ### Example
 ```python
     # run with `uvicorn demo_app:app`
+    import contextlib
     import typing
     import aioredis
     import fastapi
@@ -81,23 +81,22 @@ Valid variable are
     class AppSettings(OtherSettings, fastapi_plugins.RedisSettings):
         api_name: str = str(__name__)
     
-    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
-    config = AppSettings()
+    @contextlib.asynccontextmanager
+    async def lifespan(app: fastapi.FastAPI):
+        config = AppSettings()
+        await fastapi_plugins.redis_plugin.init_app(app, config=config)
+        await fastapi_plugins.redis_plugin.init()
+        yield
+        await fastapi_plugins.redis_plugin.terminate()
+    
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI(lifespan=lifespan))
+    
     
     @app.get("/")
     async def root_get(
             cache: aioredis.Redis=fastapi.Depends(fastapi_plugins.depends_redis),
     ) -> typing.Dict:
         return dict(ping=await cache.ping())
-    
-    @app.on_event('startup')
-    async def on_startup() -> None:
-        await fastapi_plugins.redis_plugin.init_app(app, config=config)
-        await fastapi_plugins.redis_plugin.init()
-    
-    @app.on_event('shutdown')
-    async def on_shutdown() -> None:
-        await fastapi_plugins.redis_plugin.terminate()
 ```
 
 ### Example with Docker Compose - Redis

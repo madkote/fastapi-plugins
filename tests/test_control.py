@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import
 
+import contextlib
 import typing
 
 import fastapi
@@ -103,12 +104,11 @@ class MyControlConfig(
 def make_app(config=None, version=None, environ=None, plugins=None):
     if plugins is None:
         plugins = []
-    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
     if config is None:
         config = fastapi_plugins.ControlSettings()
 
-    @app.on_event('startup')
-    async def on_startup() -> None:
+    @contextlib.asynccontextmanager
+    async def lifespan(app: fastapi.FastAPI):
         for p in plugins:
             await p.init_app(app, config)
             await p.init()
@@ -119,14 +119,14 @@ def make_app(config=None, version=None, environ=None, plugins=None):
             kwargs.update(**dict(environ=environ))
         await fastapi_plugins.control_plugin.init_app(app, config, **kwargs)
         await fastapi_plugins.control_plugin.init()
-
-    @app.on_event('shutdown')
-    async def on_shutdown() -> None:
+        yield
         await fastapi_plugins.control_plugin.terminate()
         for p in plugins:
             await p.terminate()
 
-    return app
+    return fastapi_plugins.register_middleware(
+        fastapi.FastAPI(lifespan=lifespan)
+    )
 
 
 @pytest.fixture(params=[{}])

@@ -17,8 +17,18 @@ import fastapi_plugins
 class AppSettings(OtherSettings, fastapi_plugins.RedisSettings, fastapi_plugins.SchedulerSettings):
     api_name: str = str(__name__)
 
-app = fastapi_plugins.register_middleware(fastapi.FastAPI())
-config = AppSettings()
+@contextlib.asynccontextmanager
+async def lifespan(app: fastapi.FastAPI):
+    config = AppSettings()
+    await fastapi_plugins.redis_plugin.init_app(app, config=config)
+    await fastapi_plugins.redis_plugin.init()
+    await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.scheduler_plugin.init()
+    yield
+    await fastapi_plugins.scheduler_plugin.terminate()
+    await fastapi_plugins.redis_plugin.terminate()
+
+app = fastapi_plugins.register_middleware(fastapi.FastAPI(lifespan=lifespan))
 
 @app.post("/jobs/schedule/<timeout>")
 async def job_post(
@@ -56,16 +66,4 @@ async def job_get(
             detail='Job %s not found' % job_id
         )
     return dict(job_id=job_id, status=status)
-
-@app.on_event('startup')
-async def on_startup() -> None:
-    await fastapi_plugins.redis_plugin.init_app(app, config=config)
-    await fastapi_plugins.redis_plugin.init()
-    await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
-    await fastapi_plugins.scheduler_plugin.init()
-
-@app.on_event('shutdown')
-async def on_shutdown() -> None:
-    await fastapi_plugins.scheduler_plugin.terminate()
-    await fastapi_plugins.redis_plugin.terminate()
 ```

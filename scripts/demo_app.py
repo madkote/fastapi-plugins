@@ -12,6 +12,7 @@ CONTROL_ROUTER_PREFIX= uvicorn --host 0.0.0.0 scripts.demo_app:app
 from __future__ import absolute_import
 
 import asyncio
+import contextlib
 import logging
 import typing
 import uuid
@@ -66,8 +67,37 @@ class AppSettingsSentinel(AppSettings):
 #     redis_sentinels = 'redis-sentinel:26379'
 
 
-app = fastapi_plugins.register_middleware(fastapi.FastAPI())
-config = fastapi_plugins.get_config()
+@contextlib.asynccontextmanager
+async def lifespan(app: fastapi.FastAPI):
+    config = fastapi_plugins.get_config()
+
+    await fastapi_plugins.config_plugin.init_app(app, config)
+    await fastapi_plugins.config_plugin.init()
+    await fastapi_plugins.log_plugin.init_app(app, config, name=__name__)
+    await fastapi_plugins.log_plugin.init()
+    await memcached_plugin.init_app(app, config)
+    await memcached_plugin.init()
+    await fastapi_plugins.redis_plugin.init_app(app, config=config)
+    await fastapi_plugins.redis_plugin.init()
+    await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.scheduler_plugin.init()
+    await fastapi_plugins.control_plugin.init_app(
+        app,
+        config=config,
+        version=fastapi_plugins.__version__,
+        environ=config.dict()
+    )
+    await fastapi_plugins.control_plugin.init()
+    yield
+    await fastapi_plugins.control_plugin.terminate()
+    await fastapi_plugins.scheduler_plugin.terminate()
+    await fastapi_plugins.redis_plugin.terminate()
+    await memcached_plugin.terminate()
+    await fastapi_plugins.log_plugin.terminate()
+    await fastapi_plugins.config_plugin.terminate()
+
+
+app = fastapi_plugins.register_middleware(fastapi.FastAPI(lifespan=lifespan))
 
 
 @app.get("/")
@@ -136,34 +166,3 @@ async def memcached_demo_post(
     await cache.set(key.encode(), str(key + '_value').encode())
     value = await cache.get(key.encode())
     return dict(ping=(await cache.ping()).decode(), key=key, value=value)
-
-
-@app.on_event('startup')
-async def on_startup() -> None:
-    await fastapi_plugins.config_plugin.init_app(app, config)
-    await fastapi_plugins.config_plugin.init()
-    await fastapi_plugins.log_plugin.init_app(app, config, name=__name__)
-    await fastapi_plugins.log_plugin.init()
-    await memcached_plugin.init_app(app, config)
-    await memcached_plugin.init()
-    await fastapi_plugins.redis_plugin.init_app(app, config=config)
-    await fastapi_plugins.redis_plugin.init()
-    await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
-    await fastapi_plugins.scheduler_plugin.init()
-    await fastapi_plugins.control_plugin.init_app(
-        app,
-        config=config,
-        version=fastapi_plugins.__version__,
-        environ=config.dict()
-    )
-    await fastapi_plugins.control_plugin.init()
-
-
-@app.on_event('shutdown')
-async def on_shutdown() -> None:
-    await fastapi_plugins.control_plugin.terminate()
-    await fastapi_plugins.scheduler_plugin.terminate()
-    await fastapi_plugins.redis_plugin.terminate()
-    await memcached_plugin.terminate()
-    await fastapi_plugins.log_plugin.terminate()
-    await fastapi_plugins.config_plugin.terminate()

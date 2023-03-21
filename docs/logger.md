@@ -25,6 +25,7 @@ For details see below.
 ### Application
 ```python
     # run with `uvicorn demo_app:app`
+    import contextlib
     import logging
     import typing
     import aioredis
@@ -37,8 +38,18 @@ For details see below.
         logging_level: int = logging.DEBUG
         logging_style: fastapi_plugins.LoggingStyle = fastapi_plugins.LoggingStyle.logjson
     
-    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
-    config = AppSettings()
+    @contextlib.asynccontextmanager
+    async def lifespan(app: fastapi.FastAPI):
+        config = AppSettings()
+        await fastapi_plugins.log_plugin.init_app(app, config=config, name=__name__)
+        await fastapi_plugins.log_plugin.init()
+        await fastapi_plugins.redis_plugin.init_app(app, config=config)
+        await fastapi_plugins.redis_plugin.init()
+        yield
+        await fastapi_plugins.redis_plugin.terminate()
+        await fastapi_plugins.log_plugin.terminate()
+    
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI(lifespan=lifespan))
     
     @app.get("/")
     async def root_get(
@@ -48,18 +59,6 @@ For details see below.
         ping = await cache.ping()
         logger.debug('root_get', extra=dict(ping=ping))
         return dict(ping=ping)
-    
-    @app.on_event('startup')
-    async def on_startup() -> None:
-        await fastapi_plugins.log_plugin.init_app(app, config=config, name=__name__)
-        await fastapi_plugins.log_plugin.init()
-        await fastapi_plugins.redis_plugin.init_app(app, config=config)
-        await fastapi_plugins.redis_plugin.init()
-    
-    @app.on_event('shutdown')
-    async def on_shutdown() -> None:
-        await fastapi_plugins.redis_plugin.terminate()
-        await fastapi_plugins.log_plugin.terminate()
 ```
 
 ### Application with Logging Adapter
@@ -94,6 +93,7 @@ For details see below.
 ### Custom formats and handlers
 ```python
     # run with `uvicorn demo_app:app`
+    import contextlib
     import logging
     import typing
     import aioredis
@@ -125,9 +125,19 @@ For details see below.
         api_name: str = str(__name__)
         logging_level: int = logging.DEBUG
     
-    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
-    config = AppSettings()
-    fastapi_plugins.log_plugin = CustomLoggingPlugin()
+    @contextlib.asynccontextmanager
+    async def lifespan(app: fastapi.FastAPI):
+        config = AppSettings()
+        fastapi_plugins.log_plugin = CustomLoggingPlugin()
+        await fastapi_plugins.log_plugin.init_app(app, config, name=__name__)
+    	await fastapi_plugins.log_plugin.init()
+        await fastapi_plugins.redis_plugin.init_app(app, config=config)
+        await fastapi_plugins.redis_plugin.init()
+        yield
+        await fastapi_plugins.redis_plugin.terminate()
+        await fastapi_plugins.log_plugin.terminate()
+    
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI(lifespan=lifespan))
     
     @app.get("/")
     async def root_get(
@@ -137,18 +147,6 @@ For details see below.
         ping = await cache.ping()
         logger.debug('root_get', extra=dict(ping=ping))
         return dict(ping=ping)
-    
-    @app.on_event('startup')
-    async def on_startup() -> None:
-        await fastapi_plugins.log_plugin.init_app(app, config, name=__name__)
-    	await fastapi_plugins.log_plugin.init()
-        await fastapi_plugins.redis_plugin.init_app(app, config=config)
-        await fastapi_plugins.redis_plugin.init()
-    
-    @app.on_event('shutdown')
-    async def on_shutdown() -> None:
-        await fastapi_plugins.redis_plugin.terminate()
-        await fastapi_plugins.log_plugin.terminate()
 ```
 
 ### Docker Compose

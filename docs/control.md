@@ -49,20 +49,12 @@ exception.
 	            self.counter += 1
 	            return dict(myinfo='OK', mytype='counter health')
 	
-	myplugin = MyPluginWithHealth()
-	app = fastapi_plugins.register_middleware(fastapi.FastAPI())
-	config = AppSettings()
-	
-	@app.get("/")
-	async def root_get(
-	        myextension: MyPluginWithHealth=fastapi.Depends(depends_myplugin),
-	) -> typing.Dict:
-	    return dict(ping='pong')
-	
-	@app.on_event('startup')
-	async def on_startup() -> None:
-	    await fastapi_plugins.myplugin.init_app(app, config=config)
-	    await fastapi_plugins.myplugin.init()
+	@contextlib.asynccontextmanager
+    async def lifespan(app: fastapi.FastAPI):
+        config = AppSettings()
+	    myplugin = MyPluginWithHealth()
+	    await myplugin.init_app(app, config=config)
+	    await myplugin.init()
 	    await fastapi_plugins.control_plugin.init_app(
 	        app,
 	        config=config,
@@ -70,11 +62,17 @@ exception.
 	        environ=config.dict(),
 	    )
 	    await fastapi_plugins.control_plugin.init()
-	
-	@app.on_event('shutdown')
-	async def on_shutdown() -> None:
+	    yield
 	    await fastapi_plugins.control_plugin.terminate()
-	    await fastapi_plugins.myplugin.terminate()
+	    await myplugin.terminate()
+
+	app = fastapi_plugins.register_middleware(fastapi.FastAPI(lifespan=lifespan))
+	
+	@app.get("/")
+	async def root_get(
+	        myextension: MyPluginWithHealth=fastapi.Depends(depends_myplugin),
+	) -> typing.Dict:
+	    return dict(ping='pong')
 ```
 
 ## Heartbeat
@@ -83,6 +81,7 @@ The endpoint `/control/heartbeat` returns heart beat of the application - simple
 ## Example
 ```python
     # run with `uvicorn demo_app:app`
+    import contextlib
     import aioredis
     import fastapi
     import fastapi_plugins
@@ -98,17 +97,9 @@ The endpoint `/control/heartbeat` returns heart beat of the application - simple
         # control_enable_heartbeat: bool = True
         # control_enable_version: bool = True
     
-    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
-    config = AppSettings()
-    
-    @app.get("/")
-    async def root_get(
-            cache: aioredis.Redis=fastapi.Depends(fastapi_plugins.depends_redis),
-    ) -> typing.Dict:
-        return dict(ping=await cache.ping())
-    
-    @app.on_event('startup')
-    async def on_startup() -> None:
+    @contextlib.asynccontextmanager
+    async def lifespan(app: fastapi.FastAPI):
+        config = AppSettings()
         await fastapi_plugins.redis_plugin.init_app(app, config=config)
         await fastapi_plugins.redis_plugin.init()
         await fastapi_plugins.control_plugin.init_app(
@@ -118,11 +109,17 @@ The endpoint `/control/heartbeat` returns heart beat of the application - simple
             environ=config.dict(),
         )
         await fastapi_plugins.control_plugin.init()
-    
-    @app.on_event('shutdown')
-    async def on_shutdown() -> None:
+        yield
         await fastapi_plugins.control_plugin.terminate()
         await fastapi_plugins.redis_plugin.terminate()
+    
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI(lifespan=lifespan))
+    
+    @app.get("/")
+    async def root_get(
+            cache: aioredis.Redis=fastapi.Depends(fastapi_plugins.depends_redis),
+    ) -> typing.Dict:
+        return dict(ping=await cache.ping())
 ```
 
 Control plugin should be initialized as last in order to find all observable

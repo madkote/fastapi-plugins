@@ -94,8 +94,21 @@ import fastapi
 import fastapi_plugins
 ...
 
-app = fastapi_plugins.register_middleware(fastapi.FastAPI())
-config = fastapi_plugins.get_config()
+@contextlib.asynccontextmanager
+async def lifespan(app: fastapi.FastAPI):
+    config = fastapi_plugins.get_config()
+    await fastapi_plugins.config_plugin.init_app(app, config)
+    await fastapi_plugins.config_plugin.init()
+    await fastapi_plugins.redis_plugin.init_app(app, config=config)
+    await fastapi_plugins.redis_plugin.init()
+    await fastapi_plugins.control_plugin.init_app(app, config=config, version=__version__, environ=config.dict())
+    await fastapi_plugins.control_plugin.init()
+    yield
+    await fastapi_plugins.control_plugin.terminate()
+    await fastapi_plugins.redis_plugin.terminate()
+    await fastapi_plugins.config_plugin.terminate()
+
+app = fastapi_plugins.register_middleware(fastapi.FastAPI(lifespan=lifespan))
 
 @app.get("/")
 async def root_get(
@@ -103,22 +116,6 @@ async def root_get(
         conf: pydantic.BaseSettings=fastapi.Depends(fastapi_plugins.depends_config) # noqa E501
 ) -> typing.Dict:
     return dict(ping=await cache.ping(), api_name=conf.api_name)
-
-@app.on_event('startup')
-async def on_startup() -> None:
-    await fastapi_plugins.config_plugin.init_app(app, config)
-    await fastapi_plugins.config_plugin.init()
-    await fastapi_plugins.redis_plugin.init_app(app, config=config)
-    await fastapi_plugins.redis_plugin.init()
-    await fastapi_plugins.control_plugin.init_app(app, config=config, version=__version__, environ=config.dict())
-    await fastapi_plugins.control_plugin.init()
-
-
-@app.on_event('shutdown')
-async def on_shutdown() -> None:
-    await fastapi_plugins.control_plugin.terminate()
-    await fastapi_plugins.redis_plugin.terminate()
-    await fastapi_plugins.config_plugin.terminate()
 ```
 
 ## Use configuration

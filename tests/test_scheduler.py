@@ -5,6 +5,7 @@
 from __future__ import absolute_import
 
 import asyncio
+import contextlib
 import typing
 import uuid
 
@@ -21,7 +22,6 @@ pytestmark = [pytest.mark.anyio, pytest.mark.scheduler]
 
 
 def make_app(config=None):
-    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
     if config is None:
         class AppSettings(
                 fastapi_plugins.RedisSettings,
@@ -29,6 +29,20 @@ def make_app(config=None):
         ):
             api_name: str = str(__name__)
         config = AppSettings()
+
+    @contextlib.asynccontextmanager
+    async def lifespan(app: fastapi.FastAPI):
+        await fastapi_plugins.redis_plugin.init_app(app, config=config)
+        await fastapi_plugins.redis_plugin.init()
+        await fastapi_plugins.scheduler_plugin.init_app(app, config)
+        await fastapi_plugins.scheduler_plugin.init()
+        yield
+        await fastapi_plugins.scheduler_plugin.terminate()
+        await fastapi_plugins.redis_plugin.terminate()
+
+    app = fastapi_plugins.register_middleware(
+        fastapi.FastAPI(lifespan=lifespan)
+    )
 
     @app.post('/jobs/schedule')
     async def job_post(
@@ -71,18 +85,6 @@ def make_app(config=None):
     async def demo_get(
     ) -> typing.Dict:
         return dict(demo=123)
-
-    @app.on_event('startup')
-    async def on_startup() -> None:
-        await fastapi_plugins.redis_plugin.init_app(app, config=config)
-        await fastapi_plugins.redis_plugin.init()
-        await fastapi_plugins.scheduler_plugin.init_app(app, config)
-        await fastapi_plugins.scheduler_plugin.init()
-
-    @app.on_event('shutdown')
-    async def on_shutdown() -> None:
-        await fastapi_plugins.scheduler_plugin.terminate()
-        await fastapi_plugins.redis_plugin.terminate()
 
     return app
 
