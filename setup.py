@@ -78,7 +78,7 @@ URL = 'https://github.com/madkote/%s' % NAME
 
 REQUIRES_INSTALL = [
     'fastapi>=0.74.0',
-    'pydantic >=1.0.0,<2.0.0',
+    'pydantic>=1.0.0,<2.0.0',
     'tenacity>=8.0.0',
     #
     'python-json-logger>=2.0.0',
@@ -95,6 +95,7 @@ REQUIRES_TESTS = [
     'pytest-asyncio',
     'pytest-cov',
     'tox',
+    'twine',
     #
     'fastapi[all]',
 ]
