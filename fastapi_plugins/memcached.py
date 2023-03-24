@@ -21,11 +21,12 @@ from .plugin import PluginSettings
 from .plugin import Plugin
 
 from .control import ControlHealthMixin
-
+from .utils import Annotated
 
 __all__ = [
     'MemcachedError', 'MemcachedSettings', 'MemcachedClient',
-    'MemcachedPlugin', 'memcached_plugin', 'depends_memcached'
+    'MemcachedPlugin', 'memcached_plugin', 'depends_memcached',
+    'TMemcachedPlugin'
 ]
 
 
@@ -122,3 +123,6 @@ async def depends_memcached(
     conn: starlette.requests.HTTPConnection
 ) -> MemcachedClient:
     return await conn.app.state.MEMCACHED()
+
+
+TMemcachedPlugin = Annotated[MemcachedClient, fastapi.Depends(depends_memcached)]   # noqa E501

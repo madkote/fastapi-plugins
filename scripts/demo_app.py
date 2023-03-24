@@ -17,8 +17,6 @@ import logging
 import typing
 import uuid
 
-import aiojobs
-import aioredis
 import fastapi
 import pydantic
 import starlette.status
@@ -31,10 +29,9 @@ except ImportError:
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) # noqa E501
     import fastapi_plugins
 
-from fastapi_plugins.memcached import MemcachedSettings
-from fastapi_plugins.memcached import MemcachedClient
-from fastapi_plugins.memcached import depends_memcached
-from fastapi_plugins.memcached import memcached_plugin
+from fastapi_plugins.memcached import (
+    MemcachedSettings, memcached_plugin, TMemcachedPlugin
+)
 
 
 class OtherSettings(pydantic.BaseSettings):
@@ -102,9 +99,9 @@ app = fastapi_plugins.register_middleware(fastapi.FastAPI(lifespan=lifespan))
 
 @app.get("/")
 async def root_get(
-        cache: aioredis.Redis=fastapi.Depends(fastapi_plugins.depends_redis),
-        conf: pydantic.BaseSettings=fastapi.Depends(fastapi_plugins.depends_config),    # noqa E501
-        logger: logging.Logger=fastapi.Depends(fastapi_plugins.depends_logging)
+        cache: fastapi_plugins.TRedisPlugin,
+        conf: fastapi_plugins.TConfigPlugin,
+        logger: fastapi_plugins.TLoggerPlugin
 ) -> typing.Dict:
     ping = await cache.ping()
     logger.debug('root_get', extra=dict(ping=ping, api_name=conf.api_name))
@@ -113,10 +110,10 @@ async def root_get(
 
 @app.post("/jobs/schedule/<timeout>")
 async def job_post(
-    timeout: int=fastapi.Query(..., title='the job sleep time'),
-    cache: aioredis.Redis=fastapi.Depends(fastapi_plugins.depends_redis),
-    scheduler: aiojobs.Scheduler=fastapi.Depends(fastapi_plugins.depends_scheduler),  # noqa E501
-    logger: logging.Logger=fastapi.Depends(fastapi_plugins.depends_logging)
+    cache: fastapi_plugins.TRedisPlugin,
+    scheduler: fastapi_plugins.TSchedulerPlugin,
+    logger: fastapi_plugins.TLoggerPlugin,
+    timeout: int=fastapi.Query(..., title='the job sleep time')
 ) -> str:
     async def coro(job_id, timeout, cache):
         await cache.set(job_id, 'processing')
@@ -146,8 +143,8 @@ async def job_post(
 
 @app.get("/jobs/status/<job_id>")
 async def job_get(
-    job_id: str=fastapi.Query(..., title='the job id'),
-    cache: aioredis.Redis=fastapi.Depends(fastapi_plugins.depends_redis),
+    cache: fastapi_plugins.TRedisPlugin,
+    job_id: str=fastapi.Query(..., title='the job id')
 ) -> typing.Dict:
     status = await cache.get(job_id)
     if status is None:
@@ -160,8 +157,8 @@ async def job_get(
 
 @app.post("/memcached/demo/<key>")
 async def memcached_demo_post(
-    key: str=fastapi.Query(..., title='the job id'),
-    cache: MemcachedClient=fastapi.Depends(depends_memcached),
+    cache: TMemcachedPlugin,
+    key: str=fastapi.Query(..., title='the job id')
 ) -> typing.Dict:
     await cache.set(key.encode(), str(key + '_value').encode())
     value = await cache.get(key.encode())

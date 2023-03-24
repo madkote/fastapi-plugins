@@ -20,13 +20,14 @@ import starlette.requests
 from .plugin import PluginError
 from .plugin import PluginSettings
 from .plugin import Plugin
+from .utils import Annotated
 
 __all__ = [
     'ControlEnviron', 'ControlHealthCheck', 'ControlHealth',
     'ControlHealthError', 'ControlHeartBeat', 'ControlVersion',
     #
     'ControlError', 'ControlHealthMixin', 'ControlSettings', 'Controller',
-    'ControlPlugin', 'control_plugin', 'depends_control'
+    'ControlPlugin', 'control_plugin', 'depends_control', 'TControlPlugin'
 ]
 
 
@@ -361,3 +362,6 @@ async def depends_control(
     conn: starlette.requests.HTTPConnection
 ) -> Controller:
     return await conn.app.state.PLUGIN_CONTROL()
+
+
+TControlPlugin = Annotated[Controller, fastapi.Depends(depends_control)]

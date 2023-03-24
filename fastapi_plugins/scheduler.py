@@ -16,12 +16,12 @@ from .plugin import PluginSettings
 from .plugin import Plugin
 
 from .control import ControlHealthMixin
-
+from .utils import Annotated
 from .version import VERSION
 
 __all__ = [
     'SchedulerError', 'SchedulerSettings', 'SchedulerPlugin',
-    'scheduler_plugin', 'depends_scheduler'
+    'scheduler_plugin', 'depends_scheduler', 'TSchedulerPlugin'
     # 'MadnessScheduler'
 ]
 __author__ = 'madkote <madkote(at)bluewin.ch>'
@@ -140,3 +140,6 @@ async def depends_scheduler(
     conn: starlette.requests.HTTPConnection
 ) -> aiojobs.Scheduler:
     return await conn.app.state.AIOJOBS_SCHEDULER()
+
+
+TSchedulerPlugin = Annotated[aiojobs.Scheduler, fastapi.Depends(depends_scheduler)] # noqa E501
