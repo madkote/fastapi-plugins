@@ -38,7 +38,7 @@ from .version import VERSION
 
 __author__ = 'madkote <madkote(at)bluewin.ch>'
 __version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 20213, madkote'
+__copyright__ = 'Copyright 2023, madkote'
 
 # TODO: provide a generic cache type (redis, memcached, in-memory)
 #       and share some settings. Module/Sub-Pack cache

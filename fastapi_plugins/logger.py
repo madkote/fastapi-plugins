@@ -23,10 +23,12 @@ from .plugin import PluginSettings
 from .plugin import Plugin
 
 from .control import ControlHealthMixin
+from .utils import Annotated
 
 __all__ = [
     'LoggingError', 'LoggingStyle', 'LoggingHandlerType', 'LoggingSettings',
-    'LoggingPlugin', 'log_plugin', 'log_adapter', 'depends_logging'
+    'LoggingPlugin', 'log_plugin', 'log_adapter', 'depends_logging',
+    'TLoggerPlugin'
 ]
 
 
@@ -241,3 +243,6 @@ async def depends_logging(
     conn: starlette.requests.HTTPConnection
 ) -> logging.Logger:
     return await conn.app.state.PLUGIN_LOGGER()
+
+
+TLoggerPlugin = Annotated[logging.Logger, fastapi.Depends(depends_logging)]

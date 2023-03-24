@@ -9,8 +9,6 @@ import contextlib
 import typing
 import uuid
 
-import aiojobs
-import redis.asyncio as aioredis
 import fastapi
 import pytest
 import starlette.testclient
@@ -46,9 +44,9 @@ def make_app(config=None):
 
     @app.post('/jobs/schedule')
     async def job_post(
-        timeout: int=fastapi.Query(..., title='the job sleep time'),
-        cache: aioredis.Redis=fastapi.Depends(fastapi_plugins.depends_redis),               # noqa E501
-        scheduler: aiojobs.Scheduler=fastapi.Depends(fastapi_plugins.depends_scheduler),    # noqa E501
+        cache: fastapi_plugins.TRedisPlugin,
+        scheduler: fastapi_plugins.TSchedulerPlugin,
+        timeout: int=fastapi.Query(..., title='the job sleep time')
     ) -> str:
         async def coro(job_id, timeout, cache):
             await cache.set(job_id, 'processing')
@@ -70,8 +68,8 @@ def make_app(config=None):
 
     @app.get('/jobs/status')
     async def job_get(
-        job_id: str=fastapi.Query(..., title='the job id'),
-        cache: aioredis.Redis=fastapi.Depends(fastapi_plugins.depends_redis),   # noqa E501
+        cache: fastapi_plugins.TRedisPlugin,
+        job_id: str=fastapi.Query(..., title='the job id')
     ) -> typing.Dict:
         status = await cache.get(job_id)
         if status is None:

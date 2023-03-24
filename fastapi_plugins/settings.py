@@ -13,10 +13,12 @@ import starlette.config
 
 from .plugin import PluginError
 from .plugin import Plugin
+from .utils import Annotated
 from .version import VERSION
 
 __all__ = [
     'ConfigError', 'ConfigPlugin', 'depends_config', 'config_plugin',
+    'TConfigPlugin',
     #
     'register_config',
     'register_config_docker', 'register_config_local', 'register_config_test',
@@ -180,3 +182,6 @@ async def depends_config(
     conn: starlette.requests.HTTPConnection
 ) -> pydantic.BaseSettings:
     return await conn.app.state.PLUGIN_CONFIG()
+
+
+TConfigPlugin = Annotated[pydantic.BaseSettings, fastapi.Depends(depends_config)]   # noqa E501

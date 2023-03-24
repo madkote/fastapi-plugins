@@ -19,10 +19,11 @@ from .plugin import PluginSettings
 from .plugin import Plugin
 
 from .control import ControlHealthMixin
+from .utils import Annotated
 
 __all__ = [
     'RedisError', 'RedisType', 'RedisSettings', 'RedisPlugin',
-    'redis_plugin', 'depends_redis'
+    'redis_plugin', 'depends_redis', 'TRedisPlugin'
 ]
 
 
@@ -218,3 +219,6 @@ async def depends_redis(
     conn: starlette.requests.HTTPConnection
 ) -> aioredis.Redis:
     return await conn.app.state.REDIS()
+
+
+TRedisPlugin = Annotated[typing.Any, fastapi.Depends(depends_redis)]

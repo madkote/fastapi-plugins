@@ -1,4 +1,6 @@
 # Changes
+## 0.12.0 (2023-03-24)
+- `[feature]` `Annotated` support
 ## 0.11.0 (2022-09-19)
 - `[feature]` `redis-py` replaces `aioredis`
 ## 0.10.0 (2022-07-07)
