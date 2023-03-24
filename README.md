@@ -16,10 +16,6 @@
 </a>
 </p>
 
-# important
-Aioredis is about to merge into [redis-py](https://github.com/redis/redis-py).
-So waiting for release and first benchmarks. Version `1.3.1` remains the fastest.
-
 # fastapi-plugins
 FastAPI framework plugins - simple way to share `fastapi` code and utilities across applications.
 
