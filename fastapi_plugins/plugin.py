@@ -16,9 +16,10 @@ class PluginError(Exception):
 
 
 class PluginSettings(pydantic_settings.BaseSettings):
-    class Config:
-        env_prefix = ''
-        use_enum_values = True
+    model_config = pydantic_settings.SettingsConfigDict(
+        env_prefix='',
+        use_enum_values=True
+    )
 
 
 class Plugin:

@@ -101,7 +101,7 @@ async def lifespan(app: fastapi.FastAPI):
     await fastapi_plugins.config_plugin.init()
     await fastapi_plugins.redis_plugin.init_app(app, config=config)
     await fastapi_plugins.redis_plugin.init()
-    await fastapi_plugins.control_plugin.init_app(app, config=config, version=__version__, environ=config.dict())
+    await fastapi_plugins.control_plugin.init_app(app, config=config, version=__version__, environ=config.model_dump())
     await fastapi_plugins.control_plugin.init()
     yield
     await fastapi_plugins.control_plugin.terminate()

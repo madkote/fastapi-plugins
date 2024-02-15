@@ -41,16 +41,17 @@ class ControlError(PluginError):
 
 
 class ControlBaseModel(pydantic.BaseModel):
-    class Config:
-        use_enum_values = True
-        validate_all = True
+    model_config = pydantic_settings.SettingsConfigDict(
+        use_enum_values=True,
+        validate_default=True
+    )
 
 
 class ControlEnviron(ControlBaseModel):
     environ: typing.Dict = pydantic.Field(
         ...,
         title='Environment',
-        example=dict(var1='variable1', var2='variable2')
+        examples=dict(var1='variable1', var2='variable2')
     )
 
 
@@ -58,7 +59,7 @@ class ControlHealthStatus(ControlBaseModel):
     status: bool = pydantic.Field(
         ...,
         title='Health status',
-        example=True
+        examples=True
     )
 
 
@@ -67,12 +68,12 @@ class ControlHealthCheck(ControlHealthStatus):
         ...,
         title='Health check name',
         min_length=1,
-        example='Redis'
+        examples='Redis'
     )
     details: typing.Dict = pydantic.Field(
         ...,
         title='Health check details',
-        example=dict(detail1='detail1', detail2='detail2')
+        examples=dict(detail1='detail1', detail2='detail2')
     )
 
 
@@ -80,7 +81,7 @@ class ControlHealth(ControlHealthStatus):
     checks: typing.List[ControlHealthCheck] = pydantic.Field(
         ...,
         title='Health checks',
-        example=[
+        examples=[
             ControlHealthCheck(
                 name='Redis',
                 status=True,
@@ -97,7 +98,7 @@ class ControlHealthError(ControlBaseModel):
     detail: ControlHealth = pydantic.Field(
         ...,
         title='Health error',
-        example=ControlHealth(
+        examples=ControlHealth(
             status=False,
             checks=[
                 ControlHealthCheck(
@@ -114,7 +115,7 @@ class ControlHeartBeat(ControlBaseModel):
     is_alive: bool = pydantic.Field(
         ...,
         title='Alive flag',
-        example=True
+        examples=True
     )
 
 
@@ -132,7 +133,7 @@ class ControlVersion(ControlBaseModel):
         ...,
         title='Version',
         min_length=1,
-        example='1.2.3'
+        examples='1.2.3'
     )
 
 
@@ -234,7 +235,7 @@ class Controller(object):
                 else:
                     raise fastapi.HTTPException(
                         status_code=starlette.status.HTTP_417_EXPECTATION_FAILED,   # noqa E501
-                        detail=health.dict()
+                        detail=health.model_dump()
                     )
 
         #
@@ -346,7 +347,7 @@ class ControlPlugin(Plugin):
             if not health.status:
                 print()
                 print('-' * 79)
-                pprint.pprint(health.dict())
+                pprint.pprint(health.model_dump())
                 print('-' * 79)
                 print()
                 raise ControlError('failed health control')

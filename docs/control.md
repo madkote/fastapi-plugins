@@ -59,7 +59,7 @@ exception.
 	        app,
 	        config=config,
 	        version='1.2.3',
-	        environ=config.dict(),
+	        environ=config.model_dump(),
 	    )
 	    await fastapi_plugins.control_plugin.init()
 	    yield
@@ -106,7 +106,7 @@ The endpoint `/control/heartbeat` returns heart beat of the application - simple
             app,
             config=config,
             version='1.2.3',
-            environ=config.dict(),
+            environ=config.model_dump(),
         )
         await fastapi_plugins.control_plugin.init()
         yield

@@ -70,7 +70,7 @@ def test_manager_get_config(name, plugin, myconfig, request):
     m = ConfigManager()
     m.register(name, myconfig)
     assert m._settings_map == {name: myconfig}
-    assert myconfig().dict() == m.get_config(name).dict()
+    assert myconfig().model_dump() == m.get_config(name).model_dump()
 
 
 def test_manager_get_config_not_existing(plugin, myconfig, myconfig_name):
@@ -83,49 +83,49 @@ def test_manager_get_config_not_existing(plugin, myconfig, myconfig_name):
 
 def test_wrap_register_config(plugin, myconfig):
     fastapi_plugins.register_config(myconfig)
-    assert myconfig().dict() == fastapi_plugins.get_config().dict()
+    assert myconfig().model_dump() == fastapi_plugins.get_config().model_dump()
 
 
 def test_wrap_register_config_docker(plugin, myconfig):
     # docker is default
     fastapi_plugins.register_config_docker(myconfig)
-    assert myconfig().dict() == fastapi_plugins.get_config().dict()
-    assert myconfig().dict() == fastapi_plugins.get_config(fastapi_plugins.CONFIG_NAME_DOCKER).dict()    # noqa E501
+    assert myconfig().model_dump() == fastapi_plugins.get_config().model_dump()
+    assert myconfig().model_dump() == fastapi_plugins.get_config(fastapi_plugins.CONFIG_NAME_DOCKER).model_dump()   # noqa E501
 
 
 def test_wrap_register_config_local(plugin, myconfig):
     fastapi_plugins.register_config_local(myconfig)
-    assert myconfig().dict() == fastapi_plugins.get_config(fastapi_plugins.CONFIG_NAME_LOCAL).dict()    # noqa E501
-    os.environ[fastapi_plugins.DEFAULT_CONFIG_ENVVAR] = fastapi_plugins.CONFIG_NAME_LOCAL               # noqa E501
+    assert myconfig().model_dump() == fastapi_plugins.get_config(fastapi_plugins.CONFIG_NAME_LOCAL).model_dump()    # noqa E501
+    os.environ[fastapi_plugins.DEFAULT_CONFIG_ENVVAR] = fastapi_plugins.CONFIG_NAME_LOCAL                           # noqa E501
     try:
-        assert myconfig().dict() == fastapi_plugins.get_config().dict()
+        assert myconfig().model_dump() == fastapi_plugins.get_config().model_dump()                                 # noqa E501
     finally:
         os.environ.pop(fastapi_plugins.DEFAULT_CONFIG_ENVVAR)
 
 
 def test_wrap_register_config_test(plugin, myconfig):
     fastapi_plugins.register_config_test(myconfig)
-    assert myconfig().dict() == fastapi_plugins.get_config(fastapi_plugins.CONFIG_NAME_TEST).dict() # noqa E501
-    os.environ[fastapi_plugins.DEFAULT_CONFIG_ENVVAR] = fastapi_plugins.CONFIG_NAME_TEST            # noqa E501
+    assert myconfig().model_dump() == fastapi_plugins.get_config(fastapi_plugins.CONFIG_NAME_TEST).model_dump()     # noqa E501
+    os.environ[fastapi_plugins.DEFAULT_CONFIG_ENVVAR] = fastapi_plugins.CONFIG_NAME_TEST                            # noqa E501
     try:
-        assert myconfig().dict() == fastapi_plugins.get_config().dict()
+        assert myconfig().model_dump() == fastapi_plugins.get_config().model_dump()                                 # noqa E501
     finally:
         os.environ.pop(fastapi_plugins.DEFAULT_CONFIG_ENVVAR)
 
 
 def test_wrap_register_config_by_name(plugin, myconfig, myconfig_name):
     fastapi_plugins.register_config(myconfig, name=myconfig_name)
-    assert myconfig().dict() == fastapi_plugins.get_config(myconfig_name).dict()    # noqa E501
+    assert myconfig().model_dump() == fastapi_plugins.get_config(myconfig_name).model_dump()    # noqa E501
 
 
 def test_wrap_get_config(plugin, myconfig):
     fastapi_plugins.register_config(myconfig)
-    assert myconfig().dict() == fastapi_plugins.get_config().dict()
+    assert myconfig().model_dump() == fastapi_plugins.get_config().model_dump()
 
 
 def test_wrap_get_config_by_name(plugin, myconfig, myconfig_name):
     fastapi_plugins.register_config(myconfig, name=myconfig_name)
-    assert myconfig().dict() == fastapi_plugins.get_config(myconfig_name).dict()    # noqa E501
+    assert myconfig().model_dump() == fastapi_plugins.get_config(myconfig_name).model_dump()    # noqa E501
 
 
 def test_wrap_reset_config(plugin, myconfig):
@@ -142,7 +142,7 @@ def test_decorator_register_config(plugin):
     class MyConfig(fastapi_plugins.PluginSettings):
         api_name: str = 'API name'
 
-    assert MyConfig().dict() == fastapi_plugins.get_config().dict()
+    assert MyConfig().model_dump() == fastapi_plugins.get_config().model_dump()
 
 
 def test_decorator_register_config_docker(plugin):
@@ -151,8 +151,8 @@ def test_decorator_register_config_docker(plugin):
         api_name: str = 'API name'
 
     # docker is default
-    assert MyConfig().dict() == fastapi_plugins.get_config().dict()
-    assert MyConfig().dict() == fastapi_plugins.get_config(fastapi_plugins.CONFIG_NAME_DOCKER).dict()   # noqa E501
+    assert MyConfig().model_dump() == fastapi_plugins.get_config().model_dump()
+    assert MyConfig().model_dump() == fastapi_plugins.get_config(fastapi_plugins.CONFIG_NAME_DOCKER).model_dump()   # noqa E501
 
 
 def test_decorator_register_config_local(plugin):
@@ -160,10 +160,10 @@ def test_decorator_register_config_local(plugin):
     class MyConfig(fastapi_plugins.PluginSettings):
         api_name: str = 'API name'
 
-    assert MyConfig().dict() == fastapi_plugins.get_config(fastapi_plugins.CONFIG_NAME_LOCAL).dict()    # noqa E501
-    os.environ[fastapi_plugins.DEFAULT_CONFIG_ENVVAR] = fastapi_plugins.CONFIG_NAME_LOCAL               # noqa E501
+    assert MyConfig().model_dump() == fastapi_plugins.get_config(fastapi_plugins.CONFIG_NAME_LOCAL).model_dump()    # noqa E501
+    os.environ[fastapi_plugins.DEFAULT_CONFIG_ENVVAR] = fastapi_plugins.CONFIG_NAME_LOCAL                           # noqa E501
     try:
-        assert MyConfig().dict() == fastapi_plugins.get_config().dict()
+        assert MyConfig().model_dump() == fastapi_plugins.get_config().model_dump()                                 # noqa E501
     finally:
         os.environ.pop(fastapi_plugins.DEFAULT_CONFIG_ENVVAR)
 
@@ -173,10 +173,10 @@ def test_decorator_register_config_test(plugin):
     class MyConfig(fastapi_plugins.PluginSettings):
         api_name: str = 'API name'
 
-    assert MyConfig().dict() == fastapi_plugins.get_config(fastapi_plugins.CONFIG_NAME_TEST).dict() # noqa E501
-    os.environ[fastapi_plugins.DEFAULT_CONFIG_ENVVAR] = fastapi_plugins.CONFIG_NAME_TEST            # noqa E501
+    assert MyConfig().model_dump() == fastapi_plugins.get_config(fastapi_plugins.CONFIG_NAME_TEST).model_dump() # noqa E501
+    os.environ[fastapi_plugins.DEFAULT_CONFIG_ENVVAR] = fastapi_plugins.CONFIG_NAME_TEST                        # noqa E501
     try:
-        assert MyConfig().dict() == fastapi_plugins.get_config().dict()
+        assert MyConfig().model_dump() == fastapi_plugins.get_config().model_dump()                             # noqa E501
     finally:
         os.environ.pop(fastapi_plugins.DEFAULT_CONFIG_ENVVAR)
 
@@ -186,7 +186,7 @@ def test_decorator_register_config_by_name(plugin, myconfig_name):
     class MyConfig(fastapi_plugins.PluginSettings):
         api_name: str = 'API name'
 
-    assert MyConfig().dict() == fastapi_plugins.get_config(myconfig_name).dict()    # noqa E501
+    assert MyConfig().model_dump() == fastapi_plugins.get_config(myconfig_name).model_dump()    # noqa E501
 
 
 async def test_app_config(plugin):
@@ -203,7 +203,7 @@ async def test_app_config(plugin):
     await fastapi_plugins.config_plugin.init_app(app=app, config=config)
     await fastapi_plugins.config_plugin.init()
     try:
-        assert MyConfigDocker().dict() == (await fastapi_plugins.config_plugin()).dict()    # noqa E501
+        assert MyConfigDocker().model_dump() == (await fastapi_plugins.config_plugin()).model_dump()    # noqa E501
     finally:
         await fastapi_plugins.config_plugin.terminate()
         fastapi_plugins.reset_config()
@@ -225,7 +225,7 @@ async def test_app_config_environ(plugin):
         await fastapi_plugins.config_plugin.init_app(app=app, config=config)
         await fastapi_plugins.config_plugin.init()
         try:
-            assert MyConfigLocal().dict() == (await fastapi_plugins.config_plugin()).dict() # noqa E501
+            assert MyConfigLocal().model_dump() == (await fastapi_plugins.config_plugin()).model_dump() # noqa E501
         finally:
             await fastapi_plugins.config_plugin.terminate()
     finally:
