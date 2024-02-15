@@ -77,8 +77,9 @@ DESCRIPTION = 'Plugins for FastAPI framework'
 URL = 'https://github.com/madkote/%s' % NAME
 
 REQUIRES_INSTALL = [
-    'fastapi>=0.74.0',
-    'pydantic>=1.0.0,<2.0.0',
+    'fastapi>=0.100.0',
+    'pydantic>=2.0.0',
+    'pydantic-settings>=2.0.0',
     'tenacity>=8.0.0',
     #
     'python-json-logger>=2.0.0',

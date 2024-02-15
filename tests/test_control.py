@@ -8,7 +8,7 @@ import contextlib
 import typing
 
 import fastapi
-import pydantic
+import pydantic_settings
 import pytest
 import starlette.testclient
 
@@ -29,7 +29,7 @@ class DummyPluginHealthOK(
     async def init_app(
             self,
             app: fastapi.FastAPI,
-            config: pydantic.BaseSettings=None,     # @UnusedVariable
+            config: pydantic_settings.BaseSettings=None,     # @UnusedVariable
             *args,                                  # @UnusedVariable
             **kwargs                                # @UnusedVariable
     ) -> None:
@@ -46,7 +46,7 @@ class DummyPluginHealthOKOnce(
     async def init_app(
             self,
             app: fastapi.FastAPI,
-            config: pydantic.BaseSettings=None,     # @UnusedVariable
+            config: pydantic_settings.BaseSettings=None,     # @UnusedVariable
             *args,                                  # @UnusedVariable
             **kwargs                                # @UnusedVariable
     ) -> None:
@@ -68,7 +68,7 @@ class DummyPluginHealthFail(
     async def init_app(
             self,
             app: fastapi.FastAPI,
-            config: pydantic.BaseSettings=None,     # @UnusedVariable
+            config: pydantic_settings.BaseSettings=None,     # @UnusedVariable
             *args,                                  # @UnusedVariable
             **kwargs                                # @UnusedVariable
     ) -> None:
@@ -85,7 +85,7 @@ class DummyPluginHealthNotDefined(
     async def init_app(
             self,
             app: fastapi.FastAPI,
-            config: pydantic.BaseSettings=None,     # @UnusedVariable
+            config: pydantic_settings.BaseSettings=None,     # @UnusedVariable
             *args,                                  # @UnusedVariable
             **kwargs                                # @UnusedVariable
     ) -> None:

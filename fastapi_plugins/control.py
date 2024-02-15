@@ -15,6 +15,7 @@ import typing
 
 import fastapi
 import pydantic
+import pydantic_settings
 import starlette.requests
 
 from .plugin import PluginError
@@ -87,7 +88,7 @@ class ControlHealth(ControlHealthStatus):
                     redis_type='redis',
                     redis_host='localhost',
                 )
-            ).dict()
+            ).model_dump()
         ]
     )
 
@@ -310,7 +311,7 @@ class ControlPlugin(Plugin):
     async def init_app(
             self,
             app: fastapi.FastAPI,
-            config: pydantic.BaseSettings=None,
+            config: pydantic_settings.BaseSettings=None,
             *,
             version: str=DEFAULT_CONTROL_VERSION,
             environ: typing.Dict=None
