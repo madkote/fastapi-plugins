@@ -18,7 +18,7 @@ import typing
 import uuid
 
 import fastapi
-import pydantic
+import pydantic_settings
 import starlette.status
 
 try:
@@ -34,7 +34,7 @@ from fastapi_plugins.memcached import (
 )
 
 
-class OtherSettings(pydantic.BaseSettings):
+class OtherSettings(pydantic_settings.BaseSettings):
     other: str = 'other'
 
 
@@ -53,8 +53,8 @@ class AppSettings(
 
 @fastapi_plugins.registered_configuration(name='sentinel')
 class AppSettingsSentinel(AppSettings):
-    redis_type = fastapi_plugins.RedisType.sentinel
-    redis_sentinels = 'localhost:26379'
+    redis_type: fastapi_plugins.RedisType = fastapi_plugins.RedisType.sentinel
+    redis_sentinels: str = 'localhost:26379'
     memcached_host: str = 'localhost'
 
 

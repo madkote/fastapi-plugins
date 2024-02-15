@@ -113,7 +113,7 @@ app = fastapi_plugins.register_middleware(fastapi.FastAPI(lifespan=lifespan))
 @app.get("/")
 async def root_get(
         cache: aioredis.Redis=fastapi.Depends(fastapi_plugins.depends_redis),
-        conf: pydantic.BaseSettings=fastapi.Depends(fastapi_plugins.depends_config) # noqa E501
+        conf: pydantic_settings.BaseSettings=fastapi.Depends(fastapi_plugins.depends_config) # noqa E501
 ) -> typing.Dict:
     return dict(ping=await cache.ping(), api_name=conf.api_name)
 ```

@@ -35,9 +35,9 @@ exception.
 	    async def init_app(
 	            self,
 	            app: fastapi.FastAPI,
-	            config: pydantic.BaseSettings=None,     # @UnusedVariable
-	            *args,                                  # @UnusedVariable
-	            **kwargs                                # @UnusedVariable
+	            config: pydantic_settings.BaseSettings=None,
+	            *args,
+	            **kwargs
 	    ) -> None:
 	        self.counter = 0
 	        app.state.MY_PLUGIN_WITH_HELP = self

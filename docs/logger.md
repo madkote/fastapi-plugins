@@ -98,7 +98,7 @@ For details see below.
     import typing
     import aioredis
     import fastapi
-    import pydantic
+    import pydantic_settings
     import fastapi_plugins
     
     class CustomLoggingSettings(fastapi_plugins.LoggingSettings):
@@ -107,8 +107,8 @@ For details see below.
     class CustomLoggingPlugin(fastapi_plugins.LoggingPlugin):
         def _create_logger(
             self, 
-            name:str, 
-            config:pydantic.BaseSettings=None
+            name: str, 
+            config: pydantic_settings.BaseSettings=None
         ) -> logging.Logger:
             import sys
             handler = logging.StreamHandler(stream=sys.stderr)

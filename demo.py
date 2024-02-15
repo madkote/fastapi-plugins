@@ -10,12 +10,12 @@ import os
 import time
 
 import fastapi
-import pydantic
+import pydantic_settings
 
 import fastapi_plugins
 
 
-class OtherSettings(pydantic.BaseSettings):
+class OtherSettings(pydantic_settings.BaseSettings):
     other: str = 'other'
 
 
@@ -188,7 +188,7 @@ async def test_demo_custom_log():
         def _create_logger(
             self, 
             name:str, 
-            config:pydantic.BaseSettings=None
+            config:pydantic_settings.BaseSettings=None
         ) -> logging.Logger:
             import sys
             handler = logging.StreamHandler(stream=sys.stderr)
@@ -254,8 +254,8 @@ async def test_memcached():
     from fastapi_plugins.memcached import memcached_plugin
 
     class MoreSettings(AppSettings, MemcachedSettings):
-        memcached_prestart_tries = 5
-        memcached_prestart_wait = 1
+        memcached_prestart_tries: int = 5
+        memcached_prestart_wait: int = 1
 
     app = fastapi_plugins.register_middleware(fastapi.FastAPI())
     config = MoreSettings()

@@ -60,7 +60,7 @@ demo: clean
 
 demo-app: clean
 	@echo $@
-	uvicorn scripts/demo_app:app
+	uvicorn scripts.demo_app:app
 
 flake: clean
 	@echo $@
