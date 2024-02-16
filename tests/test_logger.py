@@ -100,8 +100,11 @@ async def test_format(logapp, level, result, logapp_name):
             for r in __results:
                 try:
                     rr = json.loads(r)
-                    rr.pop('timestamp')
-                    rr.pop('name')
+                    for k in ['timestamp', 'name', 'taskName']:
+                        try:
+                            rr.pop(k)
+                        except KeyError:
+                            pass
                     yield rr
                 except json.decoder.JSONDecodeError:
                     yield r
@@ -165,8 +168,11 @@ async def test_format_adapter(logapp, level, result, logapp_name):
             for r in __results:
                 try:
                     rr = json.loads(r)
-                    rr.pop('timestamp')
-                    rr.pop('name')
+                    for k in ['timestamp', 'name', 'taskName']:
+                        try:
+                            rr.pop(k)
+                        except KeyError:
+                            pass
                     yield rr
                 except json.decoder.JSONDecodeError:
                     yield r

@@ -14,8 +14,8 @@ __author__ = 'madkote <madkote(at)bluewin.ch>'
 __copyright__ = 'Copyright 2023, madkote'
 
 
-if sys.version_info < (3, 6, 0):
-    raise RuntimeError("Python 3.6+ required")
+if sys.version_info < (3, 8, 0):
+    raise RuntimeError("Python 3.8+ required")
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -99,6 +99,7 @@ REQUIRES_TESTS = [
     'twine',
     #
     'fastapi[all]',
+    'PyYAML>=5.3.1,!=5.4.0,!=5.4.1,<6'
 ]
 
 REQUIRES_EXTRA = {
