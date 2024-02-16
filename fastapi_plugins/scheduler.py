@@ -8,7 +8,7 @@ import typing
 
 import aiojobs
 import fastapi
-import pydantic
+import pydantic_settings
 import starlette.requests
 
 from .plugin import PluginError
@@ -99,7 +99,7 @@ class SchedulerPlugin(Plugin, ControlHealthMixin):
     async def init_app(
             self,
             app: fastapi.FastAPI,
-            config: pydantic.BaseSettings=None
+            config: pydantic_settings.BaseSettings=None
     ) -> None:
         self.config = config or self.DEFAULT_CONFIG_CLASS()
         if self.config is None:

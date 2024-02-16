@@ -8,7 +8,7 @@ import functools
 import typing
 
 import fastapi
-import pydantic
+import pydantic_settings
 import starlette.config
 
 from .plugin import PluginError
@@ -54,7 +54,11 @@ class ConfigManager(object):
     def __init__(self):
         self._settings_map = {}
 
-    def register(self, name: str, config: pydantic.BaseSettings) -> None:
+    def register(
+            self,
+            name: str,
+            config: pydantic_settings.BaseSettings
+    ) -> None:
         self._settings_map[name] = config
 
     def reset(self) -> None:
@@ -62,11 +66,11 @@ class ConfigManager(object):
 
     def get_config(
             self,
-            config_or_name: typing.Union[str, pydantic.BaseSettings]=None,
+            config_or_name: typing.Union[str, pydantic_settings.BaseSettings]=None, # noqa E501
             config_name_default: str=DEFAULT_CONFIG_NAME,
             config_name_envvar: str=DEFAULT_CONFIG_ENVVAR
-    ) -> pydantic.BaseSettings:
-        if isinstance(config_or_name, pydantic.BaseSettings):
+    ) -> pydantic_settings.BaseSettings:
+        if isinstance(config_or_name, pydantic_settings.BaseSettings):
             return config_or_name
         if not config_or_name:
             config_or_name = config_name_default
@@ -84,21 +88,24 @@ class ConfigManager(object):
 _manager = ConfigManager()
 
 
-def register_config(config: pydantic.BaseSettings, name: str=None) -> None:
+def register_config(
+        config: pydantic_settings.BaseSettings,
+        name: str=None
+) -> None:
     if not name:
         name = CONFIG_NAME_DEFAULT
     _manager.register(name, config)
 
 
-def register_config_docker(config: pydantic.BaseSettings) -> None:
+def register_config_docker(config: pydantic_settings.BaseSettings) -> None:
     _manager.register(CONFIG_NAME_DOCKER, config)
 
 
-def register_config_local(config: pydantic.BaseSettings) -> None:
+def register_config_local(config: pydantic_settings.BaseSettings) -> None:
     _manager.register(CONFIG_NAME_LOCAL, config)
 
 
-def register_config_test(config: pydantic.BaseSettings) -> None:
+def register_config_test(config: pydantic_settings.BaseSettings) -> None:
     _manager.register(CONFIG_NAME_TEST, config)
 
 
@@ -149,10 +156,10 @@ def reset_config() -> None:
 
 @functools.lru_cache()
 def get_config(
-        config_or_name: typing.Union[str, pydantic.BaseSettings]=None,
+        config_or_name: typing.Union[str, pydantic_settings.BaseSettings]=None,
         config_name_default: str=DEFAULT_CONFIG_NAME,
         config_name_envvar: str=DEFAULT_CONFIG_ENVVAR
-) -> pydantic.BaseSettings:
+) -> pydantic_settings.BaseSettings:
     return _manager.get_config(
         config_or_name=config_or_name,
         config_name_default=config_name_default,
@@ -161,15 +168,15 @@ def get_config(
 
 
 class ConfigPlugin(Plugin):
-    DEFAULT_CONFIG_CLASS = pydantic.BaseSettings
+    DEFAULT_CONFIG_CLASS = pydantic_settings.BaseSettings
 
-    async def _on_call(self) -> pydantic.BaseSettings:
+    async def _on_call(self) -> pydantic_settings.BaseSettings:
         return self.config
 
     async def init_app(
             self,
             app: fastapi.FastAPI,
-            config: pydantic.BaseSettings=None,
+            config: pydantic_settings.BaseSettings=None,
     ) -> None:
         self.config = config or self.DEFAULT_CONFIG_CLASS()
         app.state.PLUGIN_CONFIG = self
@@ -180,8 +187,8 @@ config_plugin = ConfigPlugin()
 
 async def depends_config(
     conn: starlette.requests.HTTPConnection
-) -> pydantic.BaseSettings:
+) -> pydantic_settings.BaseSettings:
     return await conn.app.state.PLUGIN_CONFIG()
 
 
-TConfigPlugin = Annotated[pydantic.BaseSettings, fastapi.Depends(depends_config)]   # noqa E501
+TConfigPlugin = Annotated[pydantic_settings.BaseSettings, fastapi.Depends(depends_config)]   # noqa E501

@@ -8,7 +8,7 @@ import contextlib
 import typing
 
 import fastapi
-import pydantic
+import pydantic_settings
 import pytest
 import starlette.testclient
 
@@ -29,7 +29,7 @@ class DummyPluginHealthOK(
     async def init_app(
             self,
             app: fastapi.FastAPI,
-            config: pydantic.BaseSettings=None,     # @UnusedVariable
+            config: pydantic_settings.BaseSettings=None,     # @UnusedVariable
             *args,                                  # @UnusedVariable
             **kwargs                                # @UnusedVariable
     ) -> None:
@@ -46,7 +46,7 @@ class DummyPluginHealthOKOnce(
     async def init_app(
             self,
             app: fastapi.FastAPI,
-            config: pydantic.BaseSettings=None,     # @UnusedVariable
+            config: pydantic_settings.BaseSettings=None,     # @UnusedVariable
             *args,                                  # @UnusedVariable
             **kwargs                                # @UnusedVariable
     ) -> None:
@@ -68,7 +68,7 @@ class DummyPluginHealthFail(
     async def init_app(
             self,
             app: fastapi.FastAPI,
-            config: pydantic.BaseSettings=None,     # @UnusedVariable
+            config: pydantic_settings.BaseSettings=None,     # @UnusedVariable
             *args,                                  # @UnusedVariable
             **kwargs                                # @UnusedVariable
     ) -> None:
@@ -85,7 +85,7 @@ class DummyPluginHealthNotDefined(
     async def init_app(
             self,
             app: fastapi.FastAPI,
-            config: pydantic.BaseSettings=None,     # @UnusedVariable
+            config: pydantic_settings.BaseSettings=None,     # @UnusedVariable
             *args,                                  # @UnusedVariable
             **kwargs                                # @UnusedVariable
     ) -> None:
@@ -147,7 +147,7 @@ async def test_controller_environ(kwargs, result):
 
 
 async def test_controller_health():
-    assert dict(status=True, checks=[]) == (await fastapi_plugins.Controller().get_health()).dict() # noqa E501
+    assert dict(status=True, checks=[]) == (await fastapi_plugins.Controller().get_health()).model_dump() # noqa E501
 
 
 @pytest.mark.parametrize(
@@ -184,7 +184,7 @@ async def test_controller_health_plugin(
     try:
         c = fastapi_plugins.Controller()
         c.plugins.append((name, dummy))
-        assert (await c.get_health()).dict() == dict(
+        assert (await c.get_health()).model_dump() == dict(
             status=status,
             checks=[
                 dict(

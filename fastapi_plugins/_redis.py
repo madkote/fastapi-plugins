@@ -8,7 +8,7 @@ import enum
 import typing
 
 import fastapi
-import pydantic
+import pydantic_settings
 import redis.asyncio as aioredis
 import redis.asyncio.sentinel as aioredis_sentinel
 import starlette.requests
@@ -42,24 +42,24 @@ class RedisType(str, enum.Enum):
 class RedisSettings(PluginSettings):
     redis_type: RedisType = RedisType.redis
     #
-    redis_url: str = None
+    redis_url: typing.Optional[str] = None
     redis_host: str = 'localhost'
     redis_port: int = 6379
-    redis_user: str = None
-    redis_password: str = None
-    redis_db: int = None
+    redis_user: typing.Optional[str] = None
+    redis_password: typing.Optional[str] = None
+    redis_db: typing.Optional[int] = None
     # redis_connection_timeout: int = 2
     #
     # redis_pool_minsize: int = 1
     # redis_pool_maxsize: int = None
-    redis_max_connections: int = None
+    redis_max_connections: typing.Optional[int] = None
     redis_decode_responses: bool = True
     #
     redis_ttl: int = 3600
     #
     # TODO: xxx the customer validator does not work
     # redis_sentinels: typing.List = None
-    redis_sentinels: str = None
+    redis_sentinels: typing.Optional[str] = None
     redis_sentinel_master: str = 'mymaster'
     #
     # TODO: xxx - should be shared across caches
@@ -127,7 +127,7 @@ class RedisPlugin(Plugin, ControlHealthMixin):
     async def init_app(
             self,
             app: fastapi.FastAPI,
-            config: pydantic.BaseSettings=None
+            config: pydantic_settings.BaseSettings=None
     ) -> None:
         self.config = config or self.DEFAULT_CONFIG_CLASS()
         if self.config is None:

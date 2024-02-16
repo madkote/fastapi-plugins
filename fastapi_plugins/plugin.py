@@ -8,26 +8,27 @@ import abc
 import typing
 
 import fastapi
-import pydantic
+import pydantic_settings
 
 
 class PluginError(Exception):
     pass
 
 
-class PluginSettings(pydantic.BaseSettings):
-    class Config:
-        env_prefix = ''
-        use_enum_values = True
+class PluginSettings(pydantic_settings.BaseSettings):
+    model_config = pydantic_settings.SettingsConfigDict(
+        env_prefix='',
+        use_enum_values=True
+    )
 
 
 class Plugin:
-    DEFAULT_CONFIG_CLASS: pydantic.BaseSettings = None
+    DEFAULT_CONFIG_CLASS: pydantic_settings.BaseSettings = None
 
     def __init__(
             self,
             app: fastapi.FastAPI=None,
-            config: pydantic.BaseSettings=None
+            config: pydantic_settings.BaseSettings=None
     ):
         self._on_init()
         if app and config:
@@ -49,7 +50,7 @@ class Plugin:
     async def init_app(
             self,
             app: fastapi.FastAPI,
-            config: pydantic.BaseSettings=None,
+            config: pydantic_settings.BaseSettings=None,
             *args,
             **kwargs
     ) -> None:

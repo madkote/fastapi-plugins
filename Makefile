@@ -60,7 +60,7 @@ demo: clean
 
 demo-app: clean
 	@echo $@
-	uvicorn scripts/demo_app:app
+	uvicorn scripts.demo_app:app
 
 flake: clean
 	@echo $@
@@ -106,22 +106,22 @@ pypi-upload:
 
 docker-build-dev:
 	@echo $@
-	docker-compose -f docker-compose.memcached.yml -f docker-compose.sentinel.yml build
+	docker compose -f docker-compose.memcached.yml -f docker-compose.sentinel.yml build
 
 docker-up: clean-docker
 	@echo $@
-	docker-compose build --force-rm --no-cache --pull && docker-compose -f docker-compose.yml -f docker-compose.redis.yml -f docker-compose.memcached.yml up --build
+	docker compose build --force-rm --no-cache --pull && docker compose -f docker-compose.yml -f docker-compose.redis.yml -f docker-compose.memcached.yml up --build
 
 docker-up-dev: clean-docker docker-build-dev
 	@echo $@
-	docker-compose -f docker-compose.memcached.yml -f docker-compose.sentinel.yml up
+	docker compose -f docker-compose.memcached.yml -f docker-compose.sentinel.yml up
 
 docker-up-test: clean-docker docker-build-dev
 	@echo $@
-	docker-compose -f docker-compose.memcached.yml -f docker-compose.sentinel.yml up -d
+	docker compose -f docker-compose.memcached.yml -f docker-compose.sentinel.yml up -d
 	sleep 5
 	docker ps
 
 docker-down-test:
 	@echo $@
-	docker-compose -f docker-compose.memcached.yml -f docker-compose.sentinel.yml down
+	docker compose -f docker-compose.memcached.yml -f docker-compose.sentinel.yml down

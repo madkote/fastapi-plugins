@@ -13,7 +13,7 @@ import sys
 import typing
 
 import fastapi
-import pydantic
+import pydantic_settings
 import starlette.requests
 
 from pythonjsonlogger import jsonlogger
@@ -140,16 +140,16 @@ class LoggingSettings(PluginSettings):
     logging_level: int = logging.WARNING
     logging_style: LoggingStyle = LoggingStyle.logtxt
     logging_handler: LoggingHandlerType = LoggingHandlerType.logstdout
-    logging_fmt: str = None
+    logging_fmt: typing.Optional[str] = None
 
 
 class LoggingPlugin(Plugin, ControlHealthMixin):
-    DEFAULT_CONFIG_CLASS: pydantic.BaseSettings = LoggingSettings
+    DEFAULT_CONFIG_CLASS: pydantic_settings.BaseSettings = LoggingSettings
 
     def _create_logger(
             self,
             name: str,
-            config: pydantic.BaseSettings=None
+            config: pydantic_settings.BaseSettings=None
     ) -> logging.Logger:
         logger_klass = None
         #
@@ -197,7 +197,7 @@ class LoggingPlugin(Plugin, ControlHealthMixin):
     async def init_app(
             self,
             app: fastapi.FastAPI,
-            config: pydantic.BaseSettings=None,
+            config: pydantic_settings.BaseSettings=None,
             *,
             name: str=None
     ) -> None:
