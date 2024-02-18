@@ -1,4 +1,6 @@
 # Changes
+## 0.13.0 (2024-02-16)
+- `[feature]` updates for Pydantic 2
 ## 0.12.0 (2023-03-24)
 - `[feature]` `Annotated` support
 ## 0.11.0 (2022-09-19)
