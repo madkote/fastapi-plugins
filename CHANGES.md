@@ -1,4 +1,6 @@
 # Changes
+## 0.13.1 (2024-06-03)
+- `[fix]` limit redis version to `>=4.3.0,<5` due to issues with async sentinel
 ## 0.13.0 (2024-02-16)
 - `[feature]` updates for Pydantic 2
 ## 0.12.0 (2023-03-24)

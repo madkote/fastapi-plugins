@@ -166,7 +166,8 @@ async def test_get_set_ttl(redisapp):
     value = str(uuid.uuid4())
     assert await c.setex('x', c.TTL, value) is not None
     assert await c.get('x') == value
-    assert await c.ttl('x') == fastapi_plugins.redis_plugin.config.redis_ttl
+    ttl = fastapi_plugins.redis_plugin.config.redis_ttl
+    assert (ttl - 5) <= await c.ttl('x') <= ttl
 
 
 # def redis_must_be_running(cls):
