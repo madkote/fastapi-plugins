@@ -51,7 +51,7 @@ class ControlEnviron(ControlBaseModel):
     environ: typing.Dict = pydantic.Field(
         ...,
         title='Environment',
-        examples=dict(var1='variable1', var2='variable2')
+        examples=[dict(var1='variable1', var2='variable2')]
     )
 
 
@@ -59,7 +59,7 @@ class ControlHealthStatus(ControlBaseModel):
     status: bool = pydantic.Field(
         ...,
         title='Health status',
-        examples=True
+        examples=[True]
     )
 
 
@@ -68,12 +68,12 @@ class ControlHealthCheck(ControlHealthStatus):
         ...,
         title='Health check name',
         min_length=1,
-        examples='Redis'
+        examples=['Redis']
     )
     details: typing.Dict = pydantic.Field(
         ...,
         title='Health check details',
-        examples=dict(detail1='detail1', detail2='detail2')
+        examples=[dict(detail1='detail1', detail2='detail2')]
     )
 
 
@@ -98,7 +98,7 @@ class ControlHealthError(ControlBaseModel):
     detail: ControlHealth = pydantic.Field(
         ...,
         title='Health error',
-        examples=ControlHealth(
+        examples=[ControlHealth(
             status=False,
             checks=[
                 ControlHealthCheck(
@@ -107,7 +107,7 @@ class ControlHealthError(ControlBaseModel):
                     details=dict(error='Some error')
                 )
             ]
-        )
+        )]
     )
 
 
@@ -115,7 +115,7 @@ class ControlHeartBeat(ControlBaseModel):
     is_alive: bool = pydantic.Field(
         ...,
         title='Alive flag',
-        examples=True
+        examples=[True]
     )
 
 
@@ -133,7 +133,7 @@ class ControlVersion(ControlBaseModel):
         ...,
         title='Version',
         min_length=1,
-        examples='1.2.3'
+        examples=['1.2.3']
     )
 
 
