@@ -31,7 +31,6 @@ __all__ = [
     'ControlPlugin', 'control_plugin', 'depends_control', 'TControlPlugin'
 ]
 
-
 DEFAULT_CONTROL_ROUTER_PREFIX = 'control'
 DEFAULT_CONTROL_VERSION = '0.0.1'
 
@@ -51,7 +50,9 @@ class ControlEnviron(ControlBaseModel):
     environ: typing.Dict = pydantic.Field(
         ...,
         title='Environment',
-        examples=[dict(var1='variable1', var2='variable2')]
+        examples=[
+            dict(var1='variable1', var2='variable2')
+        ]
     )
 
 
@@ -98,16 +99,18 @@ class ControlHealthError(ControlBaseModel):
     detail: ControlHealth = pydantic.Field(
         ...,
         title='Health error',
-        examples=[ControlHealth(
-            status=False,
-            checks=[
-                ControlHealthCheck(
-                    name='Redis',
-                    status=False,
-                    details=dict(error='Some error')
-                )
-            ]
-        )]
+        examples=[
+            ControlHealth(
+                status=False,
+                checks=[
+                    ControlHealthCheck(
+                        name='Redis',
+                        status=False,
+                        details=dict(error='Some error')
+                    )
+                ]
+            )
+        ]
     )
 
 
