@@ -2,6 +2,6 @@
 # -*- coding: utf-8 -*-
 # fastapi_plugins.version
 
-VERSION = (0, 13, 1)
+VERSION = (0, 13, 2)
 
 __version__ = '.'.join(str(x) for x in VERSION)

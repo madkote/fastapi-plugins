@@ -1,4 +1,6 @@
 # Changes
+## 0.13.2 (2025-02-12)
+- `[fix]` `examples` field in `Control` schema
 ## 0.13.1 (2024-06-03)
 - `[fix]` limit redis version to `>=4.3.0,<5` due to issues with async sentinel
 ## 0.13.0 (2024-02-16)
