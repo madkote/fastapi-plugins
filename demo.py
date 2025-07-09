@@ -478,16 +478,14 @@ def main_demo_buffered_log():
 
 
 if __name__ == '__main__':
-    main_demo_buffered_log()
-    raise
-
     main_redis()
     main_scheduler()
     main_demo()
     main_demo_custom_log()
     main_demo_json_log()
     main_demo_orjson_log()
-    #
+    main_demo_buffered_log()
+
     try:
         main_memcached()
     except Exception as e:
