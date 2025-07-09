@@ -368,6 +368,51 @@ async def test_memcached():
     print('---test memcached done')
 
 
+async def test_demo_buffered_log():
+    async def coro(con, name, timeout):
+        try:
+            await con.set(name, '...')
+            print('> sleep', name, timeout)
+            await asyncio.sleep(timeout)
+            await con.set(name, 'done')
+            print('---> sleep done', name, timeout)
+        except asyncio.CancelledError as e:
+            print('coro cancelled', name)
+            raise e
+
+    print('--- do demo')
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
+    config = AppSettings(
+        logging_style=fastapi_plugins.LoggingStyle.logjson,
+        logging_memory_capacity=25
+    )
+
+    await fastapi_plugins.log_plugin.init_app(app, config, name=__name__)
+    await fastapi_plugins.log_plugin.init()
+    await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.redis_plugin.init()
+    await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.scheduler_plugin.init()
+
+    try:
+        num_jobs = 10
+        num_tasks = 30
+
+        logger = await fastapi_plugins.log_plugin()
+        for c_job in range(num_jobs):
+            print(f'----- JOB {c_job}')
+            for c_task in range(num_tasks):
+                logger.info(f'job={c_job} task={c_task} hello world')
+                await asyncio.sleep(0.1)
+            await asyncio.sleep(0.5)
+    finally:
+        print('- terminate')
+        await fastapi_plugins.scheduler_plugin.terminate()
+        await fastapi_plugins.redis_plugin.terminate()
+        await fastapi_plugins.log_plugin.terminate()
+        print('---demo done')
+
+
 # =============================================================================
 # ---
 # =============================================================================
@@ -424,7 +469,18 @@ def main_demo_orjson_log():
     loop.run_until_complete(test_demo_orjson_log())
 
 
+def main_demo_buffered_log():
+    print(os.linesep * 3)
+    print('=' * 50)
+    print('= DEMO BUFFERED LOG')
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_demo_buffered_log())
+
+
 if __name__ == '__main__':
+    main_demo_buffered_log()
+    raise
+
     main_redis()
     main_scheduler()
     main_demo()

@@ -7,6 +7,7 @@ from __future__ import absolute_import
 import datetime
 import enum
 import logging
+import logging.handlers
 import numbers
 import queue
 import sys
@@ -147,6 +148,8 @@ class LoggingSettings(PluginSettings):
     logging_style: LoggingStyle = LoggingStyle.logtxt
     logging_handler: LoggingHandlerType = LoggingHandlerType.logstdout
     logging_fmt: typing.Optional[str] = None
+    logging_memory_capacity: int = 0    # 1024*100
+    logging_memory_flush_level: int = logging.ERROR
 
 
 class LoggingPlugin(Plugin, ControlHealthMixin):
@@ -157,40 +160,64 @@ class LoggingPlugin(Plugin, ControlHealthMixin):
             name: str,
             config: pydantic_settings.BaseSettings=None
     ) -> logging.Logger:
-        logger_klass = None
+        handler = QueueHandler()
+        formatter = logging.Formatter(fmt=config.logging_fmt)
+        klass = None
+
         #
-        if config.logging_handler == LoggingHandlerType.logstdout:
-            handler = logging.StreamHandler(stream=sys.stdout)
-        elif config.logging_handler == LoggingHandlerType.loglist:
-            handler = QueueHandler()
-        #
+        # style
         if config.logging_style == LoggingStyle.logtxt:
-            formatter = logging.Formatter(fmt=config.logging_fmt)
+            pass
         elif config.logging_style == LoggingStyle.logfmt:
             formatter = LogfmtFormatter()
-            logger_klass = LoggerLogfmt
+            klass = LoggerLogfmt
         elif config.logging_style == LoggingStyle.logjson:
             formatter = JsonFormatter()
         elif config.logging_style == LoggingStyle.logorjson:
             formatter = OrJsonFormatter()
         else:
-            raise LoggingError(
-                'unknown logging format style %s' % config.logging_style
+            raise LoggingError(f'unknown logging format style {config.logging_style}')
+
+        #
+        # handler type
+        if config.logging_handler == LoggingHandlerType.loglist:
+            pass
+        elif config.logging_handler == LoggingHandlerType.logstdout:
+            handler = logging.StreamHandler(stream=sys.stdout)
+        else:
+            raise LoggingError(f'unknown logging handler {config.logging_handler}')
+
+        #
+        # setup handler
+        handler.setLevel(config.logging_level)
+        handler.setFormatter(formatter)
+
+        #
+        # memory
+        if config.logging_memory_capacity > 0:
+            handler = logging.handlers.MemoryHandler(
+                capacity=config.logging_memory_capacity,
+                flushLevel=config.logging_memory_flush_level,
+                target=handler
             )
-        if logger_klass is not None:
+
+        #
+        # default logging class
+        if klass is not None:
             _original_logger_klass = logging.getLoggerClass()
             try:
-                logging.setLoggerClass(logger_klass)
+                logging.setLoggerClass(klass)
                 logger = logging.getLogger(name)
             finally:
                 logging.setLoggerClass(_original_logger_klass)
         else:
             logger = logging.getLogger(name)
+
         #
+        # setup logger
         logger.setLevel(config.logging_level)
-        handler.setLevel(config.logging_level)
-        handler.setFormatter(formatter)
         logger.addHandler(handler)
+
         return logger
 
     def _on_init(self) -> None:

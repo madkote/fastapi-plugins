@@ -10,7 +10,7 @@ For details see below.
 
 ## Valid variables and values
 * `LOGGING_LEVEL` - verbosity level
-  * any valid level provided by standard `logging` library (e.g. `10`, `20`, `30`, ...) 
+  * any valid level provided by standard `logging` library (e.g. `10`, `20`, `30`, ...)
 * `LOGGING_STYLE` - style/format of log records
   * `txt` - default `logging` format
   * `json` - JSON format with standard `json`
@@ -21,6 +21,11 @@ For details see below.
   * `list` - Collect log entries in a queue, **for testing purposes only**.
 * `LOGGING_FMT` - logging format for default formatter, e.g. `"%(asctime)s %(levelname) %(message)s"`.
   **Note**: this parameter is only valid in conjuction with `LOGGING_STYLE=txt`.
+* `LOGGING_MEMORY_CAPACITY` - if greater then `0` enable buffered log record output
+  * default is `0` - disabled.
+  * a possible _good_ value for production can be `1024*100`
+* `LOGGING_MEMORY_FLUSH_LEVEL` - logging level to immediately flush logging buffer to the handler
+  * any valid level provided by standard `logging` library (e.g. `10`, `20`, `30`, ...)
 
 ## Example
 ### Application
