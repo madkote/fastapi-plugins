@@ -28,6 +28,7 @@ dependencies = [
 
   "aiojobs>=1,<2",
   "aiomcache>=0.7.0",
+  "orjson>=3,<4",
   "python-json-logger>=2",
   "redis[hiredis]>=4.3.0,<5",
   "tenacity>=8"

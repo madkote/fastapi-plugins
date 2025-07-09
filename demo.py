@@ -248,6 +248,104 @@ async def test_demo_custom_log():
         print('---demo done')
 
 
+async def test_demo_orjson_log():
+    async def coro(con, name, timeout):
+        try:
+            await con.set(name, '...')
+            print('> sleep', name, timeout)
+            await asyncio.sleep(timeout)
+            await con.set(name, 'done')
+            print('---> sleep done', name, timeout)
+        except asyncio.CancelledError as e:
+            print('coro cancelled', name)
+            raise e
+
+    print('--- do demo')
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
+    config = AppSettings(logging_style=fastapi_plugins.LoggingStyle.logorjson)
+
+    await fastapi_plugins.log_plugin.init_app(app, config, name=__name__)
+    await fastapi_plugins.log_plugin.init()
+    await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.redis_plugin.init()
+    await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.scheduler_plugin.init()
+
+    try:
+        num_jobs = 10
+        num_sleep = 0.25
+
+        print('- play')
+        logger = await fastapi_plugins.log_plugin()
+        c = await fastapi_plugins.redis_plugin()
+        s = await fastapi_plugins.scheduler_plugin()
+        for i in range(num_jobs):
+            await s.spawn(coro(c, str(i), i / 10))
+        logger.info('- sleep %s' % num_sleep, extra=dict(bla='bla'))
+        # print('- sleep', num_sleep)
+        await asyncio.sleep(num_sleep)
+        logger.info('- check')
+        # print('- check')
+        for i in range(num_jobs):
+            logger.info('%s == %s' % (i, await c.get(str(i))))
+            # print(i, '==', await c.get(str(i)))
+    finally:
+        print('- terminate')
+        await fastapi_plugins.scheduler_plugin.terminate()
+        await fastapi_plugins.redis_plugin.terminate()
+        await fastapi_plugins.log_plugin.terminate()
+        print('---demo done')
+
+
+async def test_demo_json_log():
+    async def coro(con, name, timeout):
+        try:
+            await con.set(name, '...')
+            print('> sleep', name, timeout)
+            await asyncio.sleep(timeout)
+            await con.set(name, 'done')
+            print('---> sleep done', name, timeout)
+        except asyncio.CancelledError as e:
+            print('coro cancelled', name)
+            raise e
+
+    print('--- do demo')
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
+    config = AppSettings(logging_style=fastapi_plugins.LoggingStyle.logjson)
+
+    await fastapi_plugins.log_plugin.init_app(app, config, name=__name__)
+    await fastapi_plugins.log_plugin.init()
+    await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.redis_plugin.init()
+    await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.scheduler_plugin.init()
+
+    try:
+        num_jobs = 10
+        num_sleep = 0.25
+
+        print('- play')
+        logger = await fastapi_plugins.log_plugin()
+        c = await fastapi_plugins.redis_plugin()
+        s = await fastapi_plugins.scheduler_plugin()
+        for i in range(num_jobs):
+            await s.spawn(coro(c, str(i), i / 10))
+        logger.info('- sleep %s' % num_sleep, extra=dict(bla='bla'))
+        # print('- sleep', num_sleep)
+        await asyncio.sleep(num_sleep)
+        logger.info('- check')
+        # print('- check')
+        for i in range(num_jobs):
+            logger.info('%s == %s' % (i, await c.get(str(i))))
+            # print(i, '==', await c.get(str(i)))
+    finally:
+        print('- terminate')
+        await fastapi_plugins.scheduler_plugin.terminate()
+        await fastapi_plugins.redis_plugin.terminate()
+        await fastapi_plugins.log_plugin.terminate()
+        print('---demo done')
+
+
 async def test_memcached():
     print('---test memcached')
     from fastapi_plugins.memcached import MemcachedSettings
@@ -305,8 +403,25 @@ def main_demo():
 def main_demo_custom_log():
     print(os.linesep * 3)
     print('=' * 50)
+    print('= DEMO CUSTOM LOG')
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test_demo_custom_log())
+
+
+def main_demo_json_log():
+    print(os.linesep * 3)
+    print('=' * 50)
+    print('= DEMO JSON LOG')
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_demo_json_log())
+
+
+def main_demo_orjson_log():
+    print(os.linesep * 3)
+    print('=' * 50)
+    print('= DEMO ORJSON LOG')
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_demo_orjson_log())
 
 
 if __name__ == '__main__':
@@ -314,6 +429,8 @@ if __name__ == '__main__':
     main_scheduler()
     main_demo()
     main_demo_custom_log()
+    main_demo_json_log()
+    main_demo_orjson_log()
     #
     try:
         main_memcached()

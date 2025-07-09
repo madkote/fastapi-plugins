@@ -15,7 +15,7 @@ import typing
 import fastapi
 import pydantic_settings
 import starlette.requests
-from pythonjsonlogger import jsonlogger
+from pythonjsonlogger import jsonlogger, orjson
 
 from .control import ControlHealthMixin
 from .plugin import Plugin, PluginError, PluginSettings
@@ -37,23 +37,32 @@ class QueueHandler(logging.Handler):
         self.mqueue.put(self.format(record))
 
 
-class JsonFormatter(jsonlogger.JsonFormatter):
-    def add_fields(self, log_record, record, message_dict):
-        super(JsonFormatter, self).add_fields(
-            log_record,
-            record,
-            message_dict
-        )
+class _Formatter:
+    def _add_more_fields(self, log_record, record, message_dict) -> None:   # noqa
         if not log_record.get('timestamp'):
             # this doesn't use record.created, so it is slightly off
             now = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
             log_record['timestamp'] = now
+
         if log_record.get('level'):
             log_record['level'] = log_record['level'].upper()
         else:
             log_record['level'] = record.levelname
+
         if not log_record.get('name'):
             log_record['name'] = record.name
+
+
+class JsonFormatter(jsonlogger.JsonFormatter, _Formatter):
+    def add_fields(self, log_record, record, message_dict) -> None:
+        super().add_fields(log_record, record, message_dict)
+        self._add_more_fields(log_record, record, message_dict)
+
+
+class OrJsonFormatter(orjson.OrjsonFormatter, _Formatter):
+    def add_fields(self, log_record, record, message_dict) -> None:
+        super().add_fields(log_record, record, message_dict)
+        self._add_more_fields(log_record, record, message_dict)
 
 
 class LogfmtFormatter(logging.Formatter):
@@ -123,6 +132,7 @@ class LoggingError(PluginError):
 class LoggingStyle(str, enum.Enum):
     logfmt = 'logfmt'
     logjson = 'json'
+    logorjson = 'orjson'
     logtxt = 'txt'
 
 
@@ -161,6 +171,8 @@ class LoggingPlugin(Plugin, ControlHealthMixin):
             logger_klass = LoggerLogfmt
         elif config.logging_style == LoggingStyle.logjson:
             formatter = JsonFormatter()
+        elif config.logging_style == LoggingStyle.logorjson:
+            formatter = OrJsonFormatter()
         else:
             raise LoggingError(
                 'unknown logging format style %s' % config.logging_style

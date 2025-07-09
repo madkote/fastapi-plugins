@@ -13,7 +13,8 @@ For details see below.
   * any valid level provided by standard `logging` library (e.g. `10`, `20`, `30`, ...) 
 * `LOGGING_STYLE` - style/format of log records
   * `txt` - default `logging` format
-  * `json` - JSON format
+  * `json` - JSON format with standard `json`
+  * `orjson` - JSON format with `orjson`
   * `logfmt` - `Logfmt` format (key, value)
 * `LOGGING_HANDLER` - Handler type for log entries.
   * `stdout` - Output log entries to `sys.stdout`.
