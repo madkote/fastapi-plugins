@@ -72,7 +72,7 @@ class LogfmtFormatter(logging.Formatter):
         outarr = []
         for k, v in extra.items():
             if v is None:
-                outarr.append('%s=' % k)
+                outarr.append(f'{k}=')
                 continue
             if isinstance(v, bool):
                 v = 'true' if v else 'false'
@@ -82,15 +82,15 @@ class LogfmtFormatter(logging.Formatter):
                 if isinstance(v, (dict, object)):
                     v = str(v)
                 v = '"%s"' % v.replace('"', '\\"')
-            outarr.append('%s=%s' % (k, v))
+            outarr.append(f'{k}={v}')
         return ' '.join(outarr)
 
     def format(self, record):
         return ' '.join(
             [
-                'at=%s' % record.levelname,
+                f'at={record.levelname}',
                 'msg="%s"' % record.getMessage().replace('"', '\\"'),
-                'process=%s' % record.processName,
+                f'process={record.processName}',
                 self.format_line(getattr(record, 'context', {})),
             ]
         ).strip()

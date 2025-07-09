@@ -67,13 +67,9 @@ class RedisSettings(PluginSettings):
         if self.redis_url:
             return self.redis_url
         elif self.redis_db:
-            return 'redis://%s:%s/%s' % (
-                self.redis_host,
-                self.redis_port,
-                self.redis_db
-            )
+            return f'redis://{self.redis_host}:{self.redis_port}/{self.redis_db}'
         else:
-            return 'redis://%s:%s' % (self.redis_host, self.redis_port)
+            return f'redis://{self.redis_host}:{self.redis_port}'
 
     # TODO: xxx the customer validator does not work
     def get_sentinels(self) -> typing.List:
@@ -88,11 +84,7 @@ class RedisSettings(PluginSettings):
                     if _conn.strip()
                 ]
             except Exception as e:
-                raise RuntimeError(
-                    'bad sentinels string :: %s :: %s :: %s' % (
-                        type(e), str(e), self.redis_sentinels
-                    )
-                )
+                raise RuntimeError(f'bad sentinels string :: {type(e)} :: {str(e)} :: {self.redis_sentinels}')  # noqa
         else:
             return []
 
@@ -101,7 +93,7 @@ class RedisPlugin(Plugin, ControlHealthMixin):
     DEFAULT_CONFIG_CLASS = RedisSettings
 
     def _on_init(self) -> None:
-        self.redis: typing.Union[aioredis.Redis, aioredis_sentinel.Sentinel] = None # noqa E501
+        self.redis: typing.Union[aioredis.Redis, aioredis_sentinel.Sentinel] = None
 
     async def _on_call(self) -> typing.Any:
         if self.redis is None:
@@ -114,9 +106,7 @@ class RedisPlugin(Plugin, ControlHealthMixin):
         elif self.config.redis_type == RedisType.fakeredis:
             conn = self.redis
         else:
-            raise NotImplementedError(
-                'Redis type %s is not implemented' % self.config.redis_type
-            )
+            raise NotImplementedError(f'Redis type {self.config.redis_type} is not implemented')    # noqa
         #
         conn.TTL = self.config.redis_ttl
         return conn
@@ -163,9 +153,7 @@ class RedisPlugin(Plugin, ControlHealthMixin):
             address = self.config.get_sentinels()
             method = aioredis_sentinel.Sentinel
         else:
-            raise NotImplementedError(
-                'Redis type %s is not implemented' % self.config.redis_type
-            )
+            raise NotImplementedError(f'Redis type {self.config.redis_type} is not implemented')    # noqa
         #
         if not address:
             raise ValueError('Redis address is empty')
@@ -202,11 +190,9 @@ class RedisPlugin(Plugin, ControlHealthMixin):
         elif self.config.redis_type == RedisType.fakeredis:
             return await self.redis.ping()
         elif self.config.redis_type == RedisType.sentinel:
-            return await self.redis.master_for(self.config.redis_sentinel_master).ping()    # noqa E501
+            return await self.redis.master_for(self.config.redis_sentinel_master).ping()
         else:
-            raise NotImplementedError(
-                'Redis type %s.ping() is not implemented' % self.config.redis_type          # noqa E501
-            )
+            raise NotImplementedError(f'Redis type {self.config.redis_type}.ping() is not implemented') # noqa
 
 
 redis_plugin = RedisPlugin()

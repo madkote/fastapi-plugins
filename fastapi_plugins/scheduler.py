@@ -23,7 +23,7 @@ __all__ = [
 ]
 __author__ = 'madkote <madkote(at)bluewin.ch>'
 __version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 2021, madkote'
+__copyright__ = 'Copyright 2025, madkote'
 
 
 class SchedulerError(PluginError):
@@ -139,4 +139,4 @@ async def depends_scheduler(
     return await conn.app.state.AIOJOBS_SCHEDULER()
 
 
-TSchedulerPlugin = Annotated[aiojobs.Scheduler, fastapi.Depends(depends_scheduler)] # noqa E501
+TSchedulerPlugin = Annotated[aiojobs.Scheduler, fastapi.Depends(depends_scheduler)]

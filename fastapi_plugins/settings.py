@@ -34,7 +34,7 @@ __all__ = [
 ]
 __author__ = 'madkote <madkote(at)bluewin.ch>'
 __version__ = '.'.join(str(x) for x in VERSION)
-__copyright__ = 'Copyright 2021, madkote RES'
+__copyright__ = 'Copyright 2025, madkote RES'
 
 DEFAULT_CONFIG_ENVVAR: str = 'CONFIG_NAME'
 DEFAULT_CONFIG_NAME: str = 'docker'
@@ -65,9 +65,9 @@ class ConfigManager(object):
 
     def get_config(
             self,
-            config_or_name: typing.Union[str, pydantic_settings.BaseSettings]=None, # noqa E501
-            config_name_default: str=DEFAULT_CONFIG_NAME,
-            config_name_envvar: str=DEFAULT_CONFIG_ENVVAR
+            config_or_name: typing.Union[str, pydantic_settings.BaseSettings] = None,
+            config_name_default: str = DEFAULT_CONFIG_NAME,
+            config_name_envvar: str = DEFAULT_CONFIG_ENVVAR
     ) -> pydantic_settings.BaseSettings:
         if isinstance(config_or_name, pydantic_settings.BaseSettings):
             return config_or_name
@@ -80,7 +80,7 @@ class ConfigManager(object):
             default=config_or_name
         )
         if config_or_name not in self._settings_map:
-            raise ConfigError('Unknown configuration "%s"' % config_or_name)
+            raise ConfigError(f'Unknown configuration "{config_or_name}"')
         return self._settings_map[config_or_name]()
 
 
@@ -190,4 +190,4 @@ async def depends_config(
     return await conn.app.state.PLUGIN_CONFIG()
 
 
-TConfigPlugin = Annotated[pydantic_settings.BaseSettings, fastapi.Depends(depends_config)]   # noqa E501
+TConfigPlugin = Annotated[pydantic_settings.BaseSettings, fastapi.Depends(depends_config)]
