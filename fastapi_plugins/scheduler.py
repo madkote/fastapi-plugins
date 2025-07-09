@@ -11,11 +11,8 @@ import fastapi
 import pydantic_settings
 import starlette.requests
 
-from .plugin import PluginError
-from .plugin import PluginSettings
-from .plugin import Plugin
-
 from .control import ControlHealthMixin
+from .plugin import Plugin, PluginError, PluginSettings
 from .utils import Annotated
 from .version import VERSION
 

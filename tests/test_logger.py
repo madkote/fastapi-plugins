@@ -12,7 +12,6 @@ import pytest
 
 import fastapi_plugins
 
-
 pytestmark = [pytest.mark.anyio, pytest.mark.logger]
 
 

@@ -11,8 +11,7 @@ import fastapi
 import pydantic_settings
 import starlette.config
 
-from .plugin import PluginError
-from .plugin import Plugin
+from .plugin import Plugin, PluginError
 from .utils import Annotated
 from .version import VERSION
 

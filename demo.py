@@ -72,8 +72,8 @@ async def test_scheduler():
         s = await fastapi_plugins.scheduler_plugin()
         # import random
         for i in range(10):
-            await s.spawn(coro(str(i), i/10))
-            # await s.spawn(coro(str(i), i/10 + random.choice([0.1, 0.2, 0.3, 0.4, 0.5])))  # nosec B311
+            await s.spawn(coro(str(i), i / 10))
+            # await s.spawn(coro(str(i), i/10 + random.choice([0.1, 0.2, 0.3, 0.4, 0.5])))  # nosec B311 # noqa
         # print('----------')
         print('- sleep', 5)
         await asyncio.sleep(5.0)
@@ -148,18 +148,18 @@ async def test_demo():
         num_sleep = 0.25
 
         print('- play')
-        l = await fastapi_plugins.log_plugin()
+        logger = await fastapi_plugins.log_plugin()
         c = await fastapi_plugins.redis_plugin()
         s = await fastapi_plugins.scheduler_plugin()
         for i in range(num_jobs):
-            await s.spawn(coro(c, str(i), i/10))
-        l.info('- sleep %s' % num_sleep)
+            await s.spawn(coro(c, str(i), i / 10))
+        logger.info('- sleep %s' % num_sleep)
         # print('- sleep', num_sleep)
         await asyncio.sleep(num_sleep)
-        l.info('- check')
+        logger.info('- check')
         # print('- check')
         for i in range(num_jobs):
-            l.info('%s == %s' % (i, await c.get(str(i))))
+            logger.info('%s == %s' % (i, await c.get(str(i))))
             # print(i, '==', await c.get(str(i)))
     finally:
         print('- terminate')
@@ -186,9 +186,9 @@ async def test_demo_custom_log():
 
     class CustomLoggingPlugin(fastapi_plugins.LoggingPlugin):
         def _create_logger(
-            self, 
-            name:str, 
-            config:pydantic_settings.BaseSettings=None
+            self,
+            name: str,
+            config: pydantic_settings.BaseSettings = None
         ) -> logging.Logger:
             import sys
             handler = logging.StreamHandler(stream=sys.stderr)
@@ -227,18 +227,18 @@ async def test_demo_custom_log():
         num_sleep = 0.25
 
         print('- play')
-        l = await mylog_plugin()
+        logger = await mylog_plugin()
         c = await fastapi_plugins.redis_plugin()
         s = await fastapi_plugins.scheduler_plugin()
         for i in range(num_jobs):
-            await s.spawn(coro(c, str(i), i/10))
-        l.info('- sleep %s' % num_sleep)
+            await s.spawn(coro(c, str(i), i / 10))
+        logger.info('- sleep %s' % num_sleep)
         # print('- sleep', num_sleep)
         await asyncio.sleep(num_sleep)
-        l.info('- check')
+        logger.info('- check')
         # print('- check')
         for i in range(num_jobs):
-            l.info('%s == %s' % (i, await c.get(str(i))))
+            logger.info('%s == %s' % (i, await c.get(str(i))))
             # print(i, '==', await c.get(str(i)))
     finally:
         print('- terminate')
@@ -261,7 +261,7 @@ async def test_memcached():
     config = MoreSettings()
     await memcached_plugin.init_app(app=app, config=config)
     await memcached_plugin.init()
-    
+
     c = await memcached_plugin()
     print(await c.get(b'x'))
     print(await c.set(b'x', str(time.time()).encode()))
@@ -301,6 +301,7 @@ def main_demo():
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test_demo())
 
+
 def main_demo_custom_log():
     print(os.linesep * 3)
     print('=' * 50)
@@ -318,4 +319,3 @@ if __name__ == '__main__':
         main_memcached()
     except Exception as e:
         print(type(e), e)
-

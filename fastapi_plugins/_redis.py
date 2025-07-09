@@ -14,11 +14,8 @@ import redis.asyncio.sentinel as aioredis_sentinel
 import starlette.requests
 import tenacity
 
-from .plugin import PluginError
-from .plugin import PluginSettings
-from .plugin import Plugin
-
 from .control import ControlHealthMixin
+from .plugin import Plugin, PluginError, PluginSettings
 from .utils import Annotated
 
 __all__ = [

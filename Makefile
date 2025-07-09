@@ -49,7 +49,7 @@ clean: clean-build clean-docker clean-pyc clean-pycache
 
 install: clean
 	@echo $@
-	pip install --no-cache-dir -U pip setuptools twine wheel
+	pip install --no-cache-dir -U build pip setuptools twine wheel
 	pip install --no-cache-dir -U --force-reinstall -r requirements.txt
 	rm -rf build *.egg-info
 	pip uninstall ${PYPACKAGE} -y || true
@@ -62,20 +62,15 @@ demo-app: clean
 	@echo $@
 	uvicorn scripts.demo_app:app
 
-flake: clean
+lint: clean
 	@echo $@
-	flake8 --statistics --ignore E252 ${PYPACKAGE} tests scripts setup.py
+	pdm run lint
 
-bandit: clean
+test-pdm:
 	@echo $@
-	bandit -r ${PYPACKAGE}/ scripts/ demo.py setup.py
-	bandit -s B101 -r tests/
+	pdm run test
 
-test-unit-pytest:
-	@echo $@
-	python -m pytest -v -x tests/ --cov=${PYPACKAGE}
-
-test-unit: clean flake bandit docker-up-test test-unit-pytest docker-down-test
+test-unit: clean docker-up-test test-pdm docker-down-test
 	@echo $@
 
 test-toxtox:
@@ -88,13 +83,17 @@ test-tox: clean docker-up-test test-toxtox docker-down-test
 test: test-unit
 	@echo $@
 
-test-all: clean flake bandit docker-up-test test-unit-pytest test-toxtox docker-down-test
+test-all: clean docker-up-test test-pdm test-toxtox docker-down-test
 	@echo $@
 
-pypi-build: clean test-all
-	@echo $@
-	python setup.py sdist bdist_wheel
+pypi-build-twine:
 	twine check dist/*
+
+pypi-build-wheel:
+	pdm run build
+
+pypi-build: clean test-all pypi-build-wheel pypi-build-twine
+	@echo $@
 
 pypi-upload-test:
 	@echo $@

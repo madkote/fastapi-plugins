@@ -15,7 +15,6 @@ import starlette.testclient
 
 import fastapi_plugins
 
-
 pytestmark = [pytest.mark.anyio, pytest.mark.scheduler]
 
 
