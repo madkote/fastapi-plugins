@@ -7,6 +7,7 @@ from __future__ import absolute_import
 import datetime
 import enum
 import logging
+import logging.handlers
 import numbers
 import queue
 import sys
@@ -15,14 +16,10 @@ import typing
 import fastapi
 import pydantic_settings
 import starlette.requests
-
-from pythonjsonlogger import jsonlogger
-
-from .plugin import PluginError
-from .plugin import PluginSettings
-from .plugin import Plugin
+from pythonjsonlogger import jsonlogger, orjson
 
 from .control import ControlHealthMixin
+from .plugin import Plugin, PluginError, PluginSettings
 from .utils import Annotated
 
 __all__ = [
@@ -41,23 +38,32 @@ class QueueHandler(logging.Handler):
         self.mqueue.put(self.format(record))
 
 
-class JsonFormatter(jsonlogger.JsonFormatter):
-    def add_fields(self, log_record, record, message_dict):
-        super(JsonFormatter, self).add_fields(
-            log_record,
-            record,
-            message_dict
-        )
+class _Formatter:
+    def _add_more_fields(self, log_record, record, message_dict) -> None:   # noqa
         if not log_record.get('timestamp'):
             # this doesn't use record.created, so it is slightly off
             now = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
             log_record['timestamp'] = now
+
         if log_record.get('level'):
             log_record['level'] = log_record['level'].upper()
         else:
             log_record['level'] = record.levelname
+
         if not log_record.get('name'):
             log_record['name'] = record.name
+
+
+class JsonFormatter(jsonlogger.JsonFormatter, _Formatter):
+    def add_fields(self, log_record, record, message_dict) -> None:
+        super().add_fields(log_record, record, message_dict)
+        self._add_more_fields(log_record, record, message_dict)
+
+
+class OrJsonFormatter(orjson.OrjsonFormatter, _Formatter):
+    def add_fields(self, log_record, record, message_dict) -> None:
+        super().add_fields(log_record, record, message_dict)
+        self._add_more_fields(log_record, record, message_dict)
 
 
 class LogfmtFormatter(logging.Formatter):
@@ -66,7 +72,7 @@ class LogfmtFormatter(logging.Formatter):
         outarr = []
         for k, v in extra.items():
             if v is None:
-                outarr.append('%s=' % k)
+                outarr.append(f'{k}=')
                 continue
             if isinstance(v, bool):
                 v = 'true' if v else 'false'
@@ -76,15 +82,15 @@ class LogfmtFormatter(logging.Formatter):
                 if isinstance(v, (dict, object)):
                     v = str(v)
                 v = '"%s"' % v.replace('"', '\\"')
-            outarr.append('%s=%s' % (k, v))
+            outarr.append(f'{k}={v}')
         return ' '.join(outarr)
 
     def format(self, record):
         return ' '.join(
             [
-                'at=%s' % record.levelname,
+                f'at={record.levelname}',
                 'msg="%s"' % record.getMessage().replace('"', '\\"'),
-                'process=%s' % record.processName,
+                f'process={record.processName}',
                 self.format_line(getattr(record, 'context', {})),
             ]
         ).strip()
@@ -127,6 +133,7 @@ class LoggingError(PluginError):
 class LoggingStyle(str, enum.Enum):
     logfmt = 'logfmt'
     logjson = 'json'
+    logorjson = 'orjson'
     logtxt = 'txt'
 
 
@@ -141,6 +148,8 @@ class LoggingSettings(PluginSettings):
     logging_style: LoggingStyle = LoggingStyle.logtxt
     logging_handler: LoggingHandlerType = LoggingHandlerType.logstdout
     logging_fmt: typing.Optional[str] = None
+    logging_memory_capacity: int = 0    # 1024*100
+    logging_memory_flush_level: int = logging.ERROR
 
 
 class LoggingPlugin(Plugin, ControlHealthMixin):
@@ -151,38 +160,64 @@ class LoggingPlugin(Plugin, ControlHealthMixin):
             name: str,
             config: pydantic_settings.BaseSettings=None
     ) -> logging.Logger:
-        logger_klass = None
+        handler = QueueHandler()
+        formatter = logging.Formatter(fmt=config.logging_fmt)
+        klass = None
+
         #
-        if config.logging_handler == LoggingHandlerType.logstdout:
-            handler = logging.StreamHandler(stream=sys.stdout)
-        elif config.logging_handler == LoggingHandlerType.loglist:
-            handler = QueueHandler()
-        #
+        # style
         if config.logging_style == LoggingStyle.logtxt:
-            formatter = logging.Formatter(fmt=config.logging_fmt)
+            pass
         elif config.logging_style == LoggingStyle.logfmt:
             formatter = LogfmtFormatter()
-            logger_klass = LoggerLogfmt
+            klass = LoggerLogfmt
         elif config.logging_style == LoggingStyle.logjson:
             formatter = JsonFormatter()
+        elif config.logging_style == LoggingStyle.logorjson:
+            formatter = OrJsonFormatter()
         else:
-            raise LoggingError(
-                'unknown logging format style %s' % config.logging_style
+            raise LoggingError(f'unknown logging format style {config.logging_style}')
+
+        #
+        # handler type
+        if config.logging_handler == LoggingHandlerType.loglist:
+            pass
+        elif config.logging_handler == LoggingHandlerType.logstdout:
+            handler = logging.StreamHandler(stream=sys.stdout)
+        else:
+            raise LoggingError(f'unknown logging handler {config.logging_handler}')
+
+        #
+        # setup handler
+        handler.setLevel(config.logging_level)
+        handler.setFormatter(formatter)
+
+        #
+        # memory
+        if config.logging_memory_capacity > 0:
+            handler = logging.handlers.MemoryHandler(
+                capacity=config.logging_memory_capacity,
+                flushLevel=config.logging_memory_flush_level,
+                target=handler
             )
-        if logger_klass is not None:
+
+        #
+        # default logging class
+        if klass is not None:
             _original_logger_klass = logging.getLoggerClass()
             try:
-                logging.setLoggerClass(logger_klass)
+                logging.setLoggerClass(klass)
                 logger = logging.getLogger(name)
             finally:
                 logging.setLoggerClass(_original_logger_klass)
         else:
             logger = logging.getLogger(name)
+
         #
+        # setup logger
         logger.setLevel(config.logging_level)
-        handler.setLevel(config.logging_level)
-        handler.setFormatter(formatter)
         logger.addHandler(handler)
+
         return logger
 
     def _on_init(self) -> None:

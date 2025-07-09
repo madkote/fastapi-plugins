@@ -1,0 +1,117 @@
+[project]
+name = "fastapi-plugins"
+description = "Plugins for FastAPI framework"
+authors = [{name = "madkote", email = "madkote@bluewin.ch"}]
+license= {text = "Copyright 2025, madkote, MIT"}
+keywords = [
+  "fastapi", "plugin", "asyncio", "async", "redis", "aioredis", "json", "aiojobs",
+  "scheduler", "starlette", "aiomcache", "memcached"
+]
+classifiers = [
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+  "Topic :: Utilities",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: System :: Logging",
+  "Framework :: AsyncIO",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Developers"
+]
+dynamic = ["version", "readme"]
+requires-python = ">=3.6, <4"
+dependencies = [
+  "fastapi>=0.100,<1",
+  "pydantic>=2,<3",
+  "pydantic-settings>=2,<3",
+
+  "aiojobs>=1,<2",
+  "aiomcache>=0.7.0",
+  "orjson>=3,<4",
+  "python-json-logger>=2",
+  "redis[hiredis]>=4.3.0,<5",
+  "tenacity>=8"
+
+  # "mylib @ file:../mylib/",
+  # "mylib==1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "aiofiles",
+  "aioresponses",
+  "bandit",
+  "build",
+  "docker-compose",
+  "fakeredis[lua]>=1.8.0",
+  "fastapi[all]",
+  "flake8",
+  "Flake8-pyproject",
+  "isort",
+  "pdm",
+  "pytest",
+  "pytest-asyncio>=0.1,<1.0",
+  "pytest-cov",
+  "PyYAML>=5.3.1,!=5.4.0,!=5.4.1,<6",
+  "setuptools",
+  "tox",
+  "twine",
+  "wheel"
+]
+
+[project.urls]
+homepage = "https://github.com/madkote/fastapi-plugins"
+repository = "https://github.com/madkote/fastapi-plugins"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+version = {attr = "fastapi_plugins.version.__version__"}
+readme = {file = "README.md", content-type = "text/markdown"}
+
+[tool.setuptools.packages.find]
+include = ["fastapi_plugins*"]
+exclude = ["_docker", "build", "docs", "scripts", "tests", "venv"]
+
+[tool.bandit]
+targets = ["fastapi_plugins"]
+recursive = true
+
+[tool.flake8]
+ignore = ["E252"]
+exclude = [".git", "_docker", "build", "docs", "venv"]
+max-line-length = 90
+count = true
+statistics = true
+
+[tool.isort]
+ensure_newline_before_comments = true
+force_grid_wrap = 0
+include_trailing_comma = false
+line_length = 90
+multi_line_output = 5
+use_parentheses = true
+# sections = ['FUTURE', 'STDLIB', 'THIRDPARTY', 'MYLIB', 'FIRSTPARTY', 'LOCALFOLDER']
+# known_mylib = ['mylib']
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+addopts = "-vvv --cov=fastapi_plugins --cov-report term-missing --cache-clear"
+log_cli = false
+log_cli_level = "info"
+testpaths = ["tests"]
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.scripts]
+bandit = "bandit fastapi_plugins scripts demo.py -r -c pyproject.toml"
+isort = "isort --om fastapi_plugins scripts tests"
+lint = { composite = ["isort", "bandit", "flake8"]}
+test-unit = "pytest"
+test = { composite = ["lint", "test-unit"], env_file = "ENV"}
+build = "python -m build -w"

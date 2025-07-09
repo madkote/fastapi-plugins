@@ -10,9 +10,7 @@ import fastapi
 import pytest
 
 import fastapi_plugins
-
 from fastapi_plugins.settings import ConfigManager
-
 
 pytestmark = [pytest.mark.anyio, pytest.mark.settings]
 

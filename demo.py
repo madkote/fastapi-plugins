@@ -72,8 +72,8 @@ async def test_scheduler():
         s = await fastapi_plugins.scheduler_plugin()
         # import random
         for i in range(10):
-            await s.spawn(coro(str(i), i/10))
-            # await s.spawn(coro(str(i), i/10 + random.choice([0.1, 0.2, 0.3, 0.4, 0.5])))  # nosec B311
+            await s.spawn(coro(str(i), i / 10))
+            # await s.spawn(coro(str(i), i/10 + random.choice([0.1, 0.2, 0.3, 0.4, 0.5])))  # nosec B311 # noqa
         # print('----------')
         print('- sleep', 5)
         await asyncio.sleep(5.0)
@@ -148,18 +148,18 @@ async def test_demo():
         num_sleep = 0.25
 
         print('- play')
-        l = await fastapi_plugins.log_plugin()
+        logger = await fastapi_plugins.log_plugin()
         c = await fastapi_plugins.redis_plugin()
         s = await fastapi_plugins.scheduler_plugin()
         for i in range(num_jobs):
-            await s.spawn(coro(c, str(i), i/10))
-        l.info('- sleep %s' % num_sleep)
+            await s.spawn(coro(c, str(i), i / 10))
+        logger.info('- sleep %s' % num_sleep)
         # print('- sleep', num_sleep)
         await asyncio.sleep(num_sleep)
-        l.info('- check')
+        logger.info('- check')
         # print('- check')
         for i in range(num_jobs):
-            l.info('%s == %s' % (i, await c.get(str(i))))
+            logger.info('%s == %s' % (i, await c.get(str(i))))
             # print(i, '==', await c.get(str(i)))
     finally:
         print('- terminate')
@@ -186,9 +186,9 @@ async def test_demo_custom_log():
 
     class CustomLoggingPlugin(fastapi_plugins.LoggingPlugin):
         def _create_logger(
-            self, 
-            name:str, 
-            config:pydantic_settings.BaseSettings=None
+            self,
+            name: str,
+            config: pydantic_settings.BaseSettings = None
         ) -> logging.Logger:
             import sys
             handler = logging.StreamHandler(stream=sys.stderr)
@@ -227,24 +227,122 @@ async def test_demo_custom_log():
         num_sleep = 0.25
 
         print('- play')
-        l = await mylog_plugin()
+        logger = await mylog_plugin()
         c = await fastapi_plugins.redis_plugin()
         s = await fastapi_plugins.scheduler_plugin()
         for i in range(num_jobs):
-            await s.spawn(coro(c, str(i), i/10))
-        l.info('- sleep %s' % num_sleep)
+            await s.spawn(coro(c, str(i), i / 10))
+        logger.info('- sleep %s' % num_sleep)
         # print('- sleep', num_sleep)
         await asyncio.sleep(num_sleep)
-        l.info('- check')
+        logger.info('- check')
         # print('- check')
         for i in range(num_jobs):
-            l.info('%s == %s' % (i, await c.get(str(i))))
+            logger.info('%s == %s' % (i, await c.get(str(i))))
             # print(i, '==', await c.get(str(i)))
     finally:
         print('- terminate')
         await fastapi_plugins.scheduler_plugin.terminate()
         await fastapi_plugins.redis_plugin.terminate()
         await mylog_plugin.terminate()
+        print('---demo done')
+
+
+async def test_demo_orjson_log():
+    async def coro(con, name, timeout):
+        try:
+            await con.set(name, '...')
+            print('> sleep', name, timeout)
+            await asyncio.sleep(timeout)
+            await con.set(name, 'done')
+            print('---> sleep done', name, timeout)
+        except asyncio.CancelledError as e:
+            print('coro cancelled', name)
+            raise e
+
+    print('--- do demo')
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
+    config = AppSettings(logging_style=fastapi_plugins.LoggingStyle.logorjson)
+
+    await fastapi_plugins.log_plugin.init_app(app, config, name=__name__)
+    await fastapi_plugins.log_plugin.init()
+    await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.redis_plugin.init()
+    await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.scheduler_plugin.init()
+
+    try:
+        num_jobs = 10
+        num_sleep = 0.25
+
+        print('- play')
+        logger = await fastapi_plugins.log_plugin()
+        c = await fastapi_plugins.redis_plugin()
+        s = await fastapi_plugins.scheduler_plugin()
+        for i in range(num_jobs):
+            await s.spawn(coro(c, str(i), i / 10))
+        logger.info('- sleep %s' % num_sleep, extra=dict(bla='bla'))
+        # print('- sleep', num_sleep)
+        await asyncio.sleep(num_sleep)
+        logger.info('- check')
+        # print('- check')
+        for i in range(num_jobs):
+            logger.info('%s == %s' % (i, await c.get(str(i))))
+            # print(i, '==', await c.get(str(i)))
+    finally:
+        print('- terminate')
+        await fastapi_plugins.scheduler_plugin.terminate()
+        await fastapi_plugins.redis_plugin.terminate()
+        await fastapi_plugins.log_plugin.terminate()
+        print('---demo done')
+
+
+async def test_demo_json_log():
+    async def coro(con, name, timeout):
+        try:
+            await con.set(name, '...')
+            print('> sleep', name, timeout)
+            await asyncio.sleep(timeout)
+            await con.set(name, 'done')
+            print('---> sleep done', name, timeout)
+        except asyncio.CancelledError as e:
+            print('coro cancelled', name)
+            raise e
+
+    print('--- do demo')
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
+    config = AppSettings(logging_style=fastapi_plugins.LoggingStyle.logjson)
+
+    await fastapi_plugins.log_plugin.init_app(app, config, name=__name__)
+    await fastapi_plugins.log_plugin.init()
+    await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.redis_plugin.init()
+    await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.scheduler_plugin.init()
+
+    try:
+        num_jobs = 10
+        num_sleep = 0.25
+
+        print('- play')
+        logger = await fastapi_plugins.log_plugin()
+        c = await fastapi_plugins.redis_plugin()
+        s = await fastapi_plugins.scheduler_plugin()
+        for i in range(num_jobs):
+            await s.spawn(coro(c, str(i), i / 10))
+        logger.info('- sleep %s' % num_sleep, extra=dict(bla='bla'))
+        # print('- sleep', num_sleep)
+        await asyncio.sleep(num_sleep)
+        logger.info('- check')
+        # print('- check')
+        for i in range(num_jobs):
+            logger.info('%s == %s' % (i, await c.get(str(i))))
+            # print(i, '==', await c.get(str(i)))
+    finally:
+        print('- terminate')
+        await fastapi_plugins.scheduler_plugin.terminate()
+        await fastapi_plugins.redis_plugin.terminate()
+        await fastapi_plugins.log_plugin.terminate()
         print('---demo done')
 
 
@@ -261,13 +359,58 @@ async def test_memcached():
     config = MoreSettings()
     await memcached_plugin.init_app(app=app, config=config)
     await memcached_plugin.init()
-    
+
     c = await memcached_plugin()
     print(await c.get(b'x'))
     print(await c.set(b'x', str(time.time()).encode()))
     print(await c.get(b'x'))
     await memcached_plugin.terminate()
     print('---test memcached done')
+
+
+async def test_demo_buffered_log():
+    async def coro(con, name, timeout):
+        try:
+            await con.set(name, '...')
+            print('> sleep', name, timeout)
+            await asyncio.sleep(timeout)
+            await con.set(name, 'done')
+            print('---> sleep done', name, timeout)
+        except asyncio.CancelledError as e:
+            print('coro cancelled', name)
+            raise e
+
+    print('--- do demo')
+    app = fastapi_plugins.register_middleware(fastapi.FastAPI())
+    config = AppSettings(
+        logging_style=fastapi_plugins.LoggingStyle.logjson,
+        logging_memory_capacity=25
+    )
+
+    await fastapi_plugins.log_plugin.init_app(app, config, name=__name__)
+    await fastapi_plugins.log_plugin.init()
+    await fastapi_plugins.redis_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.redis_plugin.init()
+    await fastapi_plugins.scheduler_plugin.init_app(app=app, config=config)
+    await fastapi_plugins.scheduler_plugin.init()
+
+    try:
+        num_jobs = 10
+        num_tasks = 30
+
+        logger = await fastapi_plugins.log_plugin()
+        for c_job in range(num_jobs):
+            print(f'----- JOB {c_job}')
+            for c_task in range(num_tasks):
+                logger.info(f'job={c_job} task={c_task} hello world')
+                await asyncio.sleep(0.1)
+            await asyncio.sleep(0.5)
+    finally:
+        print('- terminate')
+        await fastapi_plugins.scheduler_plugin.terminate()
+        await fastapi_plugins.redis_plugin.terminate()
+        await fastapi_plugins.log_plugin.terminate()
+        print('---demo done')
 
 
 # =============================================================================
@@ -301,11 +444,37 @@ def main_demo():
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test_demo())
 
+
 def main_demo_custom_log():
     print(os.linesep * 3)
     print('=' * 50)
+    print('= DEMO CUSTOM LOG')
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test_demo_custom_log())
+
+
+def main_demo_json_log():
+    print(os.linesep * 3)
+    print('=' * 50)
+    print('= DEMO JSON LOG')
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_demo_json_log())
+
+
+def main_demo_orjson_log():
+    print(os.linesep * 3)
+    print('=' * 50)
+    print('= DEMO ORJSON LOG')
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_demo_orjson_log())
+
+
+def main_demo_buffered_log():
+    print(os.linesep * 3)
+    print('=' * 50)
+    print('= DEMO BUFFERED LOG')
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_demo_buffered_log())
 
 
 if __name__ == '__main__':
@@ -313,9 +482,11 @@ if __name__ == '__main__':
     main_scheduler()
     main_demo()
     main_demo_custom_log()
-    #
+    main_demo_json_log()
+    main_demo_orjson_log()
+    main_demo_buffered_log()
+
     try:
         main_memcached()
     except Exception as e:
         print(type(e), e)
-

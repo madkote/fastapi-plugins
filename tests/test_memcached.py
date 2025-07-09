@@ -7,11 +7,10 @@ from __future__ import absolute_import
 import uuid
 
 import fastapi
-import fastapi_plugins
 import pytest
 
-from fastapi_plugins.memcached import memcached_plugin, MemcachedSettings
-
+import fastapi_plugins
+from fastapi_plugins.memcached import MemcachedSettings, memcached_plugin
 
 pytestmark = [pytest.mark.anyio, pytest.mark.memcached]
 

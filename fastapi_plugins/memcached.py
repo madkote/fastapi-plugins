@@ -16,11 +16,8 @@ import pydantic_settings
 import starlette.requests
 import tenacity
 
-from .plugin import PluginError
-from .plugin import PluginSettings
-from .plugin import Plugin
-
 from .control import ControlHealthMixin
+from .plugin import Plugin, PluginError, PluginSettings
 from .utils import Annotated
 
 __all__ = [
@@ -97,9 +94,7 @@ class MemcachedPlugin(Plugin, ControlHealthMixin):
         try:
             await _init_memcached()
         except Exception as e:
-            raise MemcachedError(
-                'Memcached initialization failed :: %s :: %s' % (type(e), e)
-            )
+            raise MemcachedError(f'Memcached initialization failed :: {type(e)} :: {str(e)}')   # noqa
 
     async def terminate(self):
         self.config = None
@@ -125,4 +120,4 @@ async def depends_memcached(
     return await conn.app.state.MEMCACHED()
 
 
-TMemcachedPlugin = Annotated[MemcachedClient, fastapi.Depends(depends_memcached)]   # noqa E501
+TMemcachedPlugin = Annotated[MemcachedClient, fastapi.Depends(depends_memcached)]

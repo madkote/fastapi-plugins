@@ -12,7 +12,6 @@ import pytest
 import fastapi_plugins
 from fastapi_plugins._redis import RedisType
 
-
 pytestmark = [pytest.mark.anyio, pytest.mark.redis]
 
 

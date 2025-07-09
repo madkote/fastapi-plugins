@@ -13,11 +13,8 @@ import pytest
 import starlette.testclient
 
 import fastapi_plugins
-
 from fastapi_plugins.control import DEFAULT_CONTROL_VERSION
-from fastapi_plugins.memcached import memcached_plugin
-from fastapi_plugins.memcached import MemcachedSettings
-
+from fastapi_plugins.memcached import MemcachedSettings, memcached_plugin
 
 pytestmark = [pytest.mark.anyio, pytest.mark.control]
 

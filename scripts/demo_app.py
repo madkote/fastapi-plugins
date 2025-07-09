@@ -30,7 +30,7 @@ except ImportError:
     import fastapi_plugins
 
 from fastapi_plugins.memcached import (
-    MemcachedSettings, memcached_plugin, TMemcachedPlugin
+    MemcachedSettings, TMemcachedPlugin, memcached_plugin
 )
 
 

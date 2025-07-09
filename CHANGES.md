@@ -1,4 +1,7 @@
 # Changes
+## 0.14.0 (2025-07-10)
+- `[feature]` `orjson` logging format for more performance
+- `[feature]` `logging_memory_*` buffered logging for more performance
 ## 0.13.2 (2025-02-12)
 - `[fix]` `examples` field in `Control` schema
 ## 0.13.1 (2024-06-03)
